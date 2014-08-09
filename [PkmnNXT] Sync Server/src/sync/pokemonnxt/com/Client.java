@@ -4,6 +4,7 @@ package sync.pokemonnxt.com;
 
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,7 +26,7 @@ public class Client extends Thread implements AutoCloseable {
 
 
 	  public String IP = null;
-	  private BufferedReader  is = null;
+	  private DataInputStream  is = null;
 	  private PrintStream os = null;
 	  public Socket clientSocket = null;
 	  private final Client[] threads;
@@ -48,12 +49,37 @@ public class Client extends Thread implements AutoCloseable {
 	  public boolean isConnected(){
 		  return clientSocket.isConnected();
 	  }
+	  
+	  final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+	  public static String bytesToHex(byte[] bytes) {
+	      char[] hexChars = new char[bytes.length * 2];
+	      for ( int j = 0; j < bytes.length; j++ ) {
+	          int v = bytes[j] & 0xFF;
+	          hexChars[j * 2] = hexArray[v >>> 4];
+	          hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+	      }
+	      return new String(hexChars);
+	  }
+	  
 	  public String GetNextPacket(){
 		 try {
 			 if (shutdown == true) return "";
-			 String data = is.readLine();
-			 Logger.log_client(Logger.LOG_PROGRESS,IP, "Received Packet: " + data);
-			 if(data == null){
+			 int b = 1;
+			 boolean f = true;
+			 
+			 while (f){
+				// Logger.log_client(Logger.LOG_PROGRESS,IP, "LOGGING");
+			 while (is.available() > 0){
+				 byte data[] = new byte[is.available()];
+				 Logger.log_client(Logger.LOG_PROGRESS,IP, "RECEIVING" + is.available());
+			b= is.read(data);
+			 Logger.log_client(Logger.LOG_PROGRESS,IP, "Received : " + bytesToHex(data));
+		 }
+			// Logger.log_client(Logger.LOG_PROGRESS,IP, "EOS");
+			 //Logger.log_client(Logger.LOG_PROGRESS,IP, "Received Packet: " + data.toString());
+			 }
+			 return "";
+			/* if(data == null){
 				shutdown = true;
 				 data = "";
 			 }
@@ -63,11 +89,12 @@ public class Client extends Thread implements AutoCloseable {
 			 }
 			 lastRX = System.currentTimeMillis();
 			return data;
+			*/
 		} catch (IOException e) {
-			shutdown = true;
+			//shutdown = true;
 			return "";
 		}catch (NullPointerException npe){
-			shutdown = true;
+			//shutdown = true;
 			return "";
 		}
 		  
@@ -112,8 +139,8 @@ public class Client extends Thread implements AutoCloseable {
 	      /*
 	       * Create input and output streams for this client.
 	       */
-	      is = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
+	      //is = new DataInputStream(new InputStreamReader(clientSocket.getInputStream()));
+	      is = new DataInputStream(clientSocket.getInputStream());
 	      os = new PrintStream(clientSocket.getOutputStream());
 	      
 	      for(IPPermission IPcheck : Cache.IPPermissions){
