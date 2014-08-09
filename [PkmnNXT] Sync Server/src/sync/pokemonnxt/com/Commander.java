@@ -119,7 +119,7 @@ public void PrintPokemon(PlayerPokemon pp){
 	        os.println("Enter Master Access Password:");
 	        String password = GetNextPacket();
 	        if (shutdown== true) break;
-	        if (password.equals("74Latio$25") || password.equals(AuthCode)){
+	        if ( password.equals(AuthCode)){
 	        	break;
 	        }else{
 	        	os.println("[PASSWORD FAIL] Password format (" + password + ") not recognised. You have been logged out.");
