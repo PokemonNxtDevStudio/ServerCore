@@ -1,0 +1,8 @@
+package packets;
+
+option java_package = "com.pokemonnxt.packets";
+option java_outer_classname = "Testing";
+
+message Test {
+  required int32 test = 1;
+}
