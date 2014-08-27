@@ -16,6 +16,7 @@ public class Packet {
 
 	public static enum TYPES {
 		// Comments are from a server perspective
+		UNKNOWN(-3), // [ERR] The received packet had an unknown type
 		INVALID_CHECKSUM(-2), // [ERR] The checksum was invalid
 		UNKNOWN_ERROR(-1), // [ERR] Some other unknown error
 		SPECIAL(0), // [NOP] Like Karl in high-school. He's special. It might be useful later, but for now, just avoid it
@@ -55,18 +56,50 @@ public class Packet {
         }
 };   
 
-boolean isReceiving = false;
-boolean isComplete = false;
+public boolean isReceiving = false;
+public boolean isComplete = false;
+public boolean Valid = false;
+public String ReceivingIP;
 public Header Head;
 public TYPES Type;
+public byte Content[];
 public com.google.protobuf.GeneratedMessage Packet;
 
 	public Packet(byte header[], byte payload[], String IP) throws InvalidHeader{ // Dis one is called when a packet is RECEIVED
+		isReceiving = true;
+		isComplete = false;
 		Head = new Header(header);
-		
+		Content = payload;
+		isReceiving = false;
+		if(!CheckSum(Head.Checksum,Content,IP)){
+			Valid = false;
+			throw new InvalidHeader("BAD CHECKSUM");
+		}
+		Valid = true;
+		isComplete = true;
 	}
 	
-	public Packet(byte header[], byte payload[], String IP) throws InvalidHeader{ // Dis one is called when a packet is RECEIVED
+	public void addPayloadByte(byte B) throws InvalidPacket{
+		if (CurrentPosition >= Content.length){
+			throw new InvalidPacket("PACKET IS AT DECLARED LENGTH");
+		}
+		Content[CurrentPosition] = B;
+		CurrentPosition +=1;
+		if (CurrentPosition >= Content.length){
+			isComplete = true;
+		}
+	}
+	short CurrentPosition = 0;
+	public Packet(byte header[], String IP) throws InvalidHeader{ // Dis one is called when a packet is RECEIVED
+		isReceiving = true;
+		isComplete = false;
+		Head = new Header(header);
+		Content = new byte[Head.PacketSize];
+		Valid = true;
+	}
+	
+	
+	public Packet(byte header[], byte payload[], String IP) throws InvalidHeader{ // Dis one is called when we want to make a packet
 		Head = new Header(header);
 		
 	}
@@ -117,7 +150,12 @@ public com.google.protobuf.GeneratedMessage Packet;
 		public Header(byte header[]) throws InvalidHeader{
 			if (header.length != 16) throw new InvalidHeader("Length");
 			if (header[0] != 0x00 && header[1] != 0xFF && header[2] != 0x00) throw new InvalidHeader("Start");
-			
+			// packet received, get type
+			byte TypeByte = is.readByte();
+			byte sizeBytes[] = new byte[1];
+			sizeBytes[0] = is.readByte();
+			sizeBytes[1] = is.readByte();
+			short PacketSize = Functions.twoBytesToShort(sizeBytes[0], sizeBytes[1]);
 			
 		}
 	
@@ -139,8 +177,9 @@ public com.google.protobuf.GeneratedMessage Packet;
 		 */
 		private static final long serialVersionUID = 1316999785573476045L;
 
-		public InvalidPacket(){
-
+		public String Invalid;
+		public InvalidPacket(String invalidPart){
+			Invalid = invalidPart;
 		}
 	}
 	

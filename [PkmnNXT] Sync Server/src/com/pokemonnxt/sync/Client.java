@@ -73,24 +73,33 @@ public class Client extends Thread implements AutoCloseable {
 		  return true;
 	  }
 	  
-	  private byte[] ReceivePacket(){
+	  private Packet ReceivePacket(){
 		  Logger.log_client(Logger.LOG_PROGRESS,IP, "Waiting for packet..." );
 				byte header[] = new byte[16];
 				byte startbytes[] = new byte[2];
 				
 				// wait for packet start
-				while (startbytes[0] != 0x00 && startbytes[1] != 0xFF && startbytes[2] != 0x00){
-					startbytes[0] = is.readByte();
-					startbytes[1] = is.readByte();
+				short i = 0;
+				while (	startbytes[0] != 0x00 && startbytes[1] != 0xFF && startbytes[2] != 0x00){
+					startbytes[0] = startbytes[1];
+					startbytes[1] = startbytes[2];
 					startbytes[2] = is.readByte();
 				}
-				// packet received, get type
-				byte TypeByte = is.readByte();
-				byte sizeBytes[] = new byte[1];
-				sizeBytes[0] = is.readByte();
-				sizeBytes[1] = is.readByte();
-				short PacketSize = Functions.twoBytesToShort(sizeBytes[0], sizeBytes[1]);
-			
+				header[0] = startbytes[0];
+				header[1] = startbytes[1];
+				header[2] = startbytes[2];
+				
+			short headerSize = 3;
+			while(headerSize <= 16){
+				header[headerSize] = is.readByte();
+				headerSize +=1;
+			}
+			Packet Incoming = new Packet(header,IP);
+			while(Incoming.isComplete == false){
+				Incoming.addPayloadByte(is.readByte());
+			}
+				
+				
 				com.pokemonnxt.packets.Testing.test.parseFrom(data);
 			
 			
