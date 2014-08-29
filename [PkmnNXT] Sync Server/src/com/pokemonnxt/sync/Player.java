@@ -21,7 +21,7 @@ public class Player implements AutoCloseable{
 	
 	@Expose public String Username;
 	@Expose public int GTID;
-	@Expose public List<PlayerPokemon> Pokemon = new ArrayList<PlayerPokemon>();
+	@Expose public List<PlayerPokemon> Party = new ArrayList<PlayerPokemon>();
 	@Expose public List<Integer> Items = new ArrayList<Integer>();
 	@Expose public Location location = new Location();
 	
@@ -129,8 +129,9 @@ public class Player implements AutoCloseable{
 		 throw new PlayerNotFound();
 	}
 	}
+	
 	public void CommitToDB(){
-		for(PlayerPokemon PP : Pokemon){
+		for(PlayerPokemon PP : Party){
 			PP.CommitToDB();
 		}
 	}
@@ -185,7 +186,7 @@ public class Player implements AutoCloseable{
 	public PlayerPokemon catchNew(int lDEX, int lLevel, int lEXP, String Name, PokemonStats CurrentStats, PokemonStats BaseStats){
 		PlayerPokemon poke = new PlayerPokemon(lDEX, lLevel, lEXP, Name, CurrentStats, BaseStats, this);
 		if(poke.GPID > 0){
-		Pokemon.add(poke);
+		Party.add(poke);
 		PreparedStatement loginPlayer = null;
 		PlayerLog.LogAction(LOGTYPE.CATCH,GTID,Connection.IP,Integer.toString(poke.GPID));
 		return poke;
@@ -202,14 +203,25 @@ public class Player implements AutoCloseable{
 			return false;
 		}
 	}
-	
+	public void Move(Location l){
+		if(Connection != null){
+			Players.SendLocationUpdate(GTID, l);
+		}
+		location = l;
+	}
+	public void Teleport(Location l){
+		if(Connection != null){
+			Players.SendLocationUpdate(GTID, l);
+		}
+		location = l;
+	}
 	public void ReloadPokemon(){
-		Pokemon.clear();
+		Party.clear();
 		ResultSet PokemonResult = Main.SQL.Query("SELECT `GPID` FROM `CAUGHT_POKEMON` WHERE `GTID`='" + GTID  + "'");
 		try {
 			while(PokemonResult.next()){
 				Logger.log_player(Logger.LOG_VERB_HIGH, "Loading new pokemon from GPID: " + PokemonResult.getInt("GPID"),GTID);
-				Pokemon.add(new PlayerPokemon(PokemonResult.getInt("GPID")));
+				Party.add(new PlayerPokemon(PokemonResult.getInt("GPID")));
 			}
 		} catch (SQLException e) {
 			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
@@ -232,8 +244,8 @@ public class Player implements AutoCloseable{
 	
 	public void signOut(){
 		 Players.RemovePlayer(this);
-		 if(Pokemon != null){
-			 for(PlayerPokemon pp : Pokemon) Players.RemovePokemon(pp.GPID);
+		 if(Party != null){
+			 for(PlayerPokemon pp : Party) Players.RemovePokemon(pp.GPID);
 		 }
 		if(isLoggedIn) {
 		Logger.log_player(Logger.LOG_VERB_HIGH, "Logging out player...", GTID);

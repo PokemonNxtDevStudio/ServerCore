@@ -62,47 +62,67 @@ public boolean Valid = false;
 public String ReceivingIP;
 public Header Head;
 public TYPES Type;
-public byte Content[];
+public byte Data[];
 public com.google.protobuf.GeneratedMessage Packet;
 
-	public Packet(byte header[], byte payload[], String IP) throws InvalidHeader{ // Dis one is called when a packet is RECEIVED
+	public com.google.protobuf.GeneratedMessage getPacket() throws ParseError, InvalidHeader{
+		if(Packet != null) return Packet;
+		Interpret();
+		return Packet;
+	}
+	private void Interpret() throws ParseError, InvalidHeader{
+		if(!CheckSum(Head.Checksum,Data,ReceivingIP)){
+			Valid = false;
+			throw new InvalidHeader("BAD CHECKSUM");
+		}
+		switch(Type){
+		case LOGIN:
+			Packet = PacketInterpreter.GetLogin(Data);
+			break;
+		default:
+			Packet = null;
+			throw new ParseError("UNSUPPORTED PACKET TYPE!");
+		}
+	}
+	
+	
+	public Packet(byte header[], byte payload[], String IP) throws InvalidHeader, ParseError{ // Dis one is called when an entire packet is RECEIVED
 		isReceiving = true;
 		isComplete = false;
 		Head = new Header(header);
-		Content = payload;
+		Data = payload;
 		isReceiving = false;
-		if(!CheckSum(Head.Checksum,Content,IP)){
+		ReceivingIP = IP;
+		if(!CheckSum(Head.Checksum,Data,IP)){
 			Valid = false;
 			throw new InvalidHeader("BAD CHECKSUM");
 		}
 		Valid = true;
 		isComplete = true;
+		Interpret();
 	}
 	
-	public void addPayloadByte(byte B) throws InvalidPacket{
-		if (CurrentPosition >= Content.length){
+	public void addPayloadByte(byte B) throws InvalidPacket, ParseError, InvalidHeader{
+		if (CurrentPosition >= Data.length){
 			throw new InvalidPacket("PACKET IS AT DECLARED LENGTH");
 		}
-		Content[CurrentPosition] = B;
+		Data[CurrentPosition] = B;
 		CurrentPosition +=1;
-		if (CurrentPosition >= Content.length){
+		if (CurrentPosition >= Data.length){
 			isComplete = true;
 		}
 	}
 	short CurrentPosition = 0;
-	public Packet(byte header[], String IP) throws InvalidHeader{ // Dis one is called when a packet is RECEIVED
+	public Packet(byte header[], String IP) throws InvalidHeader{ // Dis one is called when a packet is RECEIVED but theres still some of it to go.
 		isReceiving = true;
 		isComplete = false;
+		ReceivingIP = IP;
 		Head = new Header(header);
-		Content = new byte[Head.PacketSize];
+		Data = new byte[Head.PacketSize];
 		Valid = true;
 	}
 	
 	
-	public Packet(byte header[], byte payload[], String IP) throws InvalidHeader{ // Dis one is called when we want to make a packet
-		Head = new Header(header);
-		
-	}
 	
 	MessageDigest m;
 	private byte[] GenerateCheckSum(byte[] Payload, String IP){
@@ -146,17 +166,15 @@ public com.google.protobuf.GeneratedMessage Packet;
 		public short PacketSize;
 		public short TimeSent;
 		public byte Checksum[] = new byte[8];
-		
+		public byte Data[] = new byte[16];
 		public Header(byte header[]) throws InvalidHeader{
 			if (header.length != 16) throw new InvalidHeader("Length");
 			if (header[0] != 0x00 && header[1] != 0xFF && header[2] != 0x00) throw new InvalidHeader("Start");
 			// packet received, get type
-			byte TypeByte = is.readByte();
-			byte sizeBytes[] = new byte[1];
-			sizeBytes[0] = is.readByte();
-			sizeBytes[1] = is.readByte();
-			short PacketSize = Functions.twoBytesToShort(sizeBytes[0], sizeBytes[1]);
-			
+			Type = TYPES.valueOf(header[3]);
+			PacketSize = Functions.twoBytesToShort(header[4], header[5]);
+			TimeSent = Functions.twoBytesToShort(header[6], header[7]);
+			Data = header;
 		}
 	
 		
@@ -182,5 +200,17 @@ public com.google.protobuf.GeneratedMessage Packet;
 			Invalid = invalidPart;
 		}
 	}
+	public class ParseError extends Throwable{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1316999785573476045L;
+
+		public String Invalid;
+		public ParseError(String invalidPart){
+			Invalid = invalidPart;
+		}
+	}
+	
 	
 }

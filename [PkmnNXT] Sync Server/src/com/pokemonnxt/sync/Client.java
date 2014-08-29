@@ -14,22 +14,64 @@ import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.pokemonnxt.sync.Packet.InvalidHeader;
+import com.pokemonnxt.sync.Packet.InvalidPacket;
+import com.pokemonnxt.sync.Packet.ParseError;
+import com.pokemonnxt.sync.Packet.TYPES;
 import com.pokemonnxt.sync.Player.LoginFailed;
 import com.pokemonnxt.sync.PlayerLog.LOGTYPE;
 import com.pokemonnxt.sync.PlayerPokemon.STATUS;
 import com.pokemonnxt.sync.Players.MESSAGE_TYPE;
 import com.pokemonnxt.sync.ThreadMonitor.ThreadUsage;
 
+import com.pokemonnxt.packets.Communications;
+import com.pokemonnxt.packets.Communications.LOGIN;
 import com.pokemonnxt.packets.Testing;
 import com.pokemonnxt.packets.Testing.test;
 
 public class Client extends Thread implements AutoCloseable {
 
+	public static enum STATES {
+		// Comments are from a server perspective
+		UNKNOWN(-1), 	// I dunno
+		INITIATED(0), 	// Thread is initialised but not started
+		STARTED(1),		// Thread is started
+		LOGGING_IN(2),	// User is being logged in
+		WAITING(3),		// Waiting for an incoming packet
+		RECEIVING(5),	// Receiving an incoming packet
+		PARSING(6),		// Parsing the incoming packet
+		WORKING(7),		// Doing work with the incoming packet
+		PACKING(8),		// Packing an outgoing packet
+		TRANSMITTING(9),// Sending an outgoing packet
+		CLOSING(10),	// Closing the connection
+		CLOSED(11)		// The socket is closed and this thread is effectively dead
+		
+        ;
+		  
+        private static Map<Integer, STATES> map = new HashMap<Integer, STATES>();
+        private  int value;
+        static {
+            for (STATES legEnum : STATES.values()) {
+                map.put(legEnum.value, legEnum);
+            }
+        }
+
+        
+
+        public static STATES valueOf(int legNo) {
+            return map.get(legNo);
+        }
+        private STATES(int value) {
+                this.value = value;
+        }
+};   
 
 	  public String IP = null;
 	  private DataInputStream  is = null;
@@ -40,12 +82,14 @@ public class Client extends Thread implements AutoCloseable {
 	  public long startTime = 0;
 	  public long lastRX = 0;
 	  public ThreadUsage Performance = null;
+	  public STATES State;
 	  
 	  public Player player = null;
 	  public boolean shutdown = false;
 	  public List<Player> NearbyPlayers = new ArrayList<Player>();
 	  
 	  public Client(Socket clientSocket, Client[] threads) {
+		  State = STATES.INITIATED;
 	    this.clientSocket = clientSocket;
 	    this.threads = threads;
 	    maxClientsCount = threads.length;
@@ -67,7 +111,7 @@ public class Client extends Thread implements AutoCloseable {
 	      return new String(hexChars);
 	  }
 	  
-	  private boolean SendPacket(byte[] Packet){
+	  private boolean SendPacket(Packet p){
 		  
 		  
 		  return true;
@@ -75,44 +119,80 @@ public class Client extends Thread implements AutoCloseable {
 	  
 	  private Packet ReceivePacket(){
 		  Logger.log_client(Logger.LOG_PROGRESS,IP, "Waiting for packet..." );
+		  try {
 				byte header[] = new byte[16];
 				byte startbytes[] = new byte[2];
 				
 				// wait for packet start
+				State = STATES.WAITING;
 				short i = 0;
 				while (	startbytes[0] != 0x00 && startbytes[1] != 0xFF && startbytes[2] != 0x00){
 					startbytes[0] = startbytes[1];
 					startbytes[1] = startbytes[2];
-					startbytes[2] = is.readByte();
+					
+						startbytes[2] = is.readByte();
+					
 				}
 				header[0] = startbytes[0];
 				header[1] = startbytes[1];
 				header[2] = startbytes[2];
-				
+				State = STATES.RECEIVING;
 			short headerSize = 3;
 			while(headerSize <= 16){
 				header[headerSize] = is.readByte();
 				headerSize +=1;
 			}
+			
 			Packet Incoming = new Packet(header,IP);
 			while(Incoming.isComplete == false){
 				Incoming.addPayloadByte(is.readByte());
 			}
-				
-				
-				com.pokemonnxt.packets.Testing.test.parseFrom(data);
-			
-			
-			
-			
-				test t = test.parseFrom(data);
-			
-				
-			 Logger.log_client(Logger.LOG_PROGRESS,IP, "Received : " + bytesToHex(data));
-		 
+			State = STATES.PARSING;
+			Logger.log_client(Logger.LOG_PROGRESS,IP, "Finished Receiving Packet: ");
+			Logger.log_client(Logger.LOG_PROGRESS,IP, "Header: " + bytesToHex(Incoming.Head.Data));
+			Logger.log_client(Logger.LOG_PROGRESS,IP, "Packet Size: " + Incoming.Data.length + "/" + Incoming.Head.PacketSize);
+			return Incoming;
+		  	} catch (IOException e) {
+			  State = STATES.UNKNOWN;
+				e.printStackTrace();
+			} catch (InvalidHeader e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			} catch (InvalidPacket e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ParseError e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
 		
 	  }
 	  
+	  
+	  private void ActionPacket(Packet p) throws ParseError, InvalidHeader{
+		  State = STATES.WORKING;
+		  
+		  if (p.Packet == null){
+			  Logger.log_client(Logger.LOG_ERROR, IP, "Blank Packet (Type " + p.Type + ") Received.");
+			  return;
+		  }
+		  switch(p.Type){
+			  case LOGIN:
+				  Communications.LOGIN LoginPacket =  (LOGIN) p.getPacket();
+				   try {
+						player = new Player(LoginPacket.getUsername(), LoginPacket.getPassword(),LoginPacket.getEmail(),this);
+					} catch (LoginFailed e) {
+						// TODO Add code to send login failed packet
+						Logger.log_client(Logger.LOG_VERB_LOW, IP, "Login Failed For User: " + LoginPacket.getUsername() + " Reason: " + e.message);
+					}
+				   
+				  break;
+			  default:
+				  break;
+			  
+		  }
+	  }
 	  
 	  public String GetNextPacket(){
 		 try {
@@ -184,6 +264,7 @@ public class Client extends Thread implements AutoCloseable {
 	   // int maxClientsCount = this.maxClientsCount;
 	    // Client[] threads = this.threads;
 	    startTime = System.currentTimeMillis();
+	    State = STATES.STARTED;
 	    try {
 			clientSocket.setKeepAlive(false);
 		} catch (SocketException e1) {
@@ -202,7 +283,7 @@ public class Client extends Thread implements AutoCloseable {
 	    	  if(IPcheck != null){
 				if(IPcheck.Permission != 1 && IP.startsWith(IPcheck.Mask)){
 					if (IPcheck.Permission == 0){
-						 SendPacket("{'header' { 'PTYPE' : 'IP_REJECTED', 'payload' { 'MESK' : " + IPcheck.Mask + ", 'MSG' : '" + IPcheck.Message + "'} } }");
+						 SendPacket("{'header' { 'PTYPE' : 'IP_REJECTED', 'payload' { 'MASK' : " + IPcheck.Mask + ", 'MSG' : '" + IPcheck.Message + "'} } }");
 						 shutdown = true;
 						 PlayerLog.LogAction(PlayerLog.LOGTYPE.CONNECTION_REJECTED, 0, IP, "REJECTED ON MASK " + IPcheck.Mask + " MESSAGE " + IPcheck.Message);
 						 Logger.log_client(Logger.LOG_VERB_HIGH, IP, "Player connection rejected on mask: " + IPcheck.Mask);
@@ -212,6 +293,16 @@ public class Client extends Thread implements AutoCloseable {
 			}
 	      
 	      String AuthPacket;
+	      while(true){
+	    	  Packet p = ReceivePacket();
+	    	  if(p.Type != Packet.TYPES.LOGIN){
+	    		  // TODO Add code to reject non-login packets
+	    	  }else{
+	    		  ActionPacket(p);
+	    	  }
+	      }
+	      
+	      /*
 	      while (true) {
 	    	  if (shutdown== true) break;
 	        SendPacket("<REQUESTING AUTH>");
@@ -240,6 +331,8 @@ public class Client extends Thread implements AutoCloseable {
 	        	Logger.log_client(Logger.LOG_VERB_LOW, IP, "Non-Login Packet Attempted in Login context");
 	        }
 	      }
+	      
+	      */
 	      if (shutdown== true){
 	    	  Close();
 	    	  return;
@@ -268,9 +361,7 @@ public class Client extends Thread implements AutoCloseable {
 		        String packettype = Header.header.PTYPE.toUpperCase();
 		        if(packettype.equalsIgnoreCase("PLUD")){
 		        	PacketPLUD packet = gson.fromJson(newPacket, PacketPLUD.class);
-		        	Players.SendLocationUpdate(player.GTID, packet.payload.LOC);
-		        	player.location = packet.payload.LOC;
-		        	SendPacket("[OK]");
+		        	player.Move(packet.Location);
 		        }
 		        if(packettype.equalsIgnoreCase("SAVE_REQUEST")){
 		        	player.CommitToDB();
@@ -330,12 +421,8 @@ public class Client extends Thread implements AutoCloseable {
 	          }
 	        }
 	      }
-	      Players.RemovePlayer(player);
-	      if (player != null){
-	    	  if (player.isLoggedIn){
-	    		  player.signOut();
-	    	  }
-	      }
+	      if (player != null) player.signOut();
+	      
 	    		  
 	     
 	      /*
