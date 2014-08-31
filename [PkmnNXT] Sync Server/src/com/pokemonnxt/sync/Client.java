@@ -182,6 +182,7 @@ public class Client extends Thread implements AutoCloseable {
 				  Communications.LOGIN LoginPacket =  (LOGIN) p.getPacket();
 				   try {
 						player = new Player(LoginPacket.getUsername(), LoginPacket.getPassword(),LoginPacket.getEmail(),this);
+						// TODO Add code to send login suceeded packet
 					} catch (LoginFailed e) {
 						// TODO Add code to send login failed packet
 						Logger.log_client(Logger.LOG_VERB_LOW, IP, "Login Failed For User: " + LoginPacket.getUsername() + " Reason: " + e.message);
@@ -283,8 +284,8 @@ public class Client extends Thread implements AutoCloseable {
 	    	  if(IPcheck != null){
 				if(IPcheck.Permission != 1 && IP.startsWith(IPcheck.Mask)){
 					if (IPcheck.Permission == 0){
-						 SendPacket("{'header' { 'PTYPE' : 'IP_REJECTED', 'payload' { 'MASK' : " + IPcheck.Mask + ", 'MSG' : '" + IPcheck.Message + "'} } }");
-						 shutdown = true;
+						 //TODO Add code to let the connection know it was rejected
+						shutdown = true;
 						 PlayerLog.LogAction(PlayerLog.LOGTYPE.CONNECTION_REJECTED, 0, IP, "REJECTED ON MASK " + IPcheck.Mask + " MESSAGE " + IPcheck.Message);
 						 Logger.log_client(Logger.LOG_VERB_HIGH, IP, "Player connection rejected on mask: " + IPcheck.Mask);
 					}
