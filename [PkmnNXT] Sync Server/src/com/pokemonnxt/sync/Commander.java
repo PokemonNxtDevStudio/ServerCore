@@ -433,7 +433,7 @@ public void PrintPokemon(PlayerPokemon pp){
 	        		
 	        	}else if (args[2].equalsIgnoreCase("team")){
 	        		 String result = "";
-	        		 for(PlayerPokemon pp : p.Pokemon){
+	        		 for(PlayerPokemon pp : p.Party){
 	        			 result = result + pp.GPID + ((char) 13);
 	        		 }
 	        			os.println(result);

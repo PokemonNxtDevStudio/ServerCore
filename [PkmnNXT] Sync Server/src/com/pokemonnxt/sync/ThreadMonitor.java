@@ -15,9 +15,12 @@ public class ThreadMonitor extends Thread{
 		while(shutdown == false){
 			try {
 				sleep(5000);
+				 HashMap<Long,ThreadUsage> TUsageMatrix = new HashMap<Long,ThreadUsage>();
+				
 			for(Client c : MainServer.Clients){
 				if(c == null) continue;
 				if(System.currentTimeMillis() - c.lastRX > ServerVars.Timeout) {
+					Logger.log_client(Logger.LOG_WARN,c.IP,  "[MON] Timing out IP ");
 					c.timeOut();
 					if (c.player != null) c.player.signOut();
 					c.forceClose();
@@ -26,17 +29,24 @@ public class ThreadMonitor extends Thread{
 				
 				long TID = c.getId();
 				ThreadUsage TU = null;
-				if(UsageMatrix.containsKey(TID)) TU = UsageMatrix.get(TID);
+				if(TUsageMatrix.containsKey(TID)) TU = TUsageMatrix.get(TID);
 				if(TU == null) TU = new ThreadUsage();
 				TU.CPU =  (tmxb.getThreadCpuTime(TID) / 1000000)/(System.currentTimeMillis() - c.startTime);
 				TU.TID = TID;
+				if(tmxb.getThreadInfo(TID)== null || tmxb.getThreadInfo(TID).getThreadState()== null){
+					Logger.log_client(Logger.LOG_ERROR,c.IP,  "[MON] thread is in nullstate! Closing");
+					if (c.player != null) c.player.signOut();
+					c.forceClose();
+				}else{
 				TU.STATE = tmxb.getThreadInfo(TID).getThreadState();
+				}
 				TU.GTID = -1;
 				if(c.player != null) TU.GTID = c.player.GTID;
 				c.Performance = TU;
-				if(!UsageMatrix.containsKey(TID))  UsageMatrix.put(TID,TU);
+				if(!TUsageMatrix.containsKey(TID))  TUsageMatrix.put(TID,TU);
 				
 			}
+			UsageMatrix = TUsageMatrix;
 			} catch (Exception e) {
 				GlobalExceptionHandler GEH = new GlobalExceptionHandler();
 				GEH.uncaughtException(Thread.currentThread(), (Throwable) e);

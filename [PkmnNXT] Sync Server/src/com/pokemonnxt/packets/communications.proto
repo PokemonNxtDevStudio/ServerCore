@@ -3,36 +3,24 @@ package packets;
 option java_package = "com.pokemonnxt.packets";
 option java_outer_classname = "Communications";
 
-message LOGIN {
-  required string username = 1;
-  required string password = 2;
-  optional string email = 3;
+message Packet{
+ required Header header= 1;
+ required Payload payload =2;
 }
-message LOGIN_SUCCESS {
-	required int32 GTID = 1;
-	required bool new = 2;
-	required TYPE_LOCATION spawn = 3;
-}
+enum PacketType {
+    LOGIN = 0;
+   GAME =1;
 
-message LOGIN_SUCCESS {
-	required int32 GTID = 1;
-	required bool new = 2;
-	required TYPE_LOCATION spawn = 3;
-}
-
-
-message TYPE_SPAWN_MATRIX_ENTRY{
-	required int32 PID = 1;
-	required int32 MinLevel = 2;
-	required int32 MaxLevel = 3;
-	required double Chance = 4;
-}
-
-message TYPE_LOCATION {
-		required double X = 1;
-		required double Y = 2;
-		required double Z = 3;
-		required double Pitch = 4;
-		required double Yaw = 5;
-		required double Roll = 6;
+  }
+message Header {
+  required int32 id = 1;        // Unique ID number for this person.
+  optional PacketType type = 2 [default = LOGIN];
+ }
+message Payload {
+ optional LoginPayload loginpayload=1;
+ }
+message LoginPayload{
+required string username = 1;        //Username
+  required string password = 2;       //Password
+ required string email  =3;
 }

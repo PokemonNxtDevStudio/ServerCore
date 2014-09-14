@@ -22,8 +22,26 @@ public class Functions {
 	static DatabaseReader reader;
 	
 	public static short twoBytesToShort(byte b1, byte b2) {
-        return (short) ((b1 << 8) | (b2 & 0xFF));
+        return (short) ((b2 << 8) | (b1 & 0xFF));
 }
+	public static byte[] oneShortTwoBytes(int x) {
+		byte ret[] = new byte[2];
+		ret[0] = (byte)(x & 0xff);
+		ret[1] = (byte)((x >> 8) & 0xff);
+        return ret;
+}
+	 
+	  final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+	  public static String bytesToHex(byte[] bytes) {
+	      char[] hexChars = new char[bytes.length * 2];
+	      for ( int j = 0; j < bytes.length; j++ ) {
+	          int v = bytes[j] & 0xFF;
+	          hexChars[j * 2] = hexArray[v >>> 4];
+	          hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+	      }
+	      return new String(hexChars);
+	  }
+	
 	public static void initGeoIP(){
 		// A File object pointing to your GeoIP2 or GeoLite2 database
 		File database = new File("/etc/NXT_SERVER/LIBDATA/GeoIP2-City.mmdb");

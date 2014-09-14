@@ -5,6 +5,7 @@ package com.pokemonnxt.sync;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -32,9 +33,9 @@ import com.pokemonnxt.sync.Players.MESSAGE_TYPE;
 import com.pokemonnxt.sync.ThreadMonitor.ThreadUsage;
 
 import com.pokemonnxt.packets.Communications;
-import com.pokemonnxt.packets.Communications.LOGIN;
+import com.pokemonnxt.packets.Communications.Header;
+import com.pokemonnxt.packets.Communications.Header.Builder;
 import com.pokemonnxt.packets.Testing;
-import com.pokemonnxt.packets.Testing.test;
 
 public class Client extends Thread implements AutoCloseable {
 
@@ -75,7 +76,7 @@ public class Client extends Thread implements AutoCloseable {
 
 	  public String IP = null;
 	  private DataInputStream  is = null;
-	  private PrintStream os = null;
+	  private DataOutputStream os = null;
 	  public Socket clientSocket = null;
 	  private final Client[] threads;
 	  private int maxClientsCount;
@@ -99,22 +100,20 @@ public class Client extends Thread implements AutoCloseable {
 	  public boolean isConnected(){
 		  return clientSocket.isConnected();
 	  }
-	  
-	  final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-	  public static String bytesToHex(byte[] bytes) {
-	      char[] hexChars = new char[bytes.length * 2];
-	      for ( int j = 0; j < bytes.length; j++ ) {
-	          int v = bytes[j] & 0xFF;
-	          hexChars[j * 2] = hexArray[v >>> 4];
-	          hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-	      }
-	      return new String(hexChars);
-	  }
+	 
 	  
 	  private boolean SendPacket(Packet p){
 		  
+		  try {
+			os.write(p.Data);
+			Logger.log_client(Logger.LOG_PROGRESS,IP,  "Packet Sent: " + Functions.bytesToHex(p.Data));
+			  return true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		  
-		  return true;
+			return false;
 	  }
 	  
 	  private Packet ReceivePacket(){
@@ -126,6 +125,7 @@ public class Client extends Thread implements AutoCloseable {
 				// wait for packet start
 				State = STATES.WAITING;
 				short i = 0;
+				/*
 				while (	startbytes[0] != 0x00 && startbytes[1] != 0xFF && startbytes[2] != 0x00){
 					startbytes[0] = startbytes[1];
 					startbytes[1] = startbytes[2];
@@ -136,21 +136,28 @@ public class Client extends Thread implements AutoCloseable {
 				header[0] = startbytes[0];
 				header[1] = startbytes[1];
 				header[2] = startbytes[2];
+				*/
 				State = STATES.RECEIVING;
+				/*
 			short headerSize = 3;
 			while(headerSize <= 16){
 				header[headerSize] = is.readByte();
 				headerSize +=1;
 			}
-			
-			Packet Incoming = new Packet(header,IP);
+			*/
+				startbytes[0] = is.readByte();
+				startbytes[1] = is.readByte();
+				Logger.log_client(Logger.LOG_PROGRESS,IP, "Length Bytes: " + Functions.bytesToHex(startbytes));
+			Packet Incoming = new Packet(Functions.twoBytesToShort(startbytes[0], startbytes[1]),IP);
+			Logger.log_client(Logger.LOG_PROGRESS,IP, "Starting receive of packet of length " + Functions.twoBytesToShort(startbytes[0], startbytes[1]));
 			while(Incoming.isComplete == false){
 				Incoming.addPayloadByte(is.readByte());
+				Logger.log_client(Logger.LOG_PROGRESS,IP, "Packet: " + Functions.bytesToHex(Incoming.Data));
 			}
 			State = STATES.PARSING;
 			Logger.log_client(Logger.LOG_PROGRESS,IP, "Finished Receiving Packet: ");
-			Logger.log_client(Logger.LOG_PROGRESS,IP, "Header: " + bytesToHex(Incoming.Head.Data));
-			Logger.log_client(Logger.LOG_PROGRESS,IP, "Packet Size: " + Incoming.Data.length + "/" + Incoming.Head.PacketSize);
+			Logger.log_client(Logger.LOG_PROGRESS,IP, "Packet: " + Functions.bytesToHex(Incoming.Data));
+			Logger.log_client(Logger.LOG_PROGRESS,IP, "Packet Size: " + Incoming.Data.length);
 			return Incoming;
 		  	} catch (IOException e) {
 			  State = STATES.UNKNOWN;
@@ -173,13 +180,33 @@ public class Client extends Thread implements AutoCloseable {
 	  private void ActionPacket(Packet p) throws ParseError, InvalidHeader{
 		  State = STATES.WORKING;
 		  
-		  if (p.Packet == null){
-			  Logger.log_client(Logger.LOG_ERROR, IP, "Blank Packet (Type " + p.Type + ") Received.");
+		  if (p.getPacket() == null || p.getType() == null){
+			  Logger.log_client(Logger.LOG_ERROR, IP, "Blank Packet (Type " + p.getType() + ") Received.");
 			  return;
 		  }
-		  switch(p.Type){
+		  switch(p.getType()){
 			  case LOGIN:
-				  Communications.LOGIN LoginPacket =  (LOGIN) p.getPacket();
+				  Communications.LoginPayload LoginPacket = p.getPayload().getLoginpayload();
+				  
+				 Logger.log_client(Logger.LOG_VERB_LOW, IP, "Received Login For User: " + LoginPacket.getUsername());
+				 try {
+						player = new Player(LoginPacket.getUsername(), LoginPacket.getPassword(),LoginPacket.getEmail(),this);
+						// TODO Add code to send login suceeded packet
+						Logger.log_client(Logger.LOG_VERB_LOW, IP, "User Logged in: " + player.GTID);
+					} catch (LoginFailed e) {
+						// TODO Add code to send login failed packet
+						Logger.log_client(Logger.LOG_VERB_LOW, IP, "Login Failed For User: " + LoginPacket.getUsername() + " Reason: " + e.message);
+					}
+				 
+				 /*
+				 Builder toreturn = Communications.Header.newBuilder();
+				 toreturn
+				  .setId(1)
+				  .setType(Communications.PacketType.);
+				 Packet pac = new Packet(toreturn.build(),IP);
+				SendPacket(pac);
+				 */
+				 /* Communications.LOGIN LoginPacket =  (LOGIN) p.getPacket();
 				   try {
 						player = new Player(LoginPacket.getUsername(), LoginPacket.getPassword(),LoginPacket.getEmail(),this);
 						// TODO Add code to send login suceeded packet
@@ -187,7 +214,7 @@ public class Client extends Thread implements AutoCloseable {
 						// TODO Add code to send login failed packet
 						Logger.log_client(Logger.LOG_VERB_LOW, IP, "Login Failed For User: " + LoginPacket.getUsername() + " Reason: " + e.message);
 					}
-				   
+				   */
 				  break;
 			  default:
 				  break;
@@ -207,9 +234,8 @@ public class Client extends Thread implements AutoCloseable {
 				 byte data[] = new byte[is.available()];
 				 Logger.log_client(Logger.LOG_PROGRESS,IP, "RECEIVING" + is.available());
 			b= is.read(data);
-			test t = test.parseFrom(data);
 			
-			 Logger.log_client(Logger.LOG_PROGRESS,IP, "Received : " + bytesToHex(data));
+			 Logger.log_client(Logger.LOG_PROGRESS,IP, "Received : " + Functions.bytesToHex(data));
 		 }
 			// Logger.log_client(Logger.LOG_PROGRESS,IP, "EOS");
 			 //Logger.log_client(Logger.LOG_PROGRESS,IP, "Received Packet: " + data.toString());
@@ -252,8 +278,14 @@ public class Client extends Thread implements AutoCloseable {
 	  
 
 	private void SendPacket(String Packet){
-		os.println(Packet);
-		Logger.log_client(Logger.LOG_PROGRESS,IP,  "Packet Sent: " + Packet);
+		try {
+			os.writeUTF(Packet);
+			Logger.log_client(Logger.LOG_PROGRESS,IP,  "Packet Sent: " + Packet);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 	  public void run() {
@@ -278,7 +310,7 @@ public class Client extends Thread implements AutoCloseable {
 	       */
 	      //is = new DataInputStream(new InputStreamReader(clientSocket.getInputStream()));
 	      is = new DataInputStream(clientSocket.getInputStream());
-	      os = new PrintStream(clientSocket.getOutputStream());
+	      os = new DataOutputStream(clientSocket.getOutputStream());
 	      
 	      for(IPPermission IPcheck : Cache.IPPermissions){
 	    	  if(IPcheck != null){
@@ -296,13 +328,14 @@ public class Client extends Thread implements AutoCloseable {
 	      String AuthPacket;
 	      while(true){
 	    	  Packet p = ReceivePacket();
-	    	  if(p.Type != Packet.TYPES.LOGIN){
-	    		  // TODO Add code to reject non-login packets
-	    	  }else{
-	    		  ActionPacket(p);
-	    	  }
+	    	  try {
+				ActionPacket(p);
+			} catch (ParseError | InvalidHeader e) {
+				GlobalExceptionHandler GEH = new GlobalExceptionHandler();
+				GEH.uncaughtException(Thread.currentThread(), (Throwable) e, "Error actioning packet");
+				break;
+			}
 	      }
-	      
 	      /*
 	      while (true) {
 	    	  if (shutdown== true) break;
@@ -334,11 +367,13 @@ public class Client extends Thread implements AutoCloseable {
 	      }
 	      
 	      */
+	      
+	      /*
 	      if (shutdown== true){
 	    	  Close();
 	    	  return;
 	      }
-	    	  
+	    	  */
 	      SendPacket("{'header' :{ 'PTYPE' : 'LOGIN_SUCCESS'}, 'payload': { 'GTID' : '" + player.GTID + "', 'New' : " + player.isNew + "} }");
 	     
 	      while (true) {
@@ -356,7 +391,7 @@ public class Client extends Thread implements AutoCloseable {
 	        }
 	        }
 	        
-	        if (newPacket.startsWith("{")){
+	       /* if (newPacket.startsWith("{")){
 	        	Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 		        PACKEDUndefined Header = gson.fromJson(newPacket, PACKEDUndefined.class);
 		        String packettype = Header.header.PTYPE.toUpperCase();
@@ -392,7 +427,7 @@ public class Client extends Thread implements AutoCloseable {
 		        }
 	        
 		        
-	        }
+	        }*/
 	        
 	       
 	      }

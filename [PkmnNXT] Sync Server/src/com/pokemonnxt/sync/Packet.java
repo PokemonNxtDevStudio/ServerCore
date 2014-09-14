@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.api.client.util.DateTime;
+import com.google.protobuf.GeneratedMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
 import com.pokemonnxt.packets.Communications;
 
 public class Packet {
@@ -60,47 +63,46 @@ public boolean isReceiving = false;
 public boolean isComplete = false;
 public boolean Valid = false;
 public String ReceivingIP;
-public Header Head;
-public TYPES Type;
+private com.pokemonnxt.packets.Communications.Packet Packet;
+private com.pokemonnxt.packets.Communications.Header Head;
+private com.pokemonnxt.packets.Communications.Payload Payload;
+private com.pokemonnxt.packets.Communications.PacketType Type;
 public byte Data[];
-public com.google.protobuf.GeneratedMessage Packet;
 
 	public com.google.protobuf.GeneratedMessage getPacket() throws ParseError, InvalidHeader{
 		if(Packet != null) return Packet;
 		Interpret();
 		return Packet;
 	}
-	private void Interpret() throws ParseError, InvalidHeader{
-		if(!CheckSum(Head.Checksum,Data,ReceivingIP)){
-			Valid = false;
-			throw new InvalidHeader("BAD CHECKSUM");
-		}
-		switch(Type){
-		case LOGIN:
-			Packet = PacketInterpreter.GetLogin(Data);
-			break;
-		default:
-			Packet = null;
-			throw new ParseError("UNSUPPORTED PACKET TYPE!");
-		}
-	}
-	
-	
-	public Packet(byte header[], byte payload[], String IP) throws InvalidHeader, ParseError{ // Dis one is called when an entire packet is RECEIVED
-		isReceiving = true;
-		isComplete = false;
-		Head = new Header(header);
-		Data = payload;
-		isReceiving = false;
-		ReceivingIP = IP;
-		if(!CheckSum(Head.Checksum,Data,IP)){
-			Valid = false;
-			throw new InvalidHeader("BAD CHECKSUM");
-		}
-		Valid = true;
-		isComplete = true;
+	public com.pokemonnxt.packets.Communications.Payload getPayload() throws ParseError, InvalidHeader{
+		if(Packet != null) return Payload;
 		Interpret();
+		return Payload;
 	}
+	public com.pokemonnxt.packets.Communications.Header getHeader() throws ParseError, InvalidHeader{
+		if(Packet != null) return Head;
+		Interpret();
+		return Head;
+	}
+	public com.pokemonnxt.packets.Communications.PacketType getType() throws ParseError, InvalidHeader{
+		if(Packet != null) return Type;
+		Interpret();
+		return Type;
+	}
+	
+	private void Interpret() throws ParseError, InvalidHeader{
+		try {
+			Packet = Communications.Packet.parseFrom(Data);
+			Head = Packet.getHeader();
+			Type = Head.getType();
+			
+		} catch (InvalidProtocolBufferException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new ParseError("PROTO PARSE ERROR");
+		}
+	}
+	
 	
 	public void addPayloadByte(byte B) throws InvalidPacket, ParseError, InvalidHeader{
 		if (CurrentPosition >= Data.length){
@@ -110,19 +112,36 @@ public com.google.protobuf.GeneratedMessage Packet;
 		CurrentPosition +=1;
 		if (CurrentPosition >= Data.length){
 			isComplete = true;
+			Interpret();
 		}
 	}
 	short CurrentPosition = 0;
-	public Packet(byte header[], String IP) throws InvalidHeader{ // Dis one is called when a packet is RECEIVED but theres still some of it to go.
+	public Packet(short length, String IP) throws InvalidHeader{ // Dis one is called when a packet is RECEIVED but theres still some of it to go.
 		isReceiving = true;
 		isComplete = false;
 		ReceivingIP = IP;
-		Head = new Header(header);
-		Data = new byte[Head.PacketSize];
+		Data = new byte[length];
 		Valid = true;
 	}
 	
-	
+	public Packet(Message M, String IP) throws InvalidHeader{ // Dis one is called when a packet is going to be SENT
+		isReceiving = false;
+		isComplete = true;
+		ReceivingIP = IP;
+		byte[] Dat = M.toByteArray();
+		byte[] lengthPrefix = Functions.oneShortTwoBytes(Dat.length);
+		 Logger.log_client(Logger.LOG_PROGRESS,IP, "DAT: " + Functions.bytesToHex(Dat) );
+		 Logger.log_client(Logger.LOG_PROGRESS,IP, "LEN: " + Functions.bytesToHex(lengthPrefix) );
+		 
+		byte[] out = new byte[lengthPrefix.length + Dat.length];
+		 System.arraycopy(lengthPrefix, 0, out, 0, lengthPrefix.length);
+		 System.arraycopy(Dat, 0, out, lengthPrefix.length, Dat.length);
+		 Logger.log_client(Logger.LOG_PROGRESS,IP, "OUT: " + Functions.bytesToHex(out) );
+
+         // Concatenate the length prefix and the message
+         Data = out;
+		Valid = true;
+	}
 	
 	MessageDigest m;
 	private byte[] GenerateCheckSum(byte[] Payload, String IP){
@@ -160,25 +179,7 @@ public com.google.protobuf.GeneratedMessage Packet;
        return false;
 	}
 	
-	
-	public class Header{
-		public TYPES Type;
-		public short PacketSize;
-		public short TimeSent;
-		public byte Checksum[] = new byte[8];
-		public byte Data[] = new byte[16];
-		public Header(byte header[]) throws InvalidHeader{
-			if (header.length != 16) throw new InvalidHeader("Length");
-			if (header[0] != 0x00 && header[1] != 0xFF && header[2] != 0x00) throw new InvalidHeader("Start");
-			// packet received, get type
-			Type = TYPES.valueOf(header[3]);
-			PacketSize = Functions.twoBytesToShort(header[4], header[5]);
-			TimeSent = Functions.twoBytesToShort(header[6], header[7]);
-			Data = header;
-		}
-	
-		
-	}
+
 	public class InvalidHeader extends Throwable{
 		/**
 		 * 

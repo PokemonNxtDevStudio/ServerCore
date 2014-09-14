@@ -8,39 +8,39 @@ public final class Testing {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface testOrBuilder
+  public interface TestOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
     
     // required int32 test = 1;
     boolean hasTest();
     int getTest();
   }
-  public static final class test extends
+  public static final class Test extends
       com.google.protobuf.GeneratedMessage
-      implements testOrBuilder {
-    // Use test.newBuilder() to construct.
-    private test(Builder builder) {
+      implements TestOrBuilder {
+    // Use Test.newBuilder() to construct.
+    private Test(Builder builder) {
       super(builder);
     }
-    private test(boolean noInit) {}
+    private Test(boolean noInit) {}
     
-    private static final test defaultInstance;
-    public static test getDefaultInstance() {
+    private static final Test defaultInstance;
+    public static Test getDefaultInstance() {
       return defaultInstance;
     }
     
-    public test getDefaultInstanceForType() {
+    public Test getDefaultInstanceForType() {
       return defaultInstance;
     }
     
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.pokemonnxt.packets.Testing.internal_static_packets_test_descriptor;
+      return com.pokemonnxt.packets.Testing.internal_static_packets_Test_descriptor;
     }
     
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.pokemonnxt.packets.Testing.internal_static_packets_test_fieldAccessorTable;
+      return com.pokemonnxt.packets.Testing.internal_static_packets_Test_fieldAccessorTable;
     }
     
     private int bitField0_;
@@ -101,41 +101,41 @@ public final class Testing {
       return super.writeReplace();
     }
     
-    public static com.pokemonnxt.packets.Testing.test parseFrom(
+    public static com.pokemonnxt.packets.Testing.Test parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static com.pokemonnxt.packets.Testing.test parseFrom(
+    public static com.pokemonnxt.packets.Testing.Test parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static com.pokemonnxt.packets.Testing.test parseFrom(byte[] data)
+    public static com.pokemonnxt.packets.Testing.Test parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static com.pokemonnxt.packets.Testing.test parseFrom(
+    public static com.pokemonnxt.packets.Testing.Test parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static com.pokemonnxt.packets.Testing.test parseFrom(java.io.InputStream input)
+    public static com.pokemonnxt.packets.Testing.Test parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static com.pokemonnxt.packets.Testing.test parseFrom(
+    public static com.pokemonnxt.packets.Testing.Test parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
                .buildParsed();
     }
-    public static com.pokemonnxt.packets.Testing.test parseDelimitedFrom(java.io.InputStream input)
+    public static com.pokemonnxt.packets.Testing.Test parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
@@ -144,7 +144,7 @@ public final class Testing {
         return null;
       }
     }
-    public static com.pokemonnxt.packets.Testing.test parseDelimitedFrom(
+    public static com.pokemonnxt.packets.Testing.Test parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -155,12 +155,12 @@ public final class Testing {
         return null;
       }
     }
-    public static com.pokemonnxt.packets.Testing.test parseFrom(
+    public static com.pokemonnxt.packets.Testing.Test parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static com.pokemonnxt.packets.Testing.test parseFrom(
+    public static com.pokemonnxt.packets.Testing.Test parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -170,7 +170,7 @@ public final class Testing {
     
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.pokemonnxt.packets.Testing.test prototype) {
+    public static Builder newBuilder(com.pokemonnxt.packets.Testing.Test prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
@@ -183,18 +183,18 @@ public final class Testing {
     }
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.pokemonnxt.packets.Testing.testOrBuilder {
+       implements com.pokemonnxt.packets.Testing.TestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.pokemonnxt.packets.Testing.internal_static_packets_test_descriptor;
+        return com.pokemonnxt.packets.Testing.internal_static_packets_Test_descriptor;
       }
       
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.pokemonnxt.packets.Testing.internal_static_packets_test_fieldAccessorTable;
+        return com.pokemonnxt.packets.Testing.internal_static_packets_Test_fieldAccessorTable;
       }
       
-      // Construct using com.pokemonnxt.packets.Testing.test.newBuilder()
+      // Construct using com.pokemonnxt.packets.Testing.Test.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -224,24 +224,24 @@ public final class Testing {
       
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.pokemonnxt.packets.Testing.test.getDescriptor();
+        return com.pokemonnxt.packets.Testing.Test.getDescriptor();
       }
       
-      public com.pokemonnxt.packets.Testing.test getDefaultInstanceForType() {
-        return com.pokemonnxt.packets.Testing.test.getDefaultInstance();
+      public com.pokemonnxt.packets.Testing.Test getDefaultInstanceForType() {
+        return com.pokemonnxt.packets.Testing.Test.getDefaultInstance();
       }
       
-      public com.pokemonnxt.packets.Testing.test build() {
-        com.pokemonnxt.packets.Testing.test result = buildPartial();
+      public com.pokemonnxt.packets.Testing.Test build() {
+        com.pokemonnxt.packets.Testing.Test result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
       
-      private com.pokemonnxt.packets.Testing.test buildParsed()
+      private com.pokemonnxt.packets.Testing.Test buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
-        com.pokemonnxt.packets.Testing.test result = buildPartial();
+        com.pokemonnxt.packets.Testing.Test result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
@@ -249,8 +249,8 @@ public final class Testing {
         return result;
       }
       
-      public com.pokemonnxt.packets.Testing.test buildPartial() {
-        com.pokemonnxt.packets.Testing.test result = new com.pokemonnxt.packets.Testing.test(this);
+      public com.pokemonnxt.packets.Testing.Test buildPartial() {
+        com.pokemonnxt.packets.Testing.Test result = new com.pokemonnxt.packets.Testing.Test(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -263,16 +263,16 @@ public final class Testing {
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.pokemonnxt.packets.Testing.test) {
-          return mergeFrom((com.pokemonnxt.packets.Testing.test)other);
+        if (other instanceof com.pokemonnxt.packets.Testing.Test) {
+          return mergeFrom((com.pokemonnxt.packets.Testing.Test)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
       
-      public Builder mergeFrom(com.pokemonnxt.packets.Testing.test other) {
-        if (other == com.pokemonnxt.packets.Testing.test.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.pokemonnxt.packets.Testing.Test other) {
+        if (other == com.pokemonnxt.packets.Testing.Test.getDefaultInstance()) return this;
         if (other.hasTest()) {
           setTest(other.getTest());
         }
@@ -343,22 +343,22 @@ public final class Testing {
         return this;
       }
       
-      // @@protoc_insertion_point(builder_scope:packets.test)
+      // @@protoc_insertion_point(builder_scope:packets.Test)
     }
     
     static {
-      defaultInstance = new test(true);
+      defaultInstance = new Test(true);
       defaultInstance.initFields();
     }
     
-    // @@protoc_insertion_point(class_scope:packets.test)
+    // @@protoc_insertion_point(class_scope:packets.Test)
   }
   
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_packets_test_descriptor;
+    internal_static_packets_Test_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_packets_test_fieldAccessorTable;
+      internal_static_packets_Test_fieldAccessorTable;
   
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -369,7 +369,7 @@ public final class Testing {
   static {
     java.lang.String[] descriptorData = {
       "\n!com/pokemonnxt/packets/test.proto\022\007pac" +
-      "kets\"\024\n\004test\022\014\n\004test\030\001 \002(\005B!\n\026com.pokemo" +
+      "kets\"\024\n\004Test\022\014\n\004test\030\001 \002(\005B!\n\026com.pokemo" +
       "nnxt.packetsB\007Testing"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
@@ -377,14 +377,14 @@ public final class Testing {
         public com.google.protobuf.ExtensionRegistry assignDescriptors(
             com.google.protobuf.Descriptors.FileDescriptor root) {
           descriptor = root;
-          internal_static_packets_test_descriptor =
+          internal_static_packets_Test_descriptor =
             getDescriptor().getMessageTypes().get(0);
-          internal_static_packets_test_fieldAccessorTable = new
+          internal_static_packets_Test_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_packets_test_descriptor,
+              internal_static_packets_Test_descriptor,
               new java.lang.String[] { "Test", },
-              com.pokemonnxt.packets.Testing.test.class,
-              com.pokemonnxt.packets.Testing.test.Builder.class);
+              com.pokemonnxt.packets.Testing.Test.class,
+              com.pokemonnxt.packets.Testing.Test.Builder.class);
           return null;
         }
       };

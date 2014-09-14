@@ -1,5 +1,7 @@
 package com.pokemonnxt.sync;
 
+import com.pokemonnxt.node.Nodes;
+
 
 
 
@@ -29,7 +31,7 @@ public class Main {
 	public static SQLConnection SQL;
 	public static MainServer Server;
 	public static ControlServer Master;
-	
+	public static Nodes ServerNodes;
 	public void UserQuit(){
 		System.out.println(" ");
 		System.out.println(">>>> Press ENTER to quit <<<<");
@@ -66,6 +68,7 @@ public class Main {
 		Server.start();
 		Master = new ControlServer();
 		Master.start();
+		ServerNodes = new Nodes();
 		System.out.println("SERVER STATUS:							[" + ConsoleColors.ANSI_GREEN + "   OK   " + ConsoleColors.ANSI_RESET + "]");
 		while(true){
 			System.out.print("> ");

@@ -14,6 +14,10 @@ public static int MaxDEXID = 50;
 // The maximum amount of connections that can be made at once
 public static int MaxConnections = 9000;
 
+//MaxNodes
+//The maximum amount of other servers this server can connect to
+public static int MaxNodes = 64;
+
 //Timeout
 //The maximum amount of time a connection can go without inbound traffic (in milliseconds) before being kicked
 public static int Timeout = 20000;

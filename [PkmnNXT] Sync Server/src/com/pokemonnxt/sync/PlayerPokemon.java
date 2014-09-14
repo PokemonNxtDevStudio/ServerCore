@@ -94,7 +94,7 @@ PlayerPokemon(int lDEX, int lLevel, int lEXP, String lName, PokemonStats lCurren
 	Logger.log_server(Logger.LOG_VERB_LOW, "Saving GPID" + GPID + " from packet:");
 	 PreparedStatement insertPokemon = null;
 	int boxloc = 1;
-	for(PlayerPokemon p : trainer.Pokemon){
+	for(PlayerPokemon p : trainer.Party){
 		if (p.BOXLoc >= boxloc){
 			boxloc = p.BOXLoc+1;
 		}

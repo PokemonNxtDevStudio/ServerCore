@@ -8,7 +8,1523 @@ public final class Communications {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface LOGINOrBuilder
+  public enum PacketType
+      implements com.google.protobuf.ProtocolMessageEnum {
+    LOGIN(0, 0),
+    GAME(1, 1),
+    ;
+    
+    public static final int LOGIN_VALUE = 0;
+    public static final int GAME_VALUE = 1;
+    
+    
+    public final int getNumber() { return value; }
+    
+    public static PacketType valueOf(int value) {
+      switch (value) {
+        case 0: return LOGIN;
+        case 1: return GAME;
+        default: return null;
+      }
+    }
+    
+    public static com.google.protobuf.Internal.EnumLiteMap<PacketType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<PacketType>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<PacketType>() {
+            public PacketType findValueByNumber(int number) {
+              return PacketType.valueOf(number);
+            }
+          };
+    
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return com.pokemonnxt.packets.Communications.getDescriptor().getEnumTypes().get(0);
+    }
+    
+    private static final PacketType[] VALUES = {
+      LOGIN, GAME, 
+    };
+    
+    public static PacketType valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+    
+    private final int index;
+    private final int value;
+    
+    private PacketType(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+    
+    // @@protoc_insertion_point(enum_scope:packets.PacketType)
+  }
+  
+  public interface PacketOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+    
+    // required .packets.Header header = 1;
+    boolean hasHeader();
+    com.pokemonnxt.packets.Communications.Header getHeader();
+    com.pokemonnxt.packets.Communications.HeaderOrBuilder getHeaderOrBuilder();
+    
+    // required .packets.Payload payload = 2;
+    boolean hasPayload();
+    com.pokemonnxt.packets.Communications.Payload getPayload();
+    com.pokemonnxt.packets.Communications.PayloadOrBuilder getPayloadOrBuilder();
+  }
+  public static final class Packet extends
+      com.google.protobuf.GeneratedMessage
+      implements PacketOrBuilder {
+    // Use Packet.newBuilder() to construct.
+    private Packet(Builder builder) {
+      super(builder);
+    }
+    private Packet(boolean noInit) {}
+    
+    private static final Packet defaultInstance;
+    public static Packet getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public Packet getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.pokemonnxt.packets.Communications.internal_static_packets_Packet_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.pokemonnxt.packets.Communications.internal_static_packets_Packet_fieldAccessorTable;
+    }
+    
+    private int bitField0_;
+    // required .packets.Header header = 1;
+    public static final int HEADER_FIELD_NUMBER = 1;
+    private com.pokemonnxt.packets.Communications.Header header_;
+    public boolean hasHeader() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    public com.pokemonnxt.packets.Communications.Header getHeader() {
+      return header_;
+    }
+    public com.pokemonnxt.packets.Communications.HeaderOrBuilder getHeaderOrBuilder() {
+      return header_;
+    }
+    
+    // required .packets.Payload payload = 2;
+    public static final int PAYLOAD_FIELD_NUMBER = 2;
+    private com.pokemonnxt.packets.Communications.Payload payload_;
+    public boolean hasPayload() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public com.pokemonnxt.packets.Communications.Payload getPayload() {
+      return payload_;
+    }
+    public com.pokemonnxt.packets.Communications.PayloadOrBuilder getPayloadOrBuilder() {
+      return payload_;
+    }
+    
+    private void initFields() {
+      header_ = com.pokemonnxt.packets.Communications.Header.getDefaultInstance();
+      payload_ = com.pokemonnxt.packets.Communications.Payload.getDefaultInstance();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+      
+      if (!hasHeader()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasPayload()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!getHeader().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!getPayload().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1, header_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeMessage(2, payload_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, header_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, payload_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+    
+    public static com.pokemonnxt.packets.Communications.Packet parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Packet parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Packet parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Packet parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Packet parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Packet parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Packet parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.pokemonnxt.packets.Communications.Packet parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.pokemonnxt.packets.Communications.Packet parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Packet parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.pokemonnxt.packets.Communications.Packet prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.pokemonnxt.packets.Communications.PacketOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.pokemonnxt.packets.Communications.internal_static_packets_Packet_descriptor;
+      }
+      
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.pokemonnxt.packets.Communications.internal_static_packets_Packet_fieldAccessorTable;
+      }
+      
+      // Construct using com.pokemonnxt.packets.Communications.Packet.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+      
+      private Builder(BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getHeaderFieldBuilder();
+          getPayloadFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+      
+      public Builder clear() {
+        super.clear();
+        if (headerBuilder_ == null) {
+          header_ = com.pokemonnxt.packets.Communications.Header.getDefaultInstance();
+        } else {
+          headerBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (payloadBuilder_ == null) {
+          payload_ = com.pokemonnxt.packets.Communications.Payload.getDefaultInstance();
+        } else {
+          payloadBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.pokemonnxt.packets.Communications.Packet.getDescriptor();
+      }
+      
+      public com.pokemonnxt.packets.Communications.Packet getDefaultInstanceForType() {
+        return com.pokemonnxt.packets.Communications.Packet.getDefaultInstance();
+      }
+      
+      public com.pokemonnxt.packets.Communications.Packet build() {
+        com.pokemonnxt.packets.Communications.Packet result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+      
+      private com.pokemonnxt.packets.Communications.Packet buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        com.pokemonnxt.packets.Communications.Packet result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return result;
+      }
+      
+      public com.pokemonnxt.packets.Communications.Packet buildPartial() {
+        com.pokemonnxt.packets.Communications.Packet result = new com.pokemonnxt.packets.Communications.Packet(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (headerBuilder_ == null) {
+          result.header_ = header_;
+        } else {
+          result.header_ = headerBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        if (payloadBuilder_ == null) {
+          result.payload_ = payload_;
+        } else {
+          result.payload_ = payloadBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.pokemonnxt.packets.Communications.Packet) {
+          return mergeFrom((com.pokemonnxt.packets.Communications.Packet)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(com.pokemonnxt.packets.Communications.Packet other) {
+        if (other == com.pokemonnxt.packets.Communications.Packet.getDefaultInstance()) return this;
+        if (other.hasHeader()) {
+          mergeHeader(other.getHeader());
+        }
+        if (other.hasPayload()) {
+          mergePayload(other.getPayload());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public final boolean isInitialized() {
+        if (!hasHeader()) {
+          
+          return false;
+        }
+        if (!hasPayload()) {
+          
+          return false;
+        }
+        if (!getHeader().isInitialized()) {
+          
+          return false;
+        }
+        if (!getPayload().isInitialized()) {
+          
+          return false;
+        }
+        return true;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              onChanged();
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                onChanged();
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              com.pokemonnxt.packets.Communications.Header.Builder subBuilder = com.pokemonnxt.packets.Communications.Header.newBuilder();
+              if (hasHeader()) {
+                subBuilder.mergeFrom(getHeader());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setHeader(subBuilder.buildPartial());
+              break;
+            }
+            case 18: {
+              com.pokemonnxt.packets.Communications.Payload.Builder subBuilder = com.pokemonnxt.packets.Communications.Payload.newBuilder();
+              if (hasPayload()) {
+                subBuilder.mergeFrom(getPayload());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setPayload(subBuilder.buildPartial());
+              break;
+            }
+          }
+        }
+      }
+      
+      private int bitField0_;
+      
+      // required .packets.Header header = 1;
+      private com.pokemonnxt.packets.Communications.Header header_ = com.pokemonnxt.packets.Communications.Header.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.pokemonnxt.packets.Communications.Header, com.pokemonnxt.packets.Communications.Header.Builder, com.pokemonnxt.packets.Communications.HeaderOrBuilder> headerBuilder_;
+      public boolean hasHeader() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      public com.pokemonnxt.packets.Communications.Header getHeader() {
+        if (headerBuilder_ == null) {
+          return header_;
+        } else {
+          return headerBuilder_.getMessage();
+        }
+      }
+      public Builder setHeader(com.pokemonnxt.packets.Communications.Header value) {
+        if (headerBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          header_ = value;
+          onChanged();
+        } else {
+          headerBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      public Builder setHeader(
+          com.pokemonnxt.packets.Communications.Header.Builder builderForValue) {
+        if (headerBuilder_ == null) {
+          header_ = builderForValue.build();
+          onChanged();
+        } else {
+          headerBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      public Builder mergeHeader(com.pokemonnxt.packets.Communications.Header value) {
+        if (headerBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              header_ != com.pokemonnxt.packets.Communications.Header.getDefaultInstance()) {
+            header_ =
+              com.pokemonnxt.packets.Communications.Header.newBuilder(header_).mergeFrom(value).buildPartial();
+          } else {
+            header_ = value;
+          }
+          onChanged();
+        } else {
+          headerBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      public Builder clearHeader() {
+        if (headerBuilder_ == null) {
+          header_ = com.pokemonnxt.packets.Communications.Header.getDefaultInstance();
+          onChanged();
+        } else {
+          headerBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      public com.pokemonnxt.packets.Communications.Header.Builder getHeaderBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getHeaderFieldBuilder().getBuilder();
+      }
+      public com.pokemonnxt.packets.Communications.HeaderOrBuilder getHeaderOrBuilder() {
+        if (headerBuilder_ != null) {
+          return headerBuilder_.getMessageOrBuilder();
+        } else {
+          return header_;
+        }
+      }
+      private com.google.protobuf.SingleFieldBuilder<
+          com.pokemonnxt.packets.Communications.Header, com.pokemonnxt.packets.Communications.Header.Builder, com.pokemonnxt.packets.Communications.HeaderOrBuilder> 
+          getHeaderFieldBuilder() {
+        if (headerBuilder_ == null) {
+          headerBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.pokemonnxt.packets.Communications.Header, com.pokemonnxt.packets.Communications.Header.Builder, com.pokemonnxt.packets.Communications.HeaderOrBuilder>(
+                  header_,
+                  getParentForChildren(),
+                  isClean());
+          header_ = null;
+        }
+        return headerBuilder_;
+      }
+      
+      // required .packets.Payload payload = 2;
+      private com.pokemonnxt.packets.Communications.Payload payload_ = com.pokemonnxt.packets.Communications.Payload.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.pokemonnxt.packets.Communications.Payload, com.pokemonnxt.packets.Communications.Payload.Builder, com.pokemonnxt.packets.Communications.PayloadOrBuilder> payloadBuilder_;
+      public boolean hasPayload() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      public com.pokemonnxt.packets.Communications.Payload getPayload() {
+        if (payloadBuilder_ == null) {
+          return payload_;
+        } else {
+          return payloadBuilder_.getMessage();
+        }
+      }
+      public Builder setPayload(com.pokemonnxt.packets.Communications.Payload value) {
+        if (payloadBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          payload_ = value;
+          onChanged();
+        } else {
+          payloadBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      public Builder setPayload(
+          com.pokemonnxt.packets.Communications.Payload.Builder builderForValue) {
+        if (payloadBuilder_ == null) {
+          payload_ = builderForValue.build();
+          onChanged();
+        } else {
+          payloadBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      public Builder mergePayload(com.pokemonnxt.packets.Communications.Payload value) {
+        if (payloadBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              payload_ != com.pokemonnxt.packets.Communications.Payload.getDefaultInstance()) {
+            payload_ =
+              com.pokemonnxt.packets.Communications.Payload.newBuilder(payload_).mergeFrom(value).buildPartial();
+          } else {
+            payload_ = value;
+          }
+          onChanged();
+        } else {
+          payloadBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      public Builder clearPayload() {
+        if (payloadBuilder_ == null) {
+          payload_ = com.pokemonnxt.packets.Communications.Payload.getDefaultInstance();
+          onChanged();
+        } else {
+          payloadBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      public com.pokemonnxt.packets.Communications.Payload.Builder getPayloadBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getPayloadFieldBuilder().getBuilder();
+      }
+      public com.pokemonnxt.packets.Communications.PayloadOrBuilder getPayloadOrBuilder() {
+        if (payloadBuilder_ != null) {
+          return payloadBuilder_.getMessageOrBuilder();
+        } else {
+          return payload_;
+        }
+      }
+      private com.google.protobuf.SingleFieldBuilder<
+          com.pokemonnxt.packets.Communications.Payload, com.pokemonnxt.packets.Communications.Payload.Builder, com.pokemonnxt.packets.Communications.PayloadOrBuilder> 
+          getPayloadFieldBuilder() {
+        if (payloadBuilder_ == null) {
+          payloadBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.pokemonnxt.packets.Communications.Payload, com.pokemonnxt.packets.Communications.Payload.Builder, com.pokemonnxt.packets.Communications.PayloadOrBuilder>(
+                  payload_,
+                  getParentForChildren(),
+                  isClean());
+          payload_ = null;
+        }
+        return payloadBuilder_;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:packets.Packet)
+    }
+    
+    static {
+      defaultInstance = new Packet(true);
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:packets.Packet)
+  }
+  
+  public interface HeaderOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+    
+    // required int32 id = 1;
+    boolean hasId();
+    int getId();
+    
+    // optional .packets.PacketType type = 2 [default = LOGIN];
+    boolean hasType();
+    com.pokemonnxt.packets.Communications.PacketType getType();
+  }
+  public static final class Header extends
+      com.google.protobuf.GeneratedMessage
+      implements HeaderOrBuilder {
+    // Use Header.newBuilder() to construct.
+    private Header(Builder builder) {
+      super(builder);
+    }
+    private Header(boolean noInit) {}
+    
+    private static final Header defaultInstance;
+    public static Header getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public Header getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.pokemonnxt.packets.Communications.internal_static_packets_Header_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.pokemonnxt.packets.Communications.internal_static_packets_Header_fieldAccessorTable;
+    }
+    
+    private int bitField0_;
+    // required int32 id = 1;
+    public static final int ID_FIELD_NUMBER = 1;
+    private int id_;
+    public boolean hasId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    public int getId() {
+      return id_;
+    }
+    
+    // optional .packets.PacketType type = 2 [default = LOGIN];
+    public static final int TYPE_FIELD_NUMBER = 2;
+    private com.pokemonnxt.packets.Communications.PacketType type_;
+    public boolean hasType() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public com.pokemonnxt.packets.Communications.PacketType getType() {
+      return type_;
+    }
+    
+    private void initFields() {
+      id_ = 0;
+      type_ = com.pokemonnxt.packets.Communications.PacketType.LOGIN;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+      
+      if (!hasId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt32(1, id_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeEnum(2, type_.getNumber());
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, id_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(2, type_.getNumber());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+    
+    public static com.pokemonnxt.packets.Communications.Header parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Header parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Header parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Header parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Header parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Header parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Header parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.pokemonnxt.packets.Communications.Header parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.pokemonnxt.packets.Communications.Header parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Header parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.pokemonnxt.packets.Communications.Header prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.pokemonnxt.packets.Communications.HeaderOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.pokemonnxt.packets.Communications.internal_static_packets_Header_descriptor;
+      }
+      
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.pokemonnxt.packets.Communications.internal_static_packets_Header_fieldAccessorTable;
+      }
+      
+      // Construct using com.pokemonnxt.packets.Communications.Header.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+      
+      private Builder(BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+      
+      public Builder clear() {
+        super.clear();
+        id_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        type_ = com.pokemonnxt.packets.Communications.PacketType.LOGIN;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.pokemonnxt.packets.Communications.Header.getDescriptor();
+      }
+      
+      public com.pokemonnxt.packets.Communications.Header getDefaultInstanceForType() {
+        return com.pokemonnxt.packets.Communications.Header.getDefaultInstance();
+      }
+      
+      public com.pokemonnxt.packets.Communications.Header build() {
+        com.pokemonnxt.packets.Communications.Header result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+      
+      private com.pokemonnxt.packets.Communications.Header buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        com.pokemonnxt.packets.Communications.Header result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return result;
+      }
+      
+      public com.pokemonnxt.packets.Communications.Header buildPartial() {
+        com.pokemonnxt.packets.Communications.Header result = new com.pokemonnxt.packets.Communications.Header(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.id_ = id_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.type_ = type_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.pokemonnxt.packets.Communications.Header) {
+          return mergeFrom((com.pokemonnxt.packets.Communications.Header)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(com.pokemonnxt.packets.Communications.Header other) {
+        if (other == com.pokemonnxt.packets.Communications.Header.getDefaultInstance()) return this;
+        if (other.hasId()) {
+          setId(other.getId());
+        }
+        if (other.hasType()) {
+          setType(other.getType());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public final boolean isInitialized() {
+        if (!hasId()) {
+          
+          return false;
+        }
+        return true;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              onChanged();
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                onChanged();
+                return this;
+              }
+              break;
+            }
+            case 8: {
+              bitField0_ |= 0x00000001;
+              id_ = input.readInt32();
+              break;
+            }
+            case 16: {
+              int rawValue = input.readEnum();
+              com.pokemonnxt.packets.Communications.PacketType value = com.pokemonnxt.packets.Communications.PacketType.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(2, rawValue);
+              } else {
+                bitField0_ |= 0x00000002;
+                type_ = value;
+              }
+              break;
+            }
+          }
+        }
+      }
+      
+      private int bitField0_;
+      
+      // required int32 id = 1;
+      private int id_ ;
+      public boolean hasId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      public int getId() {
+        return id_;
+      }
+      public Builder setId(int value) {
+        bitField0_ |= 0x00000001;
+        id_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearId() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        id_ = 0;
+        onChanged();
+        return this;
+      }
+      
+      // optional .packets.PacketType type = 2 [default = LOGIN];
+      private com.pokemonnxt.packets.Communications.PacketType type_ = com.pokemonnxt.packets.Communications.PacketType.LOGIN;
+      public boolean hasType() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      public com.pokemonnxt.packets.Communications.PacketType getType() {
+        return type_;
+      }
+      public Builder setType(com.pokemonnxt.packets.Communications.PacketType value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000002;
+        type_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearType() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        type_ = com.pokemonnxt.packets.Communications.PacketType.LOGIN;
+        onChanged();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:packets.Header)
+    }
+    
+    static {
+      defaultInstance = new Header(true);
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:packets.Header)
+  }
+  
+  public interface PayloadOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+    
+    // optional .packets.LoginPayload loginpayload = 1;
+    boolean hasLoginpayload();
+    com.pokemonnxt.packets.Communications.LoginPayload getLoginpayload();
+    com.pokemonnxt.packets.Communications.LoginPayloadOrBuilder getLoginpayloadOrBuilder();
+  }
+  public static final class Payload extends
+      com.google.protobuf.GeneratedMessage
+      implements PayloadOrBuilder {
+    // Use Payload.newBuilder() to construct.
+    private Payload(Builder builder) {
+      super(builder);
+    }
+    private Payload(boolean noInit) {}
+    
+    private static final Payload defaultInstance;
+    public static Payload getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public Payload getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.pokemonnxt.packets.Communications.internal_static_packets_Payload_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.pokemonnxt.packets.Communications.internal_static_packets_Payload_fieldAccessorTable;
+    }
+    
+    private int bitField0_;
+    // optional .packets.LoginPayload loginpayload = 1;
+    public static final int LOGINPAYLOAD_FIELD_NUMBER = 1;
+    private com.pokemonnxt.packets.Communications.LoginPayload loginpayload_;
+    public boolean hasLoginpayload() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    public com.pokemonnxt.packets.Communications.LoginPayload getLoginpayload() {
+      return loginpayload_;
+    }
+    public com.pokemonnxt.packets.Communications.LoginPayloadOrBuilder getLoginpayloadOrBuilder() {
+      return loginpayload_;
+    }
+    
+    private void initFields() {
+      loginpayload_ = com.pokemonnxt.packets.Communications.LoginPayload.getDefaultInstance();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+      
+      if (hasLoginpayload()) {
+        if (!getLoginpayload().isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1, loginpayload_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, loginpayload_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+    
+    public static com.pokemonnxt.packets.Communications.Payload parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Payload parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Payload parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Payload parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Payload parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Payload parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Payload parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.pokemonnxt.packets.Communications.Payload parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.pokemonnxt.packets.Communications.Payload parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.pokemonnxt.packets.Communications.Payload parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.pokemonnxt.packets.Communications.Payload prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.pokemonnxt.packets.Communications.PayloadOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.pokemonnxt.packets.Communications.internal_static_packets_Payload_descriptor;
+      }
+      
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.pokemonnxt.packets.Communications.internal_static_packets_Payload_fieldAccessorTable;
+      }
+      
+      // Construct using com.pokemonnxt.packets.Communications.Payload.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+      
+      private Builder(BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getLoginpayloadFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+      
+      public Builder clear() {
+        super.clear();
+        if (loginpayloadBuilder_ == null) {
+          loginpayload_ = com.pokemonnxt.packets.Communications.LoginPayload.getDefaultInstance();
+        } else {
+          loginpayloadBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.pokemonnxt.packets.Communications.Payload.getDescriptor();
+      }
+      
+      public com.pokemonnxt.packets.Communications.Payload getDefaultInstanceForType() {
+        return com.pokemonnxt.packets.Communications.Payload.getDefaultInstance();
+      }
+      
+      public com.pokemonnxt.packets.Communications.Payload build() {
+        com.pokemonnxt.packets.Communications.Payload result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+      
+      private com.pokemonnxt.packets.Communications.Payload buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        com.pokemonnxt.packets.Communications.Payload result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return result;
+      }
+      
+      public com.pokemonnxt.packets.Communications.Payload buildPartial() {
+        com.pokemonnxt.packets.Communications.Payload result = new com.pokemonnxt.packets.Communications.Payload(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (loginpayloadBuilder_ == null) {
+          result.loginpayload_ = loginpayload_;
+        } else {
+          result.loginpayload_ = loginpayloadBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.pokemonnxt.packets.Communications.Payload) {
+          return mergeFrom((com.pokemonnxt.packets.Communications.Payload)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(com.pokemonnxt.packets.Communications.Payload other) {
+        if (other == com.pokemonnxt.packets.Communications.Payload.getDefaultInstance()) return this;
+        if (other.hasLoginpayload()) {
+          mergeLoginpayload(other.getLoginpayload());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public final boolean isInitialized() {
+        if (hasLoginpayload()) {
+          if (!getLoginpayload().isInitialized()) {
+            
+            return false;
+          }
+        }
+        return true;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              onChanged();
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                onChanged();
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              com.pokemonnxt.packets.Communications.LoginPayload.Builder subBuilder = com.pokemonnxt.packets.Communications.LoginPayload.newBuilder();
+              if (hasLoginpayload()) {
+                subBuilder.mergeFrom(getLoginpayload());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setLoginpayload(subBuilder.buildPartial());
+              break;
+            }
+          }
+        }
+      }
+      
+      private int bitField0_;
+      
+      // optional .packets.LoginPayload loginpayload = 1;
+      private com.pokemonnxt.packets.Communications.LoginPayload loginpayload_ = com.pokemonnxt.packets.Communications.LoginPayload.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.pokemonnxt.packets.Communications.LoginPayload, com.pokemonnxt.packets.Communications.LoginPayload.Builder, com.pokemonnxt.packets.Communications.LoginPayloadOrBuilder> loginpayloadBuilder_;
+      public boolean hasLoginpayload() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      public com.pokemonnxt.packets.Communications.LoginPayload getLoginpayload() {
+        if (loginpayloadBuilder_ == null) {
+          return loginpayload_;
+        } else {
+          return loginpayloadBuilder_.getMessage();
+        }
+      }
+      public Builder setLoginpayload(com.pokemonnxt.packets.Communications.LoginPayload value) {
+        if (loginpayloadBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          loginpayload_ = value;
+          onChanged();
+        } else {
+          loginpayloadBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      public Builder setLoginpayload(
+          com.pokemonnxt.packets.Communications.LoginPayload.Builder builderForValue) {
+        if (loginpayloadBuilder_ == null) {
+          loginpayload_ = builderForValue.build();
+          onChanged();
+        } else {
+          loginpayloadBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      public Builder mergeLoginpayload(com.pokemonnxt.packets.Communications.LoginPayload value) {
+        if (loginpayloadBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              loginpayload_ != com.pokemonnxt.packets.Communications.LoginPayload.getDefaultInstance()) {
+            loginpayload_ =
+              com.pokemonnxt.packets.Communications.LoginPayload.newBuilder(loginpayload_).mergeFrom(value).buildPartial();
+          } else {
+            loginpayload_ = value;
+          }
+          onChanged();
+        } else {
+          loginpayloadBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      public Builder clearLoginpayload() {
+        if (loginpayloadBuilder_ == null) {
+          loginpayload_ = com.pokemonnxt.packets.Communications.LoginPayload.getDefaultInstance();
+          onChanged();
+        } else {
+          loginpayloadBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      public com.pokemonnxt.packets.Communications.LoginPayload.Builder getLoginpayloadBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getLoginpayloadFieldBuilder().getBuilder();
+      }
+      public com.pokemonnxt.packets.Communications.LoginPayloadOrBuilder getLoginpayloadOrBuilder() {
+        if (loginpayloadBuilder_ != null) {
+          return loginpayloadBuilder_.getMessageOrBuilder();
+        } else {
+          return loginpayload_;
+        }
+      }
+      private com.google.protobuf.SingleFieldBuilder<
+          com.pokemonnxt.packets.Communications.LoginPayload, com.pokemonnxt.packets.Communications.LoginPayload.Builder, com.pokemonnxt.packets.Communications.LoginPayloadOrBuilder> 
+          getLoginpayloadFieldBuilder() {
+        if (loginpayloadBuilder_ == null) {
+          loginpayloadBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.pokemonnxt.packets.Communications.LoginPayload, com.pokemonnxt.packets.Communications.LoginPayload.Builder, com.pokemonnxt.packets.Communications.LoginPayloadOrBuilder>(
+                  loginpayload_,
+                  getParentForChildren(),
+                  isClean());
+          loginpayload_ = null;
+        }
+        return loginpayloadBuilder_;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:packets.Payload)
+    }
+    
+    static {
+      defaultInstance = new Payload(true);
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:packets.Payload)
+  }
+  
+  public interface LoginPayloadOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
     
     // required string username = 1;
@@ -19,36 +1535,36 @@ public final class Communications {
     boolean hasPassword();
     String getPassword();
     
-    // optional string email = 3;
+    // required string email = 3;
     boolean hasEmail();
     String getEmail();
   }
-  public static final class LOGIN extends
+  public static final class LoginPayload extends
       com.google.protobuf.GeneratedMessage
-      implements LOGINOrBuilder {
-    // Use LOGIN.newBuilder() to construct.
-    private LOGIN(Builder builder) {
+      implements LoginPayloadOrBuilder {
+    // Use LoginPayload.newBuilder() to construct.
+    private LoginPayload(Builder builder) {
       super(builder);
     }
-    private LOGIN(boolean noInit) {}
+    private LoginPayload(boolean noInit) {}
     
-    private static final LOGIN defaultInstance;
-    public static LOGIN getDefaultInstance() {
+    private static final LoginPayload defaultInstance;
+    public static LoginPayload getDefaultInstance() {
       return defaultInstance;
     }
     
-    public LOGIN getDefaultInstanceForType() {
+    public LoginPayload getDefaultInstanceForType() {
       return defaultInstance;
     }
     
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.pokemonnxt.packets.Communications.internal_static_packets_LOGIN_descriptor;
+      return com.pokemonnxt.packets.Communications.internal_static_packets_LoginPayload_descriptor;
     }
     
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.pokemonnxt.packets.Communications.internal_static_packets_LOGIN_fieldAccessorTable;
+      return com.pokemonnxt.packets.Communications.internal_static_packets_LoginPayload_fieldAccessorTable;
     }
     
     private int bitField0_;
@@ -116,7 +1632,7 @@ public final class Communications {
       }
     }
     
-    // optional string email = 3;
+    // required string email = 3;
     public static final int EMAIL_FIELD_NUMBER = 3;
     private java.lang.Object email_;
     public boolean hasEmail() {
@@ -163,6 +1679,10 @@ public final class Communications {
         return false;
       }
       if (!hasPassword()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasEmail()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -215,41 +1735,41 @@ public final class Communications {
       return super.writeReplace();
     }
     
-    public static com.pokemonnxt.packets.Communications.LOGIN parseFrom(
+    public static com.pokemonnxt.packets.Communications.LoginPayload parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static com.pokemonnxt.packets.Communications.LOGIN parseFrom(
+    public static com.pokemonnxt.packets.Communications.LoginPayload parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static com.pokemonnxt.packets.Communications.LOGIN parseFrom(byte[] data)
+    public static com.pokemonnxt.packets.Communications.LoginPayload parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static com.pokemonnxt.packets.Communications.LOGIN parseFrom(
+    public static com.pokemonnxt.packets.Communications.LoginPayload parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static com.pokemonnxt.packets.Communications.LOGIN parseFrom(java.io.InputStream input)
+    public static com.pokemonnxt.packets.Communications.LoginPayload parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static com.pokemonnxt.packets.Communications.LOGIN parseFrom(
+    public static com.pokemonnxt.packets.Communications.LoginPayload parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
                .buildParsed();
     }
-    public static com.pokemonnxt.packets.Communications.LOGIN parseDelimitedFrom(java.io.InputStream input)
+    public static com.pokemonnxt.packets.Communications.LoginPayload parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
@@ -258,7 +1778,7 @@ public final class Communications {
         return null;
       }
     }
-    public static com.pokemonnxt.packets.Communications.LOGIN parseDelimitedFrom(
+    public static com.pokemonnxt.packets.Communications.LoginPayload parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -269,12 +1789,12 @@ public final class Communications {
         return null;
       }
     }
-    public static com.pokemonnxt.packets.Communications.LOGIN parseFrom(
+    public static com.pokemonnxt.packets.Communications.LoginPayload parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static com.pokemonnxt.packets.Communications.LOGIN parseFrom(
+    public static com.pokemonnxt.packets.Communications.LoginPayload parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -284,7 +1804,7 @@ public final class Communications {
     
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.pokemonnxt.packets.Communications.LOGIN prototype) {
+    public static Builder newBuilder(com.pokemonnxt.packets.Communications.LoginPayload prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
@@ -297,18 +1817,18 @@ public final class Communications {
     }
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.pokemonnxt.packets.Communications.LOGINOrBuilder {
+       implements com.pokemonnxt.packets.Communications.LoginPayloadOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.pokemonnxt.packets.Communications.internal_static_packets_LOGIN_descriptor;
+        return com.pokemonnxt.packets.Communications.internal_static_packets_LoginPayload_descriptor;
       }
       
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.pokemonnxt.packets.Communications.internal_static_packets_LOGIN_fieldAccessorTable;
+        return com.pokemonnxt.packets.Communications.internal_static_packets_LoginPayload_fieldAccessorTable;
       }
       
-      // Construct using com.pokemonnxt.packets.Communications.LOGIN.newBuilder()
+      // Construct using com.pokemonnxt.packets.Communications.LoginPayload.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -342,24 +1862,24 @@ public final class Communications {
       
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.pokemonnxt.packets.Communications.LOGIN.getDescriptor();
+        return com.pokemonnxt.packets.Communications.LoginPayload.getDescriptor();
       }
       
-      public com.pokemonnxt.packets.Communications.LOGIN getDefaultInstanceForType() {
-        return com.pokemonnxt.packets.Communications.LOGIN.getDefaultInstance();
+      public com.pokemonnxt.packets.Communications.LoginPayload getDefaultInstanceForType() {
+        return com.pokemonnxt.packets.Communications.LoginPayload.getDefaultInstance();
       }
       
-      public com.pokemonnxt.packets.Communications.LOGIN build() {
-        com.pokemonnxt.packets.Communications.LOGIN result = buildPartial();
+      public com.pokemonnxt.packets.Communications.LoginPayload build() {
+        com.pokemonnxt.packets.Communications.LoginPayload result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
       
-      private com.pokemonnxt.packets.Communications.LOGIN buildParsed()
+      private com.pokemonnxt.packets.Communications.LoginPayload buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
-        com.pokemonnxt.packets.Communications.LOGIN result = buildPartial();
+        com.pokemonnxt.packets.Communications.LoginPayload result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
@@ -367,8 +1887,8 @@ public final class Communications {
         return result;
       }
       
-      public com.pokemonnxt.packets.Communications.LOGIN buildPartial() {
-        com.pokemonnxt.packets.Communications.LOGIN result = new com.pokemonnxt.packets.Communications.LOGIN(this);
+      public com.pokemonnxt.packets.Communications.LoginPayload buildPartial() {
+        com.pokemonnxt.packets.Communications.LoginPayload result = new com.pokemonnxt.packets.Communications.LoginPayload(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -389,16 +1909,16 @@ public final class Communications {
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.pokemonnxt.packets.Communications.LOGIN) {
-          return mergeFrom((com.pokemonnxt.packets.Communications.LOGIN)other);
+        if (other instanceof com.pokemonnxt.packets.Communications.LoginPayload) {
+          return mergeFrom((com.pokemonnxt.packets.Communications.LoginPayload)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
       
-      public Builder mergeFrom(com.pokemonnxt.packets.Communications.LOGIN other) {
-        if (other == com.pokemonnxt.packets.Communications.LOGIN.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.pokemonnxt.packets.Communications.LoginPayload other) {
+        if (other == com.pokemonnxt.packets.Communications.LoginPayload.getDefaultInstance()) return this;
         if (other.hasUsername()) {
           setUsername(other.getUsername());
         }
@@ -418,6 +1938,10 @@ public final class Communications {
           return false;
         }
         if (!hasPassword()) {
+          
+          return false;
+        }
+        if (!hasEmail()) {
           
           return false;
         }
@@ -540,7 +2064,7 @@ public final class Communications {
         onChanged();
       }
       
-      // optional string email = 3;
+      // required string email = 3;
       private java.lang.Object email_ = "";
       public boolean hasEmail() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
@@ -576,1273 +2100,37 @@ public final class Communications {
         onChanged();
       }
       
-      // @@protoc_insertion_point(builder_scope:packets.LOGIN)
+      // @@protoc_insertion_point(builder_scope:packets.LoginPayload)
     }
     
     static {
-      defaultInstance = new LOGIN(true);
+      defaultInstance = new LoginPayload(true);
       defaultInstance.initFields();
     }
     
-    // @@protoc_insertion_point(class_scope:packets.LOGIN)
-  }
-  
-  public interface LOGIN_SUCCESSOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
-    
-    // required int32 GTID = 1;
-    boolean hasGTID();
-    int getGTID();
-    
-    // required bool new = 2;
-    boolean hasNew();
-    boolean getNew();
-    
-    // required .packets.TYPE_LOCATION spawn = 3;
-    boolean hasSpawn();
-    com.pokemonnxt.packets.Communications.TYPE_LOCATION getSpawn();
-    com.pokemonnxt.packets.Communications.TYPE_LOCATIONOrBuilder getSpawnOrBuilder();
-  }
-  public static final class LOGIN_SUCCESS extends
-      com.google.protobuf.GeneratedMessage
-      implements LOGIN_SUCCESSOrBuilder {
-    // Use LOGIN_SUCCESS.newBuilder() to construct.
-    private LOGIN_SUCCESS(Builder builder) {
-      super(builder);
-    }
-    private LOGIN_SUCCESS(boolean noInit) {}
-    
-    private static final LOGIN_SUCCESS defaultInstance;
-    public static LOGIN_SUCCESS getDefaultInstance() {
-      return defaultInstance;
-    }
-    
-    public LOGIN_SUCCESS getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-    
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return com.pokemonnxt.packets.Communications.internal_static_packets_LOGIN_SUCCESS_descriptor;
-    }
-    
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.pokemonnxt.packets.Communications.internal_static_packets_LOGIN_SUCCESS_fieldAccessorTable;
-    }
-    
-    private int bitField0_;
-    // required int32 GTID = 1;
-    public static final int GTID_FIELD_NUMBER = 1;
-    private int gTID_;
-    public boolean hasGTID() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    public int getGTID() {
-      return gTID_;
-    }
-    
-    // required bool new = 2;
-    public static final int NEW_FIELD_NUMBER = 2;
-    private boolean new_;
-    public boolean hasNew() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    public boolean getNew() {
-      return new_;
-    }
-    
-    // required .packets.TYPE_LOCATION spawn = 3;
-    public static final int SPAWN_FIELD_NUMBER = 3;
-    private com.pokemonnxt.packets.Communications.TYPE_LOCATION spawn_;
-    public boolean hasSpawn() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    public com.pokemonnxt.packets.Communications.TYPE_LOCATION getSpawn() {
-      return spawn_;
-    }
-    public com.pokemonnxt.packets.Communications.TYPE_LOCATIONOrBuilder getSpawnOrBuilder() {
-      return spawn_;
-    }
-    
-    private void initFields() {
-      gTID_ = 0;
-      new_ = false;
-      spawn_ = com.pokemonnxt.packets.Communications.TYPE_LOCATION.getDefaultInstance();
-    }
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
-      
-      if (!hasGTID()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasNew()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasSpawn()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!getSpawn().isInitialized()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      memoizedIsInitialized = 1;
-      return true;
-    }
-    
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt32(1, gTID_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBool(2, new_);
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeMessage(3, spawn_);
-      }
-      getUnknownFields().writeTo(output);
-    }
-    
-    private int memoizedSerializedSize = -1;
-    public int getSerializedSize() {
-      int size = memoizedSerializedSize;
-      if (size != -1) return size;
-    
-      size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, gTID_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(2, new_);
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, spawn_);
-      }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
-      return size;
-    }
-    
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-    
-    public static com.pokemonnxt.packets.Communications.LOGIN_SUCCESS parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data).buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.LOGIN_SUCCESS parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data, extensionRegistry)
-               .buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.LOGIN_SUCCESS parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data).buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.LOGIN_SUCCESS parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data, extensionRegistry)
-               .buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.LOGIN_SUCCESS parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input).buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.LOGIN_SUCCESS parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input, extensionRegistry)
-               .buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.LOGIN_SUCCESS parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      Builder builder = newBuilder();
-      if (builder.mergeDelimitedFrom(input)) {
-        return builder.buildParsed();
-      } else {
-        return null;
-      }
-    }
-    public static com.pokemonnxt.packets.Communications.LOGIN_SUCCESS parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      Builder builder = newBuilder();
-      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
-        return builder.buildParsed();
-      } else {
-        return null;
-      }
-    }
-    public static com.pokemonnxt.packets.Communications.LOGIN_SUCCESS parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input).buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.LOGIN_SUCCESS parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input, extensionRegistry)
-               .buildParsed();
-    }
-    
-    public static Builder newBuilder() { return Builder.create(); }
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.pokemonnxt.packets.Communications.LOGIN_SUCCESS prototype) {
-      return newBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() { return newBuilder(this); }
-    
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.pokemonnxt.packets.Communications.LOGIN_SUCCESSOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return com.pokemonnxt.packets.Communications.internal_static_packets_LOGIN_SUCCESS_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return com.pokemonnxt.packets.Communications.internal_static_packets_LOGIN_SUCCESS_fieldAccessorTable;
-      }
-      
-      // Construct using com.pokemonnxt.packets.Communications.LOGIN_SUCCESS.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-      
-      private Builder(BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getSpawnFieldBuilder();
-        }
-      }
-      private static Builder create() {
-        return new Builder();
-      }
-      
-      public Builder clear() {
-        super.clear();
-        gTID_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000001);
-        new_ = false;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        if (spawnBuilder_ == null) {
-          spawn_ = com.pokemonnxt.packets.Communications.TYPE_LOCATION.getDefaultInstance();
-        } else {
-          spawnBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000004);
-        return this;
-      }
-      
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-      
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return com.pokemonnxt.packets.Communications.LOGIN_SUCCESS.getDescriptor();
-      }
-      
-      public com.pokemonnxt.packets.Communications.LOGIN_SUCCESS getDefaultInstanceForType() {
-        return com.pokemonnxt.packets.Communications.LOGIN_SUCCESS.getDefaultInstance();
-      }
-      
-      public com.pokemonnxt.packets.Communications.LOGIN_SUCCESS build() {
-        com.pokemonnxt.packets.Communications.LOGIN_SUCCESS result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-      
-      private com.pokemonnxt.packets.Communications.LOGIN_SUCCESS buildParsed()
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        com.pokemonnxt.packets.Communications.LOGIN_SUCCESS result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(
-            result).asInvalidProtocolBufferException();
-        }
-        return result;
-      }
-      
-      public com.pokemonnxt.packets.Communications.LOGIN_SUCCESS buildPartial() {
-        com.pokemonnxt.packets.Communications.LOGIN_SUCCESS result = new com.pokemonnxt.packets.Communications.LOGIN_SUCCESS(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.gTID_ = gTID_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.new_ = new_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
-        if (spawnBuilder_ == null) {
-          result.spawn_ = spawn_;
-        } else {
-          result.spawn_ = spawnBuilder_.build();
-        }
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
-      
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.pokemonnxt.packets.Communications.LOGIN_SUCCESS) {
-          return mergeFrom((com.pokemonnxt.packets.Communications.LOGIN_SUCCESS)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-      
-      public Builder mergeFrom(com.pokemonnxt.packets.Communications.LOGIN_SUCCESS other) {
-        if (other == com.pokemonnxt.packets.Communications.LOGIN_SUCCESS.getDefaultInstance()) return this;
-        if (other.hasGTID()) {
-          setGTID(other.getGTID());
-        }
-        if (other.hasNew()) {
-          setNew(other.getNew());
-        }
-        if (other.hasSpawn()) {
-          mergeSpawn(other.getSpawn());
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
-        return this;
-      }
-      
-      public final boolean isInitialized() {
-        if (!hasGTID()) {
-          
-          return false;
-        }
-        if (!hasNew()) {
-          
-          return false;
-        }
-        if (!hasSpawn()) {
-          
-          return false;
-        }
-        if (!getSpawn().isInitialized()) {
-          
-          return false;
-        }
-        return true;
-      }
-      
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder(
-            this.getUnknownFields());
-        while (true) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              this.setUnknownFields(unknownFields.build());
-              onChanged();
-              return this;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                this.setUnknownFields(unknownFields.build());
-                onChanged();
-                return this;
-              }
-              break;
-            }
-            case 8: {
-              bitField0_ |= 0x00000001;
-              gTID_ = input.readInt32();
-              break;
-            }
-            case 16: {
-              bitField0_ |= 0x00000002;
-              new_ = input.readBool();
-              break;
-            }
-            case 26: {
-              com.pokemonnxt.packets.Communications.TYPE_LOCATION.Builder subBuilder = com.pokemonnxt.packets.Communications.TYPE_LOCATION.newBuilder();
-              if (hasSpawn()) {
-                subBuilder.mergeFrom(getSpawn());
-              }
-              input.readMessage(subBuilder, extensionRegistry);
-              setSpawn(subBuilder.buildPartial());
-              break;
-            }
-          }
-        }
-      }
-      
-      private int bitField0_;
-      
-      // required int32 GTID = 1;
-      private int gTID_ ;
-      public boolean hasGTID() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      public int getGTID() {
-        return gTID_;
-      }
-      public Builder setGTID(int value) {
-        bitField0_ |= 0x00000001;
-        gTID_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearGTID() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        gTID_ = 0;
-        onChanged();
-        return this;
-      }
-      
-      // required bool new = 2;
-      private boolean new_ ;
-      public boolean hasNew() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      public boolean getNew() {
-        return new_;
-      }
-      public Builder setNew(boolean value) {
-        bitField0_ |= 0x00000002;
-        new_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearNew() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        new_ = false;
-        onChanged();
-        return this;
-      }
-      
-      // required .packets.TYPE_LOCATION spawn = 3;
-      private com.pokemonnxt.packets.Communications.TYPE_LOCATION spawn_ = com.pokemonnxt.packets.Communications.TYPE_LOCATION.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
-          com.pokemonnxt.packets.Communications.TYPE_LOCATION, com.pokemonnxt.packets.Communications.TYPE_LOCATION.Builder, com.pokemonnxt.packets.Communications.TYPE_LOCATIONOrBuilder> spawnBuilder_;
-      public boolean hasSpawn() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      public com.pokemonnxt.packets.Communications.TYPE_LOCATION getSpawn() {
-        if (spawnBuilder_ == null) {
-          return spawn_;
-        } else {
-          return spawnBuilder_.getMessage();
-        }
-      }
-      public Builder setSpawn(com.pokemonnxt.packets.Communications.TYPE_LOCATION value) {
-        if (spawnBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          spawn_ = value;
-          onChanged();
-        } else {
-          spawnBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00000004;
-        return this;
-      }
-      public Builder setSpawn(
-          com.pokemonnxt.packets.Communications.TYPE_LOCATION.Builder builderForValue) {
-        if (spawnBuilder_ == null) {
-          spawn_ = builderForValue.build();
-          onChanged();
-        } else {
-          spawnBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00000004;
-        return this;
-      }
-      public Builder mergeSpawn(com.pokemonnxt.packets.Communications.TYPE_LOCATION value) {
-        if (spawnBuilder_ == null) {
-          if (((bitField0_ & 0x00000004) == 0x00000004) &&
-              spawn_ != com.pokemonnxt.packets.Communications.TYPE_LOCATION.getDefaultInstance()) {
-            spawn_ =
-              com.pokemonnxt.packets.Communications.TYPE_LOCATION.newBuilder(spawn_).mergeFrom(value).buildPartial();
-          } else {
-            spawn_ = value;
-          }
-          onChanged();
-        } else {
-          spawnBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00000004;
-        return this;
-      }
-      public Builder clearSpawn() {
-        if (spawnBuilder_ == null) {
-          spawn_ = com.pokemonnxt.packets.Communications.TYPE_LOCATION.getDefaultInstance();
-          onChanged();
-        } else {
-          spawnBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000004);
-        return this;
-      }
-      public com.pokemonnxt.packets.Communications.TYPE_LOCATION.Builder getSpawnBuilder() {
-        bitField0_ |= 0x00000004;
-        onChanged();
-        return getSpawnFieldBuilder().getBuilder();
-      }
-      public com.pokemonnxt.packets.Communications.TYPE_LOCATIONOrBuilder getSpawnOrBuilder() {
-        if (spawnBuilder_ != null) {
-          return spawnBuilder_.getMessageOrBuilder();
-        } else {
-          return spawn_;
-        }
-      }
-      private com.google.protobuf.SingleFieldBuilder<
-          com.pokemonnxt.packets.Communications.TYPE_LOCATION, com.pokemonnxt.packets.Communications.TYPE_LOCATION.Builder, com.pokemonnxt.packets.Communications.TYPE_LOCATIONOrBuilder> 
-          getSpawnFieldBuilder() {
-        if (spawnBuilder_ == null) {
-          spawnBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              com.pokemonnxt.packets.Communications.TYPE_LOCATION, com.pokemonnxt.packets.Communications.TYPE_LOCATION.Builder, com.pokemonnxt.packets.Communications.TYPE_LOCATIONOrBuilder>(
-                  spawn_,
-                  getParentForChildren(),
-                  isClean());
-          spawn_ = null;
-        }
-        return spawnBuilder_;
-      }
-      
-      // @@protoc_insertion_point(builder_scope:packets.LOGIN_SUCCESS)
-    }
-    
-    static {
-      defaultInstance = new LOGIN_SUCCESS(true);
-      defaultInstance.initFields();
-    }
-    
-    // @@protoc_insertion_point(class_scope:packets.LOGIN_SUCCESS)
-  }
-  
-  public interface TYPE_LOCATIONOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
-    
-    // required int32 X = 1;
-    boolean hasX();
-    int getX();
-    
-    // required int32 Y = 2;
-    boolean hasY();
-    int getY();
-    
-    // required int32 Z = 3;
-    boolean hasZ();
-    int getZ();
-    
-    // required int32 Pitch = 4;
-    boolean hasPitch();
-    int getPitch();
-    
-    // required int32 Yaw = 5;
-    boolean hasYaw();
-    int getYaw();
-    
-    // required int32 Roll = 6;
-    boolean hasRoll();
-    int getRoll();
-  }
-  public static final class TYPE_LOCATION extends
-      com.google.protobuf.GeneratedMessage
-      implements TYPE_LOCATIONOrBuilder {
-    // Use TYPE_LOCATION.newBuilder() to construct.
-    private TYPE_LOCATION(Builder builder) {
-      super(builder);
-    }
-    private TYPE_LOCATION(boolean noInit) {}
-    
-    private static final TYPE_LOCATION defaultInstance;
-    public static TYPE_LOCATION getDefaultInstance() {
-      return defaultInstance;
-    }
-    
-    public TYPE_LOCATION getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-    
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return com.pokemonnxt.packets.Communications.internal_static_packets_TYPE_LOCATION_descriptor;
-    }
-    
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.pokemonnxt.packets.Communications.internal_static_packets_TYPE_LOCATION_fieldAccessorTable;
-    }
-    
-    private int bitField0_;
-    // required int32 X = 1;
-    public static final int X_FIELD_NUMBER = 1;
-    private int x_;
-    public boolean hasX() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    public int getX() {
-      return x_;
-    }
-    
-    // required int32 Y = 2;
-    public static final int Y_FIELD_NUMBER = 2;
-    private int y_;
-    public boolean hasY() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    public int getY() {
-      return y_;
-    }
-    
-    // required int32 Z = 3;
-    public static final int Z_FIELD_NUMBER = 3;
-    private int z_;
-    public boolean hasZ() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    public int getZ() {
-      return z_;
-    }
-    
-    // required int32 Pitch = 4;
-    public static final int PITCH_FIELD_NUMBER = 4;
-    private int pitch_;
-    public boolean hasPitch() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
-    }
-    public int getPitch() {
-      return pitch_;
-    }
-    
-    // required int32 Yaw = 5;
-    public static final int YAW_FIELD_NUMBER = 5;
-    private int yaw_;
-    public boolean hasYaw() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    public int getYaw() {
-      return yaw_;
-    }
-    
-    // required int32 Roll = 6;
-    public static final int ROLL_FIELD_NUMBER = 6;
-    private int roll_;
-    public boolean hasRoll() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
-    }
-    public int getRoll() {
-      return roll_;
-    }
-    
-    private void initFields() {
-      x_ = 0;
-      y_ = 0;
-      z_ = 0;
-      pitch_ = 0;
-      yaw_ = 0;
-      roll_ = 0;
-    }
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
-      
-      if (!hasX()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasY()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasZ()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasPitch()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasYaw()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasRoll()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      memoizedIsInitialized = 1;
-      return true;
-    }
-    
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt32(1, x_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeInt32(2, y_);
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeInt32(3, z_);
-      }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeInt32(4, pitch_);
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeInt32(5, yaw_);
-      }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeInt32(6, roll_);
-      }
-      getUnknownFields().writeTo(output);
-    }
-    
-    private int memoizedSerializedSize = -1;
-    public int getSerializedSize() {
-      int size = memoizedSerializedSize;
-      if (size != -1) return size;
-    
-      size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, x_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(2, y_);
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(3, z_);
-      }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(4, pitch_);
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(5, yaw_);
-      }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(6, roll_);
-      }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
-      return size;
-    }
-    
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-    
-    public static com.pokemonnxt.packets.Communications.TYPE_LOCATION parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data).buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.TYPE_LOCATION parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data, extensionRegistry)
-               .buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.TYPE_LOCATION parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data).buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.TYPE_LOCATION parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data, extensionRegistry)
-               .buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.TYPE_LOCATION parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input).buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.TYPE_LOCATION parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input, extensionRegistry)
-               .buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.TYPE_LOCATION parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      Builder builder = newBuilder();
-      if (builder.mergeDelimitedFrom(input)) {
-        return builder.buildParsed();
-      } else {
-        return null;
-      }
-    }
-    public static com.pokemonnxt.packets.Communications.TYPE_LOCATION parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      Builder builder = newBuilder();
-      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
-        return builder.buildParsed();
-      } else {
-        return null;
-      }
-    }
-    public static com.pokemonnxt.packets.Communications.TYPE_LOCATION parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input).buildParsed();
-    }
-    public static com.pokemonnxt.packets.Communications.TYPE_LOCATION parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input, extensionRegistry)
-               .buildParsed();
-    }
-    
-    public static Builder newBuilder() { return Builder.create(); }
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.pokemonnxt.packets.Communications.TYPE_LOCATION prototype) {
-      return newBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() { return newBuilder(this); }
-    
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.pokemonnxt.packets.Communications.TYPE_LOCATIONOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return com.pokemonnxt.packets.Communications.internal_static_packets_TYPE_LOCATION_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return com.pokemonnxt.packets.Communications.internal_static_packets_TYPE_LOCATION_fieldAccessorTable;
-      }
-      
-      // Construct using com.pokemonnxt.packets.Communications.TYPE_LOCATION.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-      
-      private Builder(BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-        }
-      }
-      private static Builder create() {
-        return new Builder();
-      }
-      
-      public Builder clear() {
-        super.clear();
-        x_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000001);
-        y_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        z_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        pitch_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000008);
-        yaw_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000010);
-        roll_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000020);
-        return this;
-      }
-      
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-      
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return com.pokemonnxt.packets.Communications.TYPE_LOCATION.getDescriptor();
-      }
-      
-      public com.pokemonnxt.packets.Communications.TYPE_LOCATION getDefaultInstanceForType() {
-        return com.pokemonnxt.packets.Communications.TYPE_LOCATION.getDefaultInstance();
-      }
-      
-      public com.pokemonnxt.packets.Communications.TYPE_LOCATION build() {
-        com.pokemonnxt.packets.Communications.TYPE_LOCATION result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-      
-      private com.pokemonnxt.packets.Communications.TYPE_LOCATION buildParsed()
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        com.pokemonnxt.packets.Communications.TYPE_LOCATION result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(
-            result).asInvalidProtocolBufferException();
-        }
-        return result;
-      }
-      
-      public com.pokemonnxt.packets.Communications.TYPE_LOCATION buildPartial() {
-        com.pokemonnxt.packets.Communications.TYPE_LOCATION result = new com.pokemonnxt.packets.Communications.TYPE_LOCATION(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.x_ = x_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.y_ = y_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
-        result.z_ = z_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
-        }
-        result.pitch_ = pitch_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-          to_bitField0_ |= 0x00000010;
-        }
-        result.yaw_ = yaw_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000020;
-        }
-        result.roll_ = roll_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
-      
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.pokemonnxt.packets.Communications.TYPE_LOCATION) {
-          return mergeFrom((com.pokemonnxt.packets.Communications.TYPE_LOCATION)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-      
-      public Builder mergeFrom(com.pokemonnxt.packets.Communications.TYPE_LOCATION other) {
-        if (other == com.pokemonnxt.packets.Communications.TYPE_LOCATION.getDefaultInstance()) return this;
-        if (other.hasX()) {
-          setX(other.getX());
-        }
-        if (other.hasY()) {
-          setY(other.getY());
-        }
-        if (other.hasZ()) {
-          setZ(other.getZ());
-        }
-        if (other.hasPitch()) {
-          setPitch(other.getPitch());
-        }
-        if (other.hasYaw()) {
-          setYaw(other.getYaw());
-        }
-        if (other.hasRoll()) {
-          setRoll(other.getRoll());
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
-        return this;
-      }
-      
-      public final boolean isInitialized() {
-        if (!hasX()) {
-          
-          return false;
-        }
-        if (!hasY()) {
-          
-          return false;
-        }
-        if (!hasZ()) {
-          
-          return false;
-        }
-        if (!hasPitch()) {
-          
-          return false;
-        }
-        if (!hasYaw()) {
-          
-          return false;
-        }
-        if (!hasRoll()) {
-          
-          return false;
-        }
-        return true;
-      }
-      
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder(
-            this.getUnknownFields());
-        while (true) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              this.setUnknownFields(unknownFields.build());
-              onChanged();
-              return this;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                this.setUnknownFields(unknownFields.build());
-                onChanged();
-                return this;
-              }
-              break;
-            }
-            case 8: {
-              bitField0_ |= 0x00000001;
-              x_ = input.readInt32();
-              break;
-            }
-            case 16: {
-              bitField0_ |= 0x00000002;
-              y_ = input.readInt32();
-              break;
-            }
-            case 24: {
-              bitField0_ |= 0x00000004;
-              z_ = input.readInt32();
-              break;
-            }
-            case 32: {
-              bitField0_ |= 0x00000008;
-              pitch_ = input.readInt32();
-              break;
-            }
-            case 40: {
-              bitField0_ |= 0x00000010;
-              yaw_ = input.readInt32();
-              break;
-            }
-            case 48: {
-              bitField0_ |= 0x00000020;
-              roll_ = input.readInt32();
-              break;
-            }
-          }
-        }
-      }
-      
-      private int bitField0_;
-      
-      // required int32 X = 1;
-      private int x_ ;
-      public boolean hasX() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      public int getX() {
-        return x_;
-      }
-      public Builder setX(int value) {
-        bitField0_ |= 0x00000001;
-        x_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearX() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        x_ = 0;
-        onChanged();
-        return this;
-      }
-      
-      // required int32 Y = 2;
-      private int y_ ;
-      public boolean hasY() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      public int getY() {
-        return y_;
-      }
-      public Builder setY(int value) {
-        bitField0_ |= 0x00000002;
-        y_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearY() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        y_ = 0;
-        onChanged();
-        return this;
-      }
-      
-      // required int32 Z = 3;
-      private int z_ ;
-      public boolean hasZ() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      public int getZ() {
-        return z_;
-      }
-      public Builder setZ(int value) {
-        bitField0_ |= 0x00000004;
-        z_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearZ() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        z_ = 0;
-        onChanged();
-        return this;
-      }
-      
-      // required int32 Pitch = 4;
-      private int pitch_ ;
-      public boolean hasPitch() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
-      }
-      public int getPitch() {
-        return pitch_;
-      }
-      public Builder setPitch(int value) {
-        bitField0_ |= 0x00000008;
-        pitch_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearPitch() {
-        bitField0_ = (bitField0_ & ~0x00000008);
-        pitch_ = 0;
-        onChanged();
-        return this;
-      }
-      
-      // required int32 Yaw = 5;
-      private int yaw_ ;
-      public boolean hasYaw() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      public int getYaw() {
-        return yaw_;
-      }
-      public Builder setYaw(int value) {
-        bitField0_ |= 0x00000010;
-        yaw_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearYaw() {
-        bitField0_ = (bitField0_ & ~0x00000010);
-        yaw_ = 0;
-        onChanged();
-        return this;
-      }
-      
-      // required int32 Roll = 6;
-      private int roll_ ;
-      public boolean hasRoll() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
-      }
-      public int getRoll() {
-        return roll_;
-      }
-      public Builder setRoll(int value) {
-        bitField0_ |= 0x00000020;
-        roll_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearRoll() {
-        bitField0_ = (bitField0_ & ~0x00000020);
-        roll_ = 0;
-        onChanged();
-        return this;
-      }
-      
-      // @@protoc_insertion_point(builder_scope:packets.TYPE_LOCATION)
-    }
-    
-    static {
-      defaultInstance = new TYPE_LOCATION(true);
-      defaultInstance.initFields();
-    }
-    
-    // @@protoc_insertion_point(class_scope:packets.TYPE_LOCATION)
+    // @@protoc_insertion_point(class_scope:packets.LoginPayload)
   }
   
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_packets_LOGIN_descriptor;
+    internal_static_packets_Packet_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_packets_LOGIN_fieldAccessorTable;
+      internal_static_packets_Packet_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_packets_LOGIN_SUCCESS_descriptor;
+    internal_static_packets_Header_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_packets_LOGIN_SUCCESS_fieldAccessorTable;
+      internal_static_packets_Header_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_packets_TYPE_LOCATION_descriptor;
+    internal_static_packets_Payload_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_packets_TYPE_LOCATION_fieldAccessorTable;
+      internal_static_packets_Payload_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_packets_LoginPayload_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_packets_LoginPayload_fieldAccessorTable;
   
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -1853,44 +2141,53 @@ public final class Communications {
   static {
     java.lang.String[] descriptorData = {
       "\n+com/pokemonnxt/packets/communications." +
-      "proto\022\007packets\":\n\005LOGIN\022\020\n\010username\030\001 \002(" +
-      "\t\022\020\n\010password\030\002 \002(\t\022\r\n\005email\030\003 \001(\t\"Q\n\rLO" +
-      "GIN_SUCCESS\022\014\n\004GTID\030\001 \002(\005\022\013\n\003new\030\002 \002(\010\022%" +
-      "\n\005spawn\030\003 \002(\0132\026.packets.TYPE_LOCATION\"Z\n" +
-      "\rTYPE_LOCATION\022\t\n\001X\030\001 \002(\005\022\t\n\001Y\030\002 \002(\005\022\t\n\001" +
-      "Z\030\003 \002(\005\022\r\n\005Pitch\030\004 \002(\005\022\013\n\003Yaw\030\005 \002(\005\022\014\n\004R" +
-      "oll\030\006 \002(\005B(\n\026com.pokemonnxt.packetsB\016Com" +
-      "munications"
+      "proto\022\007packets\"L\n\006Packet\022\037\n\006header\030\001 \002(\013" +
+      "2\017.packets.Header\022!\n\007payload\030\002 \002(\0132\020.pac" +
+      "kets.Payload\">\n\006Header\022\n\n\002id\030\001 \002(\005\022(\n\004ty" +
+      "pe\030\002 \001(\0162\023.packets.PacketType:\005LOGIN\"6\n\007" +
+      "Payload\022+\n\014loginpayload\030\001 \001(\0132\025.packets." +
+      "LoginPayload\"A\n\014LoginPayload\022\020\n\010username" +
+      "\030\001 \002(\t\022\020\n\010password\030\002 \002(\t\022\r\n\005email\030\003 \002(\t*" +
+      "!\n\nPacketType\022\t\n\005LOGIN\020\000\022\010\n\004GAME\020\001B(\n\026co" +
+      "m.pokemonnxt.packetsB\016Communications"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
         public com.google.protobuf.ExtensionRegistry assignDescriptors(
             com.google.protobuf.Descriptors.FileDescriptor root) {
           descriptor = root;
-          internal_static_packets_LOGIN_descriptor =
+          internal_static_packets_Packet_descriptor =
             getDescriptor().getMessageTypes().get(0);
-          internal_static_packets_LOGIN_fieldAccessorTable = new
+          internal_static_packets_Packet_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_packets_LOGIN_descriptor,
-              new java.lang.String[] { "Username", "Password", "Email", },
-              com.pokemonnxt.packets.Communications.LOGIN.class,
-              com.pokemonnxt.packets.Communications.LOGIN.Builder.class);
-          internal_static_packets_LOGIN_SUCCESS_descriptor =
+              internal_static_packets_Packet_descriptor,
+              new java.lang.String[] { "Header", "Payload", },
+              com.pokemonnxt.packets.Communications.Packet.class,
+              com.pokemonnxt.packets.Communications.Packet.Builder.class);
+          internal_static_packets_Header_descriptor =
             getDescriptor().getMessageTypes().get(1);
-          internal_static_packets_LOGIN_SUCCESS_fieldAccessorTable = new
+          internal_static_packets_Header_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_packets_LOGIN_SUCCESS_descriptor,
-              new java.lang.String[] { "GTID", "New", "Spawn", },
-              com.pokemonnxt.packets.Communications.LOGIN_SUCCESS.class,
-              com.pokemonnxt.packets.Communications.LOGIN_SUCCESS.Builder.class);
-          internal_static_packets_TYPE_LOCATION_descriptor =
+              internal_static_packets_Header_descriptor,
+              new java.lang.String[] { "Id", "Type", },
+              com.pokemonnxt.packets.Communications.Header.class,
+              com.pokemonnxt.packets.Communications.Header.Builder.class);
+          internal_static_packets_Payload_descriptor =
             getDescriptor().getMessageTypes().get(2);
-          internal_static_packets_TYPE_LOCATION_fieldAccessorTable = new
+          internal_static_packets_Payload_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_packets_TYPE_LOCATION_descriptor,
-              new java.lang.String[] { "X", "Y", "Z", "Pitch", "Yaw", "Roll", },
-              com.pokemonnxt.packets.Communications.TYPE_LOCATION.class,
-              com.pokemonnxt.packets.Communications.TYPE_LOCATION.Builder.class);
+              internal_static_packets_Payload_descriptor,
+              new java.lang.String[] { "Loginpayload", },
+              com.pokemonnxt.packets.Communications.Payload.class,
+              com.pokemonnxt.packets.Communications.Payload.Builder.class);
+          internal_static_packets_LoginPayload_descriptor =
+            getDescriptor().getMessageTypes().get(3);
+          internal_static_packets_LoginPayload_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_packets_LoginPayload_descriptor,
+              new java.lang.String[] { "Username", "Password", "Email", },
+              com.pokemonnxt.packets.Communications.LoginPayload.class,
+              com.pokemonnxt.packets.Communications.LoginPayload.Builder.class);
           return null;
         }
       };
