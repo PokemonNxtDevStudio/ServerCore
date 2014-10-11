@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gson.annotations.Expose;
+import com.pokemonnxt.types.trainer.Trainer;
 
 public class Battle {
 
-	@Expose public ArrayList<Player> TeamA = new ArrayList<Player>();
-	@Expose public ArrayList<Player> TeamB = new ArrayList<Player>();
+	@Expose public ArrayList<Trainer> TeamA = new ArrayList<Trainer>();
+	@Expose public ArrayList<Trainer> TeamB = new ArrayList<Trainer>();
 	
 	public HashMap<Integer, Integer> States = new HashMap<Integer, Integer>();
 	
@@ -28,7 +29,7 @@ public class Battle {
 	 * 6 = Battle over
 	 */
 	
-	public Battle(ArrayList<Player> Blue, ArrayList<Player> Red){
+	public Battle(ArrayList<Trainer> Blue, ArrayList<Trainer> Red){
 		// Blue team are the proposers, but send an invite to all anyways
 		State = 0;
 		

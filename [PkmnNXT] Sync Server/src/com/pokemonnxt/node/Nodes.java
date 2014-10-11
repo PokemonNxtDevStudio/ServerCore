@@ -21,9 +21,9 @@ public class Nodes {
 		addNode(ON);
 	}
 	public Nodes() {
-		nodeServer.run();
+		nodeServer.start();
 		
-		File inputFile = new File("/etc/NXT_SERVER/CONF/Nodes.ips");
+		//File inputFile = new File("/etc/NXT_SERVER/CONF/Nodes.ips");
 		
 	}
 

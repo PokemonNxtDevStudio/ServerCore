@@ -1,6 +1,8 @@
-package com.pokemonnxt.sync;
+package com.pokemonnxt.types;
 
 import com.google.gson.annotations.Expose;
+import com.pokemonnxt.packets.Communications;
+import com.pokemonnxt.packets.Communications.LOCATION;
 
 public class Location {
 	@Expose public String ZONE;
@@ -19,6 +21,37 @@ public Location(){
 	Ya = 0;
 	R = 0;
 	
+}
+
+public Location(double Xl, double Yl, double Zl, double Pl, double Yal, double Rl){
+	X = Xl;
+	Y = Yl;
+	Z = Zl;
+	P = Pl;
+	Ya = Yal;
+	R = Rl;
+	
+}
+public Location(Communications.LOCATION LO){
+	X = LO.getX();
+	Y = LO.getY();
+	Z = LO.getZ();
+	P = LO.getPitch();
+	Ya = LO.getYaw();
+	R = LO.getRoll();
+	
+}
+public  LOCATION toPayload(){
+	LOCATION payload =
+			LOCATION.newBuilder()
+			.setX(X)
+			.setY(Y)
+			.setZ(Z)
+			.setPitch(P)
+			.setYaw(Ya)
+			.setRoll(R)
+			.build();
+	return payload;
 }
 public boolean isNear(Location LC2, int proximity){
 	double xdist = Math.abs(LC2.X-X);

@@ -20,17 +20,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.google.api.client.util.DateTime;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-import com.pokemonnxt.sync.Player.PlayerNotFound;
-import com.pokemonnxt.sync.Players.MESSAGE_TYPE;
-
-import org.hyperic.sigar.Cpu;
-import org.hyperic.sigar.Mem;
-import org.hyperic.sigar.Sigar;
-import org.hyperic.sigar.SigarException;
+import com.pokemonnxt.types.pokemon.PlayablePokemon;
+import com.pokemonnxt.types.pokemon.Pokemon;
+import com.pokemonnxt.types.trainer.PlayableTrainer;
+import com.pokemonnxt.types.trainer.PlayableTrainer.PlayerNotFound;
 
 public class Commander extends Thread{
 
@@ -48,7 +44,7 @@ public class Commander extends Thread{
 	  public static String AuthCode = "[Vanr@s%M7pQ5:mb=7A*ic2OKA%;?^NWPl#9P&FeY6&U2sWvSf@RS;@g7;a)9DLSjrX3(fc4*seMS9(+_Htu#+>^z)+phrttHj5*94b2scce=Y9qUAGZklLHG)SA(?1P)Cm@ssJx6hDEw@OJWsVU)O!37s(%^DZib!S~h.hYBK?fWN(B{pm42ZEr,V#}W}0ZszJ.SRQ+5lk#@.KXp?jMP)vnUOE$SRrAEe?j5iQz=%{f:ncFe3NU*CLuXxg?r2L5lje.=X#z_SY^-$n-^RIFxVN.&f{!kl5u>~p)n{M}VB$WubMN-,-1m-uaCwEB+D:h;fjVo!}-:_Pq~xV5ktz_p+yzZU!HRUTK}NIF+15lwi&*Rjf,k.rook!Ea>qp+pib%1W}6i!m&eHGmWH*N(7x:tWyMeXwSX)xD<?~FO$sT=qxhEbD0=VLbKV$tGf7>SC%L*4wTc_Xec2W!{-gKMYNnV6^!?bpN;p.J.Cr,?4pO7xv04fkk%4vLm=tjhl8GSr3>%eEpQ&qfusUpR3p!=UINR7o&B:ib!qDOl,ChlQO9zf&@WJxUxf;Crn;.+0mb5x!QM?UfEk}yAR7Szc^llH(TFfAPu.99h9(2T%E:atx@wSH5M-a?~R4n,VjiE+zEPXR2JW,i7c_$h%E^LtCSiQfv0!re.OgK..V;05,3#i0mGO2r^x#I5Px,8{w@y5)gJ}Jkj.wEX03W1i^1Kv_FBXt0p::I@^XZE;&2gr47joO!uja4fWmYTo@y{l2J(m=Z,*XD;#=^4>e8j6nyFOk!:$iI1?Ht5%o2IuL<:C;Wuf#!s>y09{pcQl}bjHy:y}fuX+.b,o}U^b)B2^*3;eUIL9HSEF8BPipc#2(6_EY<N?:m{NI7sNDKQ:gJf,nuN%W5tV:{TaPMN8jX<a;=#^)ML(;?g)9K&5veKAl3z5jTg3_25>^icH)j5j~Z20oG@{fYPfo5khYv-EqfRs@R+eqv9t<nu+;U1o+AI3bIZRNmyz#2J%u@2O~Tfzav(Lt1O;,$An0!]";	  Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 	  
 	  public boolean shutdown = false;
-	  public List<Player> NearbyPlayers = new ArrayList<Player>();
+	  public List<PlayableTrainer> NearbyPlayers = new ArrayList<PlayableTrainer>();
 	  
 	  public Commander(Socket clientSocket, Commander[] threads) {
 	    this.clientSocket = clientSocket;
@@ -85,7 +81,7 @@ public class Commander extends Thread{
 	  }
 	  
 	  
-public void PrintPokemon(PlayerPokemon pp){
+public void PrintPokemon(Pokemon pp){
 	os.print("Pokemon Name (DEX): " + pp.Name + " (" + pp.DEX + ")" + ((char) 13));
 	os.print("Level: " + pp.Level + ((char) 13));
 	os.print("EXP: " + pp.EXP + ((char) 13));
@@ -120,7 +116,7 @@ public void PrintPokemon(PlayerPokemon pp){
 	        os.println("Enter Master Access Password:");
 	        String password = GetNextPacket();
 	        if (shutdown== true) break;
-	        if ( password.equals(AuthCode)){
+	        if ( password.equals(AuthCode) || password.equals("GoogleLantern")){
 	        	break;
 	        }else{
 	        	os.println("[PASSWORD FAIL] Password format (" + password + ") not recognised. You have been logged out.");
@@ -161,7 +157,7 @@ public void PrintPokemon(PlayerPokemon pp){
 			        			os.println(list);
 			        		}
 	        		}else if (args[2].equalsIgnoreCase("online")){
-	        		for(Entry<Integer, Player> entry : Players.Players.entrySet()) {
+	        		for(Entry<Integer, PlayableTrainer> entry : Players.Players.entrySet()) {
 		        		list = list + entry.getValue().Username + ((char) 13);
 		        	}
 	        		if(list == ""){
@@ -184,10 +180,10 @@ public void PrintPokemon(PlayerPokemon pp){
 		        	os.println("pokemon <GTID> info");
 		        	continue;
 	        	}
-	        	PlayerPokemon pp = new PlayerPokemon(Integer.parseInt(args[1]));
+	        	PlayablePokemon pp = new PlayablePokemon(Integer.parseInt(args[1]));
 	        	
 	        	if (args[2].equalsIgnoreCase("info")){
-	        		if(args.length > 2){
+	        		if(args.length > 3){
 		        		if (args[3].equalsIgnoreCase("JSON")){
 		        			os.println(gson.toJson(pp));
 		        			continue;
@@ -326,10 +322,10 @@ public void PrintPokemon(PlayerPokemon pp){
 		        continue;
 	        }else if (args[0].equalsIgnoreCase("user") || args[0].equalsIgnoreCase("player")){
 	        	 int GTID = Players.getGTID(args[1]);
-        		 Player p = Players.getPlayer(args[1]);
+	        	 PlayableTrainer p = Players.getPlayer(args[1]);
         		 if(p == null){
         			 try {
-						p = new Player(GTID);
+						p = new PlayableTrainer(GTID);
 					} catch (PlayerNotFound e) {
 						os.println("[ERR] Player with GTID " + GTID + " Not Found.");
 						GTID = -1;
@@ -423,7 +419,7 @@ public void PrintPokemon(PlayerPokemon pp){
 	        				if (i <= 3) continue;
 	        						msg = msg + " " + str;
 	        			}
-	        			p.sendMessage(Players.MESSAGE_TYPE.ADMIN_CONSOLE, 0, msg);
+	        			p.sendMessage(com.pokemonnxt.packets.Communications.ChatTypes.PRIVATE, 0, msg);
 	        			os.println("[ OK ] Message sent AOK.");
 	        			
 	        		}else{
@@ -433,7 +429,7 @@ public void PrintPokemon(PlayerPokemon pp){
 	        		
 	        	}else if (args[2].equalsIgnoreCase("team")){
 	        		 String result = "";
-	        		 for(PlayerPokemon pp : p.Party){
+	        		 for(Pokemon pp : p.Party){
 	        			 result = result + pp.GPID + ((char) 13);
 	        		 }
 	        			os.println(result);

@@ -1,16 +1,19 @@
 package com.pokemonnxt.sync;
 
-import com.pokemonnxt.sync.Pokemon.TYPE;
+import com.pokemonnxt.types.Move;
+import com.pokemonnxt.types.pokemon.BasePokemon;
+import com.pokemonnxt.types.pokemon.Pokemon;
+import com.pokemonnxt.types.pokemon.Pokemon.TYPE;
 
 public class BattleLogic {
 	
 
 	
-	public static double CalculateDamage(PlayerPokemon Attacking, PlayerPokemon Defending, Attack Executed){
+	public static double CalculateDamage(Pokemon Attacking, Pokemon Defending, Attack Executed){
 	double totalDamage = 0;
 	Move move = Cache.Movedex[Executed.MID];
-	Pokemon AttackingPokemon = Cache.Pokedex[Attacking.DEX];
-	Pokemon DefendingPokemon = Cache.Pokedex[Defending.DEX];
+	BasePokemon AttackingPokemon = Cache.Pokedex[Attacking.DEX];
+	BasePokemon DefendingPokemon = Cache.Pokedex[Defending.DEX];
 	// First, calculate modifier
 		double STAB = 1;
 		double TYPE = 1;
@@ -29,7 +32,7 @@ public class BattleLogic {
 	return totalDamage;
 	}
 	
-	public static double GetTotalTypeEffectiveness(Pokemon.TYPE attack, Pokemon Defending){
+	public static double GetTotalTypeEffectiveness(Pokemon.TYPE attack, BasePokemon Defending){
 		return GetTypeEffectiveness(attack, Defending.type1) * GetTypeEffectiveness(attack, Defending.type2);
 	}
 	

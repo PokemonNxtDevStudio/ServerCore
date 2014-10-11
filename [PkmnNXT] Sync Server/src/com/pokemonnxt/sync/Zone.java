@@ -3,6 +3,8 @@ package com.pokemonnxt.sync;
 import java.awt.Point;
 import java.awt.Polygon;
 
+import com.pokemonnxt.types.Location;
+
 public class Zone {
 	public Polygon Area;
 	public int Lbound;

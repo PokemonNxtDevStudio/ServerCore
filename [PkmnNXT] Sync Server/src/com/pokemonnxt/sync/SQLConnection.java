@@ -20,7 +20,7 @@ public class SQLConnection {
 	static String baseDBName = "NXT_BASE";
 	String gameDBUserName = "NXT_GAME-SYNC";
 	String gameDBPassword = "AqDErPDjjuUBzjcW";
-	Connection SQL;
+	public Connection SQL;
 	Connection BaseSQL;
 	private Connection Temp;
 	SQLRenewTask SQLRenew;

@@ -20,22 +20,17 @@ import java.util.List;
 import java.util.Map;
 
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.pokemonnxt.sync.Packet.InvalidHeader;
 import com.pokemonnxt.sync.Packet.InvalidPacket;
 import com.pokemonnxt.sync.Packet.ParseError;
-import com.pokemonnxt.sync.Packet.TYPES;
-import com.pokemonnxt.sync.Player.LoginFailed;
-import com.pokemonnxt.sync.PlayerLog.LOGTYPE;
-import com.pokemonnxt.sync.PlayerPokemon.STATUS;
-import com.pokemonnxt.sync.Players.MESSAGE_TYPE;
 import com.pokemonnxt.sync.ThreadMonitor.ThreadUsage;
+import com.pokemonnxt.types.Location;
+import com.pokemonnxt.types.pokemon.Pokemon;
+import com.pokemonnxt.types.trainer.PlayableTrainer;
+import com.pokemonnxt.types.trainer.PlayableTrainer.LoginFailed;
 
-import com.pokemonnxt.packets.Communications;
-import com.pokemonnxt.packets.Communications.Header;
-import com.pokemonnxt.packets.Communications.Header.Builder;
-import com.pokemonnxt.packets.Testing;
+import com.pokemonnxt.packets.ClassToPayload;
+import com.pokemonnxt.packets.Communications.*;
 
 public class Client extends Thread implements AutoCloseable {
 
@@ -85,9 +80,9 @@ public class Client extends Thread implements AutoCloseable {
 	  public ThreadUsage Performance = null;
 	  public STATES State;
 	  
-	  public Player player = null;
+	  public PlayableTrainer player = null;
 	  public boolean shutdown = false;
-	  public List<Player> NearbyPlayers = new ArrayList<Player>();
+	  public List<PlayableTrainer> NearbyPlayers = new ArrayList<PlayableTrainer>();
 	  
 	  public Client(Socket clientSocket, Client[] threads) {
 		  State = STATES.INITIATED;
@@ -121,30 +116,9 @@ public class Client extends Thread implements AutoCloseable {
 		  try {
 				byte header[] = new byte[16];
 				byte startbytes[] = new byte[2];
-				
-				// wait for packet start
 				State = STATES.WAITING;
 				short i = 0;
-				/*
-				while (	startbytes[0] != 0x00 && startbytes[1] != 0xFF && startbytes[2] != 0x00){
-					startbytes[0] = startbytes[1];
-					startbytes[1] = startbytes[2];
-					
-						startbytes[2] = is.readByte();
-					
-				}
-				header[0] = startbytes[0];
-				header[1] = startbytes[1];
-				header[2] = startbytes[2];
-				*/
 				State = STATES.RECEIVING;
-				/*
-			short headerSize = 3;
-			while(headerSize <= 16){
-				header[headerSize] = is.readByte();
-				headerSize +=1;
-			}
-			*/
 				startbytes[0] = is.readByte();
 				startbytes[1] = is.readByte();
 				Logger.log_client(Logger.LOG_PROGRESS,IP, "Length Bytes: " + Functions.bytesToHex(startbytes));
@@ -152,7 +126,6 @@ public class Client extends Thread implements AutoCloseable {
 			Logger.log_client(Logger.LOG_PROGRESS,IP, "Starting receive of packet of length " + Functions.twoBytesToShort(startbytes[0], startbytes[1]));
 			while(Incoming.isComplete == false){
 				Incoming.addPayloadByte(is.readByte());
-				Logger.log_client(Logger.LOG_PROGRESS,IP, "Packet: " + Functions.bytesToHex(Incoming.Data));
 			}
 			State = STATES.PARSING;
 			Logger.log_client(Logger.LOG_PROGRESS,IP, "Finished Receiving Packet: ");
@@ -185,36 +158,42 @@ public class Client extends Thread implements AutoCloseable {
 			  return;
 		  }
 		  switch(p.getType()){
+		  	  case PLAYER_DATA:
+		  		  PlayerDataPayload PlayerData = p.getPayload().getPlayerdatapayload();
+		  		  if (PlayerData.getLocation() != null){
+		  			  player.Move(new Location(PlayerData.getLocation()));
+		  		  }
 			  case LOGIN:
-				  Communications.LoginPayload LoginPacket = p.getPayload().getLoginpayload();
+				  LoginPayload LoginPacket = p.getPayload().getLoginpayload();
 				  
 				 Logger.log_client(Logger.LOG_VERB_LOW, IP, "Received Login For User: " + LoginPacket.getUsername());
 				 try {
-						player = new Player(LoginPacket.getUsername(), LoginPacket.getPassword(),LoginPacket.getEmail(),this);
-						// TODO Add code to send login suceeded packet
+						player = new PlayableTrainer(LoginPacket.getUsername(), LoginPacket.getPassword(),LoginPacket.getEmail(),this);
+						PlayerDataPayload PDP = player.toPayload();
+						Packet pac = new Packet(PDP,IP);
+						SendPacket(pac);
 						Logger.log_client(Logger.LOG_VERB_LOW, IP, "User Logged in: " + player.GTID);
 					} catch (LoginFailed e) {
-						// TODO Add code to send login failed packet
+						ActionFailedPayload AFP = ClassToPayload.makeActionFailedPayload(ErrorTypes.LOGIN_INCORRECT,e.message);
+						Packet pac = new Packet(AFP,IP);
+						SendPacket(pac);
 						Logger.log_client(Logger.LOG_VERB_LOW, IP, "Login Failed For User: " + LoginPacket.getUsername() + " Reason: " + e.message);
 					}
-				 
-				 /*
-				 Builder toreturn = Communications.Header.newBuilder();
-				 toreturn
-				  .setId(1)
-				  .setType(Communications.PacketType.);
-				 Packet pac = new Packet(toreturn.build(),IP);
-				SendPacket(pac);
-				 */
-				 /* Communications.LOGIN LoginPacket =  (LOGIN) p.getPacket();
-				   try {
-						player = new Player(LoginPacket.getUsername(), LoginPacket.getPassword(),LoginPacket.getEmail(),this);
-						// TODO Add code to send login suceeded packet
-					} catch (LoginFailed e) {
-						// TODO Add code to send login failed packet
-						Logger.log_client(Logger.LOG_VERB_LOW, IP, "Login Failed For User: " + LoginPacket.getUsername() + " Reason: " + e.message);
-					}
-				   */
+				  break;
+			  case CHAT:
+				  ChatMsgPayload ChatMessagePacket = p.getPayload().getChatmsgpayload();
+				  switch(ChatMessagePacket.getType()){
+				case PRIVATE:
+					break;
+				case PUBLIC:
+					Players.SendChat(ChatTypes.PUBLIC, player.GTID, ChatMessagePacket.getMsg());
+					break;
+				case SHOUT:
+					break;
+				default:
+					break;
+				  
+				  }
 				  break;
 			  default:
 				  break;
@@ -222,45 +201,7 @@ public class Client extends Thread implements AutoCloseable {
 		  }
 	  }
 	  
-	  public String GetNextPacket(){
-		 try {
-			 if (shutdown == true) return "";
-			 int b = 1;
-			 boolean f = true;
-			 
-			 while (f){
-				// Logger.log_client(Logger.LOG_PROGRESS,IP, "LOGGING");
-			 while (is.available() > 0){
-				 byte data[] = new byte[is.available()];
-				 Logger.log_client(Logger.LOG_PROGRESS,IP, "RECEIVING" + is.available());
-			b= is.read(data);
-			
-			 Logger.log_client(Logger.LOG_PROGRESS,IP, "Received : " + Functions.bytesToHex(data));
-		 }
-			// Logger.log_client(Logger.LOG_PROGRESS,IP, "EOS");
-			 //Logger.log_client(Logger.LOG_PROGRESS,IP, "Received Packet: " + data.toString());
-			 }
-			 return "";
-			/* if(data == null){
-				shutdown = true;
-				 data = "";
-			 }
-			 if(isConnected() == false){
-				shutdown = true;
-				 data = "";
-			 }
-			 lastRX = System.currentTimeMillis();
-			return data;
-			*/
-		} catch (IOException e) {
-			//shutdown = true;
-			return "";
-		}catch (NullPointerException npe){
-			//shutdown = true;
-			return "";
-		}
-		  
-	  }
+	
 	  public void forceClose(){
 		  
 	      try {
@@ -282,8 +223,8 @@ public class Client extends Thread implements AutoCloseable {
 			os.writeUTF(Packet);
 			Logger.log_client(Logger.LOG_PROGRESS,IP,  "Packet Sent: " + Packet);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
+			GEH.uncaughtException(Thread.currentThread(), (Throwable) e, "Error sending string message");
 		}
 		
 	}
@@ -325,111 +266,25 @@ public class Client extends Thread implements AutoCloseable {
 	    	  }
 			}
 	      
-	      String AuthPacket;
-	      while(true){
+	      while(!shutdown){
 	    	  Packet p = ReceivePacket();
-	    	  try {
+	    	try {
+	    	  if (player == null && p.getType() != PacketType.LOGIN){
+	    		  ActionFailedPayload AFP = ClassToPayload.makeActionFailedPayload(ErrorTypes.ACCESS_DENIED);
+					Packet pac = new Packet(AFP,IP);
+					SendPacket(pac);
+					Logger.log_client(Logger.LOG_VERB_LOW, IP, "Attempt to do action without logging in.");
+	    	  }
+	    	  
 				ActionPacket(p);
-			} catch (ParseError | InvalidHeader e) {
+				
+			} catch (InvalidHeader e) {
 				GlobalExceptionHandler GEH = new GlobalExceptionHandler();
-				GEH.uncaughtException(Thread.currentThread(), (Throwable) e, "Error actioning packet");
-				break;
+				GEH.uncaughtException(Thread.currentThread(), (Throwable) e, "Error actioning packet; Faulty header: " + e.Invalid);
+			} catch (ParseError e) {
+				GlobalExceptionHandler GEH = new GlobalExceptionHandler();
+				GEH.uncaughtException(Thread.currentThread(), (Throwable) e, "Error actioning packet; Could not parse: " + e.Invalid);
 			}
-	      }
-	      /*
-	      while (true) {
-	    	  if (shutdown== true) break;
-	        SendPacket("<REQUESTING AUTH>");
-	        SendPacket("{'header' { 'PTYPE' : 'SERVER_INFO', 'payload' { 'TIME' : " + System.currentTimeMillis() + ", 'Version' : '" + Main.version + "'} } }");
-	        Logger.log_client(Logger.LOG_VERB_LOW, IP,"Requested Auth");
-	        AuthPacket = GetNextPacket().trim();
-	        SendPacket("[OK]");
-	        if (shutdown== true) break;
-	      
-	        Gson gson = new GsonBuilder().create();
-	        PACKEDUndefined Header = gson.fromJson(AuthPacket, PACKEDUndefined.class);
-	        String packettype = Header.header.PTYPE.toUpperCase();
-	        if (packettype.equalsIgnoreCase("LOGIN")){
-	        
-	        PacketLOGIN_REQUEST request = gson.fromJson(AuthPacket, PacketLOGIN_REQUEST.class);
-	        try {
-				player = new Player(request.payload.Username, request.payload.Password,request.payload.Email,this);
-				break;
-			} catch (LoginFailed e) {
-				SendPacket("{'header' :{ 'PTYPE' : 'LOGIN_FAIL'}, 'payload': { 'Type' : '" + e.Type + "', 'Msg' : '" + e.message + "'} }");
-				Logger.log_client(Logger.LOG_VERB_LOW, IP, "Login Failed");
-			}
-	        	
-	        }else{
-	        	SendPacket("{'header' :{ 'PTYPE' : 'COMMS_FAIL'}, 'payload': {'FLAG':'AUTH_FAIL', 'MESSAGE' : 'Not Logged In. Please log in before doing anything else'} }");
-	        	Logger.log_client(Logger.LOG_VERB_LOW, IP, "Non-Login Packet Attempted in Login context");
-	        }
-	      }
-	      
-	      */
-	      
-	      /*
-	      if (shutdown== true){
-	    	  Close();
-	    	  return;
-	      }
-	    	  */
-	      SendPacket("{'header' :{ 'PTYPE' : 'LOGIN_SUCCESS'}, 'payload': { 'GTID' : '" + player.GTID + "', 'New' : " + player.isNew + "} }");
-	     
-	      while (true) {
-	    	 if (shutdown== true) break;
-	    	 Logger.log_client(Logger.LOG_PROGRESS, IP, "Waiting for next packet");
-	        String newPacket = GetNextPacket();
-	        
-	        	Logger.log_client(Logger.LOG_VERB_LOW, IP, "Got Packet " + newPacket);
-	        
-	        if (shutdown== true) break;
-	        if (newPacket.startsWith("[")){
-	        if (newPacket.startsWith("[CLOSE]")) {
-	        	SendPacket("[OK]");
-	          break;
-	        }
-	        }
-	        
-	       /* if (newPacket.startsWith("{")){
-	        	Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-		        PACKEDUndefined Header = gson.fromJson(newPacket, PACKEDUndefined.class);
-		        String packettype = Header.header.PTYPE.toUpperCase();
-		        if(packettype.equalsIgnoreCase("PLUD")){
-		        	PacketPLUD packet = gson.fromJson(newPacket, PacketPLUD.class);
-		        	player.Move(packet.Location);
-		        }
-		        if(packettype.equalsIgnoreCase("SAVE_REQUEST")){
-		        	player.CommitToDB();
-		        	SendPacket("[OK]");
-		        }
-		        
-		        if(packettype.equalsIgnoreCase("DATA_REQUEST")){
-		        	PacketDATA_REQUEST packet = gson.fromJson(newPacket, PacketDATA_REQUEST.class);
-		        	if (packet.payload.Type.equalsIgnoreCase("ALL")){
-		        		SendPacket("<FEATURE MOVED, PLEASE SEE 'PLAYER'>");
-		        	}
-		        	if (packet.payload.Type.equalsIgnoreCase("PLAYER")){
-		        		SendPacket("{'header' :{ 'PTYPE' : 'PLAYER_DATA'}, 'payload': " + gson.toJson(player) + " }");
-		        	}
-		        	if (packet.payload.Type.equalsIgnoreCase("MOVES")){
-		        		SendPacket("{'header' :{ 'PTYPE' : 'MOVE_LIST', 'SIZE' : " + Cache.moveListJSON.length() + " }, 'payload': " + Cache.moveListJSON + " }");
-		        	}
-		        	if (packet.payload.Type.equalsIgnoreCase("POKEMON")){
-		        		SendPacket("{'header' :{ 'PTYPE' : 'POKEMON_LIST', 'SIZE' : " + Cache.pokemonListJSON.length() + " }, 'payload': " + Cache.pokemonListJSON + " }");
-		        	}
-		        }
-		        if(packettype.equalsIgnoreCase("CAPTURE")){
-		        	PacketCAPTURE packet = gson.fromJson(newPacket, PacketCAPTURE.class);
-		        	PlayerPokemon newPoke = player.catchNew(packet.payload.DEX,packet.payload.Level,packet.payload.EXP, packet.payload.Name, packet.payload.CurrentStats,packet.payload.BaseStats);
-		        
-		        	SendPacket(gson.toJson(newPoke));
-		        }
-	        
-		        
-	        }*/
-	        
-	       
 	      }
 	      
 	      /* if they reach here, they're exiting for whatever reason */
@@ -440,7 +295,6 @@ public class Client extends Thread implements AutoCloseable {
 	    } catch (IOException e) {
 	    	GlobalExceptionHandler GEH = new GlobalExceptionHandler();
 			GEH.uncaughtException(Thread.currentThread(), (Throwable) e);
-	    	e.printStackTrace();
 	    }
 	    Logger.log_client(Logger.LOG_VERB_LOW, IP, "Client Finished.");
 	  }
@@ -473,7 +327,6 @@ public class Client extends Thread implements AutoCloseable {
 		} catch (IOException e) {
 			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
 			GEH.uncaughtException(Thread.currentThread(), (Throwable) e);
-			e.printStackTrace();
 		}
 	      
 	  }
@@ -486,17 +339,27 @@ public class Client extends Thread implements AutoCloseable {
 		  shutdown = true;
 	  }
 	  
-	  public void sendStatusUpdate(int GPID, PlayerPokemon.STATUS State, boolean Value){
-		  SendPacket("{'header':{'PTYPE':'STATUS_UPDATE'},'payload':{'GPID' : " + GPID + ",'Stat' : '" + State + "' ,'Value' : " + Value + "} }");
-	  }
-	  
-	  public void sendLocationUpdate(Location LC, Integer PlayerGTID){
-		  SendPacket("{'header':{'PTYPE':'PLUD'},'payload':{'GTID' : " + PlayerGTID + ",'LOC' : " + MainServer.gson.toJson(LC) + "} }");
-	  }
-	  
-	  public void sendChatUpdate(Players.MESSAGE_TYPE CLASS, int sender, String Message){
-		  SendPacket("{'header' :{ 'PTYPE' : 'CHAT_MESSAGE'}, 'payload': {'Class' : " + CLASS + ",'TX' : " + sender + ",'Msg' : '" + Message + "'} }");
 
+	  
+	  
+	  public void sendLocationUpdate( PlayerDataPayload AFP){
+			Packet pac = new Packet(AFP,IP);
+			SendPacket(pac);
+			Logger.log_client(Logger.LOG_VERB_LOW, IP, "Sent Location Message");
+	  }
+	  public void sendLocationUpdate(PlayableTrainer p){
+		  PlayerDataPayload AFP = p.toLocationUpdatePayload();
+			Packet pac = new Packet(AFP,IP);
+			SendPacket(pac);
+			Logger.log_client(Logger.LOG_VERB_LOW, IP, "Sent Location Message");
+	  }
+	  
+	  public void sendChatUpdate(ChatTypes CLASS, int sender, String Message){
+		  ChatMsgPayload AFP = ClassToPayload.makeChatMsgPayload(CLASS,Message,sender);
+			Packet pac = new Packet(AFP,IP);
+			SendPacket(pac);
+			Logger.log_client(Logger.LOG_VERB_LOW, IP, "Sent Chat Message");
+		  
 	  }
 	@Override
 	public void close() throws Exception {

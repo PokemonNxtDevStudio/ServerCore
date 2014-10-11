@@ -33,6 +33,7 @@ public class ThreadMonitor extends Thread{
 				if(TU == null) TU = new ThreadUsage();
 				TU.CPU =  (tmxb.getThreadCpuTime(TID) / 1000000)/(System.currentTimeMillis() - c.startTime);
 				TU.TID = TID;
+				Logger.log_client(Logger.LOG_PROGRESS, c.IP, "State: " + c.State);
 				if(tmxb.getThreadInfo(TID)== null || tmxb.getThreadInfo(TID).getThreadState()== null){
 					Logger.log_client(Logger.LOG_ERROR,c.IP,  "[MON] thread is in nullstate! Closing");
 					if (c.player != null) c.player.signOut();

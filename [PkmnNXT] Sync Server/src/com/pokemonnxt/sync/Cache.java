@@ -12,13 +12,16 @@ import java.util.HashMap;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.pokemonnxt.sync.Pokemon.TYPE;
+import com.pokemonnxt.types.Move;
+import com.pokemonnxt.types.pokemon.Pokemon.Stats;
+import com.pokemonnxt.types.pokemon.BasePokemon;
+import com.pokemonnxt.types.pokemon.Pokemon;
 
 public class Cache {
 	
 public static String moveListJSON;
 public static String pokemonListJSON;
-public static Pokemon[] Pokedex = new Pokemon[512]; 
+public static BasePokemon[] Pokedex = new BasePokemon[512]; 
 public static Move[] Movedex = new Move[1024]; 
 public static IPPermission[] IPPermissions = new IPPermission[1024]; 
 
@@ -59,11 +62,11 @@ public static void updateMoveList(){
 
 public static void updatePokemonList(){
 	ResultSet Results = Main.SQL.QueryBase("SELECT * FROM `pokemon` where `ID`<" + ServerVars.MaxDEXID);
-	ArrayList<Pokemon> Pokemons = new ArrayList<Pokemon>();
+	ArrayList<BasePokemon> Pokemons = new ArrayList<BasePokemon>();
 	Logger.log_server(Logger.LOG_VERB_HIGH, "Updating Pokemon Cache...");
 	try {
 		while(Results.next()){
-			Pokemon newPokemon = new Pokemon();
+			BasePokemon newPokemon = new BasePokemon();
 			newPokemon.DEX = Results.getInt("id");
 			Logger.log_server(Logger.LOG_PROGRESS, "Loading Pokemon DEX" + newPokemon.DEX);
 			newPokemon.identifier = Results.getString("identifier");
@@ -71,7 +74,8 @@ public static void updatePokemonList(){
 			newPokemon.Height = Results.getInt("height");
 			newPokemon.Weight = Results.getInt("weight");
 			ResultSet BaseStatResults = Main.SQL.QueryBase("SELECT * FROM `pokemon_stats`");
-			PokemonStats BaseStats = new PokemonStats(0,0,0,0,0,0,0,0);
+			Pokemon.Stats BaseStats = new Pokemon.Stats(0,0,0,0,0,0,0,0);
+			
 			BaseStatResults.next();
 			BaseStats.HP = BaseStatResults.getInt("base_stat");
 			BaseStatResults.next();

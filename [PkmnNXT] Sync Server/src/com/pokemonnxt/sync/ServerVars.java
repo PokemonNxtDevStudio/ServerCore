@@ -1,7 +1,11 @@
 package com.pokemonnxt.sync;
 
+import com.pokemonnxt.types.Location;
+
 public class ServerVars {
 
+	
+public static Location Spawn = new Location(20,20,20,0,0,0);
 // LocUpdateDist
 // The distance at which location updates are made
 public static int LocUpdateDist = 50;
@@ -20,6 +24,6 @@ public static int MaxNodes = 64;
 
 //Timeout
 //The maximum amount of time a connection can go without inbound traffic (in milliseconds) before being kicked
-public static int Timeout = 20000;
+public static int Timeout = 999999999;
 
 }

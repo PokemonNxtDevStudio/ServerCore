@@ -1,4 +1,6 @@
-package com.pokemonnxt.sync;
+package com.pokemonnxt.types;
+
+import com.pokemonnxt.types.pokemon.Pokemon;
 
 public class Move {
 public int MID;

@@ -2,19 +2,22 @@ package com.pokemonnxt.sync;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 
-import com.pokemonnxt.sync.Pokemon.TYPE;
+import com.pokemonnxt.types.Location;
+import com.pokemonnxt.types.pokemon.PlayablePokemon;
+import com.pokemonnxt.types.pokemon.Pokemon;
+import com.pokemonnxt.types.trainer.PlayableTrainer;
+import com.pokemonnxt.packets.Communications.*;
 
 
 public class Players {
-public static HashMap<Integer,Player> Players = new HashMap<Integer,Player>();
-public static HashMap<Integer,PlayerPokemon> Pokemon = new HashMap<Integer,PlayerPokemon>();
+public static HashMap<Integer,PlayableTrainer> Players = new HashMap<Integer,PlayableTrainer>();
+public static HashMap<Integer,PlayablePokemon> Pokemon = new HashMap<Integer,PlayablePokemon>();
 public static HashMap<String,Integer> Usernames = new HashMap<String,Integer>();
 
+/*
 	public static enum MESSAGE_TYPE {
 		ERROR(-1), ADMIN_CONSOLE(0), ADMIN_INGAME(1), WEBSITE(2), WHISPER(3), LOCAL(4), LOCAL_SCHEDULED(5), GLOBAL_SCHEDULED(6), GLOBAL_ADMIN(7);
         private  int value;
@@ -35,9 +38,9 @@ public static HashMap<String,Integer> Usernames = new HashMap<String,Integer>();
         private MESSAGE_TYPE(int value) {
                 this.value = value;
         }
-};   
+};   */
 
-public static void AddPlayer(Player p){
+public static void AddPlayer(PlayableTrainer p){
 	if(p != null){
 	if (p.isLoggedIn){
 		if (!Usernames.containsKey(p.Username)) Usernames.put(p.Username.toLowerCase(), p.GTID);
@@ -45,20 +48,20 @@ public static void AddPlayer(Player p){
 	}
 	}
 }
-public static void RemovePlayer(Player p){
+public static void RemovePlayer(PlayableTrainer p){
 	if(p != null){
 	if (Players.containsKey(p.GTID)){
 		Players.remove(p.GTID);
 	}
 	}
 }
-public static Player getPlayer(int GTID){
+public static PlayableTrainer getPlayer(int GTID){
 	if (Players.containsKey(GTID)){
 		return Players.get(GTID);
 	}
 	return null;
 }
-public static Player getPlayer(String Username){
+public static PlayableTrainer getPlayer(String Username){
 	if (Usernames.containsKey(Username)){
 		int GTID = Usernames.get(Username);
 		if (Players.containsKey(GTID)){
@@ -118,35 +121,36 @@ public static int getGTID(String username){
 
 
 
-public static void SendLocationUpdate(int UGTID, Location LOC){
-	for(Entry<Integer, Player> entry : Players.entrySet()) {
+public static void SendLocationUpdate(PlayableTrainer moved){
+	PlayerDataPayload PDP = moved.toLocationUpdatePayload();
+	for(Entry<Integer, PlayableTrainer> entry : Players.entrySet()) {
 	    Integer GTID = entry.getKey();
-	    Player player = entry.getValue();
-	    Logger.log_server(Logger.LOG_PROGRESS, "LOC X: " + LOC.X);
+	    PlayableTrainer player = entry.getValue();
+	    Logger.log_server(Logger.LOG_PROGRESS, "LOC X: " + moved.location);
 	    Logger.log_server(Logger.LOG_PROGRESS, "PL X: " + player.location.X);
-	    if(player.location.isNear(LOC, ServerVars.LocUpdateDist)){
-	    	player.Connection.sendLocationUpdate(LOC, UGTID);
+	    if(player.location.isNear(moved.location, ServerVars.LocUpdateDist)){
+	    	player.Connection.sendLocationUpdate(PDP);
 	    }
 	}
 }
 
 
 
-public static void SendChat(MESSAGE_TYPE Type, int Sender, String Message){
-	
+public static void SendChat(ChatTypes Type, int Sender, String Message){
+	SendMessageToLocals(Type,Sender,getPlayer(Sender).location,Message);
 }
 
-private static void SendMessageToLocals(MESSAGE_TYPE Type,int Sender, Location LOC, String Message){
-	for(Entry<Integer, Player> entry : Players.entrySet()) {
+private static void SendMessageToLocals(ChatTypes Type,int Sender, Location LOC, String Message){
+	for(Entry<Integer, PlayableTrainer> entry : Players.entrySet()) {
 	    Integer GTID = entry.getKey();
-	    Player player = entry.getValue();
+	    PlayableTrainer player = entry.getValue();
 	    if(player.location.isNear(LOC, ServerVars.LocUpdateDist)){
-	    	//player.Connection.sendChatUpdate(MESSAGE_TYPE.LOCAL, UGTID, Message);
+	    	player.sendMessage(Type, Sender, Message);
 	    }
 	}
 }
 
-public static void SendChat(MESSAGE_TYPE Type,int Sender, int Recipient, String Message) throws PlayerOffline{
+public static void SendChat(ChatTypes Type,int Sender, int Recipient, String Message) throws PlayerOffline{
 	if(isOnline(Recipient)){
 		getPlayer(Recipient).sendMessage(Type, Sender, Message);
 	}else{
@@ -155,7 +159,7 @@ public static void SendChat(MESSAGE_TYPE Type,int Sender, int Recipient, String 
 	    
 }
 
-public static void AddPokemon(PlayerPokemon p){
+public static void AddPokemon(PlayablePokemon p){
 	if (p != null){
 		Pokemon.put(p.GPID,p);
 	}

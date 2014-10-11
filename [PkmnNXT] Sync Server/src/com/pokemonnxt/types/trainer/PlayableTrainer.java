@@ -1,4 +1,4 @@
-package com.pokemonnxt.sync;
+package com.pokemonnxt.types.trainer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,10 +10,22 @@ import java.util.List;
 
 
 import com.google.gson.annotations.Expose;
+import com.pokemonnxt.sync.Client;
+import com.pokemonnxt.sync.Functions;
+import com.pokemonnxt.sync.GlobalExceptionHandler;
+import com.pokemonnxt.sync.Logger;
+import com.pokemonnxt.sync.Main;
+import com.pokemonnxt.sync.PlayerLog;
+import com.pokemonnxt.sync.Players;
+import com.pokemonnxt.sync.ServerVars;
 import com.pokemonnxt.sync.PlayerLog.LOGTYPE;
+import com.pokemonnxt.types.Location;
+import com.pokemonnxt.types.pokemon.Pokemon.Stats;
+import com.pokemonnxt.types.pokemon.PlayablePokemon;
+import com.pokemonnxt.types.pokemon.Pokemon;
+import com.pokemonnxt.packets.Communications.*;
 
-
-public class Player implements AutoCloseable{
+public class PlayableTrainer extends Trainer implements AutoCloseable{
 
 	public boolean isLoggedIn = false;
 	public boolean isNew = false;
@@ -21,12 +33,11 @@ public class Player implements AutoCloseable{
 	
 	@Expose public String Username;
 	@Expose public int GTID;
-	@Expose public List<PlayerPokemon> Party = new ArrayList<PlayerPokemon>();
+	@Expose public List<PlayablePokemon> Party = new ArrayList<PlayablePokemon>();
 	@Expose public List<Integer> Items = new ArrayList<Integer>();
-	@Expose public Location location = new Location();
 	
 
-	Player(String username, String password, String email, Client conn) throws  LoginFailed{
+	public PlayableTrainer(String username, String password, String email, Client conn) throws  LoginFailed{
 		Logger.log_server(Logger.LOG_PROGRESS, "Username " + username + " login requested");
 		ResultSet PlayerResult = Main.SQL.Query("SELECT * FROM `NXT_USERS` WHERE `Username`='" + username  + "' AND `Password`='" + Functions.encryptPassword(password) + "'");
 		if(!Functions.hasResults(PlayerResult)){ // If player username and password do not match
@@ -41,6 +52,8 @@ public class Player implements AutoCloseable{
 					try {
 						Logger.log_server(Logger.LOG_VERB_HIGH, "Creating new player: " + username);
 						PreparedStatement createPlayer = null;
+						
+						// Make the login details entry
 						createPlayer = Main.SQL.SQL.prepareStatement("INSERT INTO `NXT_USERS` (`Username`,`Password`, `Email`) VALUES (?, ?, ?)",Statement.RETURN_GENERATED_KEYS);
 						createPlayer.setString(1, username);
 						createPlayer.setString(2, Functions.encryptPassword(password));
@@ -49,6 +62,21 @@ public class Player implements AutoCloseable{
 						ResultSet insertResult = createPlayer.getGeneratedKeys();
 						insertResult.first();
 						GTID =  insertResult.getInt(1);
+						
+						PreparedStatement InsertLocation = null;
+						InsertLocation = Main.SQL.SQL.prepareStatement("INSERT INTO `NXT_GAME`.`PLAYER_LOCATION` (`GTID`, `X`, `Y`, `Z`, `Pitch`, `Yaw`, `Roll`, `ZONE`) VALUES (?, ?, ?, ?, ?, ?, ?,?)",Statement.RETURN_GENERATED_KEYS);
+						InsertLocation.setInt(1, GTID);
+						InsertLocation.setDouble(2, ServerVars.Spawn.X);
+						InsertLocation.setDouble(3, ServerVars.Spawn.Y);
+						InsertLocation.setDouble(4, ServerVars.Spawn.Z);
+						InsertLocation.setDouble(5, ServerVars.Spawn.P);
+						InsertLocation.setDouble(6, ServerVars.Spawn.Ya);
+						InsertLocation.setDouble(7, ServerVars.Spawn.R);
+						InsertLocation.setString(8, "SPAWN");
+						InsertLocation.executeUpdate();
+						
+						
+						
 						Username = username;
 						isLoggedIn = true;
 						isNew = true;
@@ -97,28 +125,18 @@ public class Player implements AutoCloseable{
 			GEH.uncaughtException(Thread.currentThread(), (Throwable) e);
 			throw new LoginFailed(5, "Internal Server Error occured during login: Please contact admins.");
 		}
-		// Now load their pokemon
+		// Now load their shit up
 		Connection = conn;
-		ReloadPokemon();
+		LoadFromDB();
 		
 		 Players.AddPlayer(this);
-		PreparedStatement loginPlayer = null;
-		try {
-			loginPlayer = Main.SQL.SQL.prepareStatement("UPDATE `NXT_USERS` SET `Online`=? WHERE `GTID`=?",Statement.RETURN_GENERATED_KEYS);
-			loginPlayer.setInt(1, 1);
-			loginPlayer.setInt(2, GTID);
-			loginPlayer.executeUpdate();
-			PlayerLog.LogAction(LOGTYPE.LOGIN, GTID, Connection.IP);
-		} catch (SQLException e) {
-			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
-			GEH.uncaughtException(Thread.currentThread(), (Throwable) e);
-		}
+		 setOnline(true);
 		
 		Logger.log_server(Logger.LOG_PROGRESS, username + " Loaded!");
 	}
 	
 	
-	Player(int ID) throws PlayerNotFound{
+	public PlayableTrainer(int ID) throws PlayerNotFound{
 		ResultSet PlayerResult = Main.SQL.Query("SELECT * FROM `NXT_USERS` WHERE `GTID`=" + ID );
 		if(!Functions.hasResults(PlayerResult)) throw new PlayerNotFound();
 		try {
@@ -130,11 +148,50 @@ public class Player implements AutoCloseable{
 	}
 	}
 	
-	public void CommitToDB(){
-		for(PlayerPokemon PP : Party){
-			PP.CommitToDB();
+	public void setOnline(boolean on){
+		PreparedStatement loginPlayer = null;
+		try {
+			loginPlayer = Main.SQL.SQL.prepareStatement("UPDATE `NXT_USERS` SET `Online`=? WHERE `GTID`=?",Statement.RETURN_GENERATED_KEYS);
+			if (on){
+				loginPlayer.setInt(1, 1);
+				PlayerLog.LogAction(LOGTYPE.LOGIN, GTID);
+			}else{
+				loginPlayer.setInt(1, 0);
+				PlayerLog.LogAction(LOGTYPE.LOGOUT, GTID);
+			}
+			
+			loginPlayer.setInt(2, GTID);
+			loginPlayer.executeUpdate();
+		} catch (SQLException e) {
+			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
+			GEH.uncaughtException(Thread.currentThread(), (Throwable) e);
 		}
 	}
+	public void CommitToDB(){
+		for(PlayablePokemon PP : Party){
+			PP.CommitToDB();
+		}
+		CommitLocation();
+	}
+	public void CommitLocation(){
+		PreparedStatement InsertLocation = null;
+		try {
+			InsertLocation = Main.SQL.SQL.prepareStatement("UPDATE  `NXT_GAME`.`PLAYER_LOCATION` SET  `X`=?,`Y`=?,`Z`=?,`Pitch`=?,`Yaw`=?,`Roll`=? WHERE  `PLAYER_LOCATION`.`GTID` =?;",Statement.RETURN_GENERATED_KEYS);
+			InsertLocation.setDouble(1, ServerVars.Spawn.X);
+			InsertLocation.setDouble(2, ServerVars.Spawn.Y);
+			InsertLocation.setDouble(3, ServerVars.Spawn.Z);
+			InsertLocation.setDouble(4, ServerVars.Spawn.P);
+			InsertLocation.setDouble(5, ServerVars.Spawn.Ya);
+			InsertLocation.setDouble(6, ServerVars.Spawn.R);
+			InsertLocation.setInt(7, GTID);
+			InsertLocation.executeUpdate();
+		} catch (SQLException e) {
+			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
+			GEH.uncaughtException(Thread.currentThread(), (Throwable) e);
+		}
+		
+	}
+
 	
 	public void Kick(String message, String kicker){
 
@@ -143,10 +200,10 @@ public class Player implements AutoCloseable{
 			}else{
 				message = "[OFFLINE] " + message;
 			}
-			PlayerLog.LogAction(LOGTYPE.LOGIN, GTID, kicker, message);
+			PlayerLog.LogAction(LOGTYPE.KICK, GTID, kicker, message);
 	}
 	
-	public void sendMessage(Players.MESSAGE_TYPE Class, int Sender, String Message){
+	public void sendMessage(ChatTypes Class, int Sender, String Message){
 		Connection.sendChatUpdate(Class, Sender, Message);
 	}
 	
@@ -159,7 +216,7 @@ public class Player implements AutoCloseable{
 			BanStatement.setInt(2, GTID);
 			BanStatement.executeUpdate();
 			BanStatement = null;
-			PlayerLog.LogAction(LOGTYPE.LOGIN, GTID, Banner, message);
+			PlayerLog.LogAction(LOGTYPE.BAN, GTID, Banner, message);
 			return true;
 		} catch (SQLException e) {
 			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
@@ -175,7 +232,7 @@ public class Player implements AutoCloseable{
 			BanStatement.setInt(2, GTID);
 			BanStatement.executeUpdate();
 			BanStatement = null;
-			PlayerLog.LogAction(LOGTYPE.LOGIN, GTID, UnBanner, message);
+			PlayerLog.LogAction(LOGTYPE.UNBAN, GTID, UnBanner, message);
 			return true;
 		} catch (SQLException e) {
 			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
@@ -183,11 +240,10 @@ public class Player implements AutoCloseable{
 			return false;
 		}
 	}
-	public PlayerPokemon catchNew(int lDEX, int lLevel, int lEXP, String Name, PokemonStats CurrentStats, PokemonStats BaseStats){
-		PlayerPokemon poke = new PlayerPokemon(lDEX, lLevel, lEXP, Name, CurrentStats, BaseStats, this);
+	public Pokemon catchNew(int lDEX, int lLevel, int lEXP, String Name, Pokemon.Stats CurrentStats, Pokemon.Stats BaseStats){
+		PlayablePokemon poke = new PlayablePokemon(lDEX, lLevel, lEXP, Name, CurrentStats, BaseStats, this);
 		if(poke.GPID > 0){
 		Party.add(poke);
-		PreparedStatement loginPlayer = null;
 		PlayerLog.LogAction(LOGTYPE.CATCH,GTID,Connection.IP,Integer.toString(poke.GPID));
 		return poke;
 		}
@@ -204,29 +260,54 @@ public class Player implements AutoCloseable{
 		}
 	}
 	public void Move(Location l){
-		if(Connection != null){
-			Players.SendLocationUpdate(GTID, l);
-		}
 		location = l;
+		if(Connection != null){
+			Players.SendLocationUpdate(this);
+		}
 	}
 	public void Teleport(Location l){
-		if(Connection != null){
-			Players.SendLocationUpdate(GTID, l);
-		}
 		location = l;
+		if(Connection != null){
+			Players.SendLocationUpdate(this);
+		}
+		CommitToDB();
 	}
-	public void ReloadPokemon(){
+	
+	public void LoadFromDB(){
+		ReloadLocation();
+		ReloadPokemon();
+		ReloadItems();
+	}
+	
+	private void ReloadPokemon(){
 		Party.clear();
 		ResultSet PokemonResult = Main.SQL.Query("SELECT `GPID` FROM `CAUGHT_POKEMON` WHERE `GTID`='" + GTID  + "'");
 		try {
 			while(PokemonResult.next()){
 				Logger.log_player(Logger.LOG_VERB_HIGH, "Loading new pokemon from GPID: " + PokemonResult.getInt("GPID"),GTID);
-				Party.add(new PlayerPokemon(PokemonResult.getInt("GPID")));
+				Party.add(new PlayablePokemon(PokemonResult.getInt("GPID")));
 			}
 		} catch (SQLException e) {
 			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
 			GEH.uncaughtException(Thread.currentThread(), (Throwable) e);
 		}
+	}
+	private void ReloadLocation(){
+		ResultSet LocationResult = Main.SQL.Query("SELECT * FROM `PLAYER_LOCATION` WHERE `GTID`='" + GTID  + "'");
+		try {
+			while(LocationResult.next()){
+				 location.X = LocationResult.getInt("X");
+				 location.Y = LocationResult.getInt("Y");
+				 location.Z = LocationResult.getInt("Z");
+				 location.P = LocationResult.getInt("Pitch");
+				 location.Ya = LocationResult.getInt("Yaw");
+				 location.R = LocationResult.getInt("Roll");
+			}
+		} catch (SQLException e) {
+			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
+			GEH.uncaughtException(Thread.currentThread(), (Throwable) e);
+		}
+		Teleport(location);
 	}
 	
 	public void ReloadItems(){
@@ -243,24 +324,49 @@ public class Player implements AutoCloseable{
 	}
 	
 	public void signOut(){
+		Logger.log_player(Logger.LOG_VERB_HIGH, "Logging out player...", GTID);
 		 Players.RemovePlayer(this);
 		 if(Party != null){
-			 for(PlayerPokemon pp : Party) Players.RemovePokemon(pp.GPID);
+			 for(PlayablePokemon pp : Party) Players.RemovePokemon(pp.GPID);
+			 Party.clear();
 		 }
 		if(isLoggedIn) {
-		Logger.log_player(Logger.LOG_VERB_HIGH, "Logging out player...", GTID);
+		
 		if (GTID == 0){
 			Logger.log_player(Logger.LOG_ERROR, "Invalid GTID: Could not sign out.", GTID);
 		}else{
-			PlayerLog.LogAction(LOGTYPE.LOGOUT, GTID);
+			
+			setOnline(false);
+		}
 		}
 		GTID = 0;
 		isLoggedIn = false;
-		}
 	}
 	
-	public void ReloadPlayer(){
-		
+
+	
+
+
+	
+	
+	public  PlayerDataPayload toPayload(){
+		PlayerDataPayload.Builder PDPB =
+				PlayerDataPayload.newBuilder()
+				.setGtid(GTID)
+				.setLocation(location.toPayload())
+				.setUsername(Username);
+		for(PlayablePokemon PP : Party){
+			PDPB.addParty(PP.generatePayload());
+		}
+		PlayerDataPayload PDP = PDPB.build();
+		return PDP;
+	}
+	public  PlayerDataPayload toLocationUpdatePayload(){
+		PlayerDataPayload.Builder PDPB =
+				PlayerDataPayload.newBuilder()
+				.setGtid(GTID)
+				.setLocation(location.toPayload());
+		return PDPB.build();
 	}
 	
 	@Override
@@ -270,9 +376,6 @@ public class Player implements AutoCloseable{
 		Logger.log_player(Logger.LOG_PROGRESS, "Done... Destroying player.", GTID);
 		
 	}
-
-	
-	
 	
 	public class PlayerNotFound extends Throwable{
 		/**
@@ -289,7 +392,7 @@ public class Player implements AutoCloseable{
 		 */
 		private static final long serialVersionUID = 1306933785573476075L;
 		
-		String message = "Unspecified";
+		public String message = "Unspecified";
 		int Type = 0;
 		
 		/*
@@ -302,6 +405,7 @@ public class Player implements AutoCloseable{
 			message = msg;
 		}
 	}
+	
 	
 	
 }

@@ -7,7 +7,7 @@ import com.pokemonnxt.node.Nodes;
 
 /**
  * @author 	TheModerator
- * @version 0.1.12
+ * @version 0.1.5
  * 
  * ########## SECURITY NOTICE #############
  * # THIS FILE CONTAINS INFORMATION WHICH #
@@ -25,7 +25,7 @@ import com.pokemonnxt.node.Nodes;
  */
 public class Main {
 	
-	static String version = "0.1.13";
+	static String version = "0.1.5";
 	
 	
 	public static SQLConnection SQL;
