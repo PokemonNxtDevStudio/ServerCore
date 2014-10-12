@@ -9,20 +9,21 @@ import java.util.List;
 
 
 
+
 import com.google.gson.annotations.Expose;
-import com.pokemonnxt.sync.Client;
-import com.pokemonnxt.sync.Functions;
-import com.pokemonnxt.sync.GlobalExceptionHandler;
-import com.pokemonnxt.sync.Logger;
-import com.pokemonnxt.sync.Main;
-import com.pokemonnxt.sync.PlayerLog;
-import com.pokemonnxt.sync.Players;
-import com.pokemonnxt.sync.ServerVars;
-import com.pokemonnxt.sync.PlayerLog.LOGTYPE;
 import com.pokemonnxt.types.Location;
 import com.pokemonnxt.types.pokemon.Pokemon.Stats;
 import com.pokemonnxt.types.pokemon.PlayablePokemon;
 import com.pokemonnxt.types.pokemon.Pokemon;
+import com.pokemonnxt.gameserver.Client;
+import com.pokemonnxt.gameserver.Functions;
+import com.pokemonnxt.gameserver.GlobalExceptionHandler;
+import com.pokemonnxt.gameserver.Logger;
+import com.pokemonnxt.gameserver.Main;
+import com.pokemonnxt.gameserver.PlayerLog;
+import com.pokemonnxt.gameserver.Players;
+import com.pokemonnxt.gameserver.ServerVars;
+import com.pokemonnxt.gameserver.PlayerLog.LOGTYPE;
 import com.pokemonnxt.packets.Communications.*;
 
 public class PlayableTrainer extends Trainer implements AutoCloseable{
@@ -35,7 +36,6 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 	@Expose public int GTID;
 	@Expose public List<PlayablePokemon> Party = new ArrayList<PlayablePokemon>();
 	@Expose public List<Integer> Items = new ArrayList<Integer>();
-	
 
 	public PlayableTrainer(String username, String password, String email, Client conn) throws  LoginFailed{
 		Logger.log_server(Logger.LOG_PROGRESS, "Username " + username + " login requested");
@@ -260,13 +260,13 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 		}
 	}
 	public void Move(Location l){
-		location = l;
+		location.Move(l);
 		if(Connection != null){
 			Players.SendLocationUpdate(this);
 		}
 	}
 	public void Teleport(Location l){
-		location = l;
+		location.Move(l);
 		if(Connection != null){
 			Players.SendLocationUpdate(this);
 		}

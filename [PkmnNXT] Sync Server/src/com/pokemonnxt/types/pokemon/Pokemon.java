@@ -7,19 +7,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import java.sql.PreparedStatement;
 
 
+
+
 import com.google.gson.annotations.Expose;
+import com.pokemonnxt.gameserver.GlobalExceptionHandler;
+import com.pokemonnxt.gameserver.Logger;
+import com.pokemonnxt.gameserver.Main;
+import com.pokemonnxt.gameserver.Players;
 import com.pokemonnxt.packets.Communications;
 import com.pokemonnxt.packets.Communications.LOCATION;
-import com.pokemonnxt.sync.Attack;
-import com.pokemonnxt.sync.GlobalExceptionHandler;
-import com.pokemonnxt.sync.Logger;
-import com.pokemonnxt.sync.Main;
-import com.pokemonnxt.sync.Players;
 import com.pokemonnxt.types.Asset;
+import com.pokemonnxt.types.Attack;
 import com.pokemonnxt.types.Location;
 import com.pokemonnxt.types.trainer.PlayableTrainer;
 import com.pokemonnxt.types.trainer.Trainer;
@@ -71,7 +72,7 @@ public abstract class Pokemon extends Asset{
         private TYPE(int value) {
                 this.value = value;
         }
-};   
+	};   
 	public static enum STATUS {
 		ERROR(-1), NORMAL(0), SLEEP(1), BURNT(2), PARALYSED(3);
         private  int value;
@@ -92,7 +93,7 @@ public abstract class Pokemon extends Asset{
         private STATUS(int value) {
                 this.value = value;
         }
-};   
+	};   
 	
 public static class Stats {
 	@Expose public int Attack;

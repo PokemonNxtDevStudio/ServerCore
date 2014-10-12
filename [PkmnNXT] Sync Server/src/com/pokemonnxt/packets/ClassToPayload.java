@@ -1,8 +1,6 @@
 package com.pokemonnxt.packets;
 
-import com.pokemonnxt.sync.Player;
 import com.pokemonnxt.types.Location;
-import com.pokemonnxt.types.PlayerPokemon;
 import com.pokemonnxt.packets.Communications.*;
 
 public class ClassToPayload {

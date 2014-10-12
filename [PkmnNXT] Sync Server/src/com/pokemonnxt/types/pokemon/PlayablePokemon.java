@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.annotations.Expose;
+import com.pokemonnxt.gameserver.GlobalExceptionHandler;
+import com.pokemonnxt.gameserver.Logger;
+import com.pokemonnxt.gameserver.Main;
+import com.pokemonnxt.gameserver.Players;
 import com.pokemonnxt.packets.Communications;
-import com.pokemonnxt.sync.Attack;
-import com.pokemonnxt.sync.GlobalExceptionHandler;
-import com.pokemonnxt.sync.Logger;
-import com.pokemonnxt.sync.Main;
-import com.pokemonnxt.sync.Players;
+import com.pokemonnxt.types.Attack;
 import com.pokemonnxt.types.Location;
 import com.pokemonnxt.types.pokemon.Pokemon;
 import com.pokemonnxt.types.pokemon.Pokemon.STATUS;
@@ -157,16 +157,10 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 		if(inBall) return false;
 		
 		// TODO Broadcast Position Change
-		location = lLOC;
+		location.Move(lLOC);
 		return true;
 	}
-	public boolean TrainerReal(){
-		if(owner instanceof PlayableTrainer){
-			return true;
-		}else{
-			return false;
-		}
-	}
+	
 	public boolean BoxMove(int NewLoc){
 		
 		Logger.log_server(Logger.LOG_VERB_LOW, "Moving GPID" + GPID + " to " + NewLoc);

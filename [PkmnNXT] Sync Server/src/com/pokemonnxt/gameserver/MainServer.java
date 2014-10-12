@@ -1,20 +1,17 @@
-package com.pokemonnxt.node;
+package com.pokemonnxt.gameserver;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.net.ServerSocket;
+import java.io.IOException;
 import java.net.Socket;
+import java.net.ServerSocket;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-
-import com.pokemonnxt.gameserver.GlobalExceptionHandler;
-import com.pokemonnxt.gameserver.Logger;
-import com.pokemonnxt.gameserver.ServerVars;
-
-public class NodeServer extends Thread{
-
-	public NodeServer() {
-		// TODO Auto-generated constructor stub
+public class MainServer extends Thread{
+	public static Gson gson = new GsonBuilder().create();
+	public MainServer(){
+		
 	}
 	public void Shutdown(){
 		shutdown = true;
@@ -33,18 +30,19 @@ public class NodeServer extends Thread{
 	  // The client socket.
 	  private static Socket clientSocket = null;
 
+	  static ThreadMonitor ThreadModerator = new ThreadMonitor();
 	  
-	   final static NodeCommunicator[] Clients = new NodeCommunicator[ServerVars.MaxNodes];
+	   final static Client[] Clients = new Client[ServerVars.MaxConnections];
 	   
 	   
 	  public void run() {
 		  StartServer();
 	  }
-	  private void StartServer() {
+	  public void StartServer() {
 		 
 		
 	    // The default port number.
-	    int portNumber = 32232;
+	    int portNumber = 23323;
 
 	    try {
 	    	
@@ -52,6 +50,8 @@ public class NodeServer extends Thread{
 	    } catch (IOException e) {
 	      System.out.println(e);
 	    }
+	    // Startup Thread Monitor
+	    ThreadModerator.start();
 	    
 
 	    /*
@@ -63,25 +63,28 @@ public class NodeServer extends Thread{
 	    	  if (shutdown) break;
 	        clientSocket = serverSocket.accept();
 	        if (shutdown) break;
-	        Logger.log_server(Logger.LOG_VERB_HIGH, "NODE CONNECTED: " + clientSocket.getRemoteSocketAddress().toString());
+	        Logger.log_server(Logger.LOG_VERB_HIGH, "Connected to " + clientSocket.getRemoteSocketAddress().toString());
 	        int i = 0;
-	        for (i = 0; i < ServerVars.MaxNodes; i++) {
+	        for (i = 0; i < ServerVars.MaxConnections; i++) {
 	          if (Clients[i] == null) {
-	            (Clients[i] = new NodeCommunicator(clientSocket)).start();
+	            (Clients[i] = new Client(clientSocket, Clients)).start();
 	            break;
 	          }
 	        }
 	        if (shutdown) break;
-	        if (i == ServerVars.MaxNodes) {
+	        if (i == ServerVars.MaxConnections) {
 	        	 PrintStream os = new PrintStream(clientSocket.getOutputStream());
 	          os.println("[BUSY]");
 	          os.close();
 	          clientSocket.close();
-	          Logger.log_server(Logger.LOG_WARN, "Max node connections reached - client declined");
+	          Logger.log_server(Logger.LOG_WARN, "Max server connections reached - client declined");
 	        }
 	      } catch (IOException e) {
 	        System.out.println(e);
 	      }
 	    }
 	  }
-}
+	}
+
+	
+

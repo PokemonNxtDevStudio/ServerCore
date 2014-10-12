@@ -1,11 +1,11 @@
 package com.pokemonnxt.types;
 
 import com.google.gson.annotations.Expose;
+import com.pokemonnxt.gameserver.Zones;
 import com.pokemonnxt.packets.Communications;
 import com.pokemonnxt.packets.Communications.LOCATION;
 
 public class Location {
-	@Expose public String ZONE;
 	@Expose public double X = -1;
 	@Expose public double Y = -1;
 	@Expose public double Z = -1;
@@ -13,6 +13,9 @@ public class Location {
 	@Expose public double P = 0; //Pitch
 	@Expose public double Ya = 0; //Yaw
 	@Expose public double R = 0; //Roll
+	
+	public Zone zone;
+	
 public Location(){
 	X = -1;
 	Y = -1;
@@ -31,6 +34,20 @@ public Location(double Xl, double Yl, double Zl, double Pl, double Yal, double R
 	Ya = Yal;
 	R = Rl;
 	
+}
+public void Move(double Xl, double Yl, double Zl, double Pl, double Yal, double Rl){
+	X = Xl;
+	Y = Yl;
+	Z = Zl;
+	P = Pl;
+	Ya = Yal;
+	R = Rl;
+	if(!zone.inZone(this)){
+		zone = Zones.getZone(this);
+	}
+}
+public void Move(Location NL){
+	Move(NL.X,NL.Y,NL.Z,NL.P,NL.Ya,NL.R);
 }
 public Location(Communications.LOCATION LO){
 	X = LO.getX();

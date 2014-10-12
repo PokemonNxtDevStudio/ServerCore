@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import com.pokemonnxt.sync.GlobalExceptionHandler;
+import com.pokemonnxt.gameserver.GlobalExceptionHandler;
 
 public class NodeCommunicator extends Thread implements AutoCloseable{
 
