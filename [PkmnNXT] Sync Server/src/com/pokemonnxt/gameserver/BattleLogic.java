@@ -10,6 +10,10 @@ public class BattleLogic {
 	
 
 	
+	public static double hitProbability(Pokemon Attacking, Pokemon Defending, Attack Executed){
+		/* TODO: http://bulbapedia.bulbagarden.net/wiki/Accuracy*/
+		return 0;
+	}
 	public static double CalculateDamage(Pokemon Attacking, Pokemon Defending, Attack Executed){
 	double totalDamage = 0;
 	Move move = Cache.Movedex[Executed.MID];
@@ -32,6 +36,8 @@ public class BattleLogic {
 		totalDamage = (((2 * Attacking.Level + 10)/(250)) * (Attacking.CurrentStats.Attack/Defending.CurrentStats.Defense) * Executed.Power)*modifier;
 	return totalDamage;
 	}
+	
+	
 	
 	public static double GetTotalTypeEffectiveness(Pokemon.TYPE attack, BasePokemon Defending){
 		return GetTypeEffectiveness(attack, Defending.type1) * GetTypeEffectiveness(attack, Defending.type2);

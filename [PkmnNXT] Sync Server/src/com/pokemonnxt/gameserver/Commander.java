@@ -4,7 +4,6 @@ package com.pokemonnxt.gameserver;
 
 
 import java.io.BufferedReader;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -23,6 +22,7 @@ import java.util.Map.Entry;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import com.pokemonnxt.gameserver.Client.STATES;
 import com.pokemonnxt.types.pokemon.PlayablePokemon;
 import com.pokemonnxt.types.pokemon.Pokemon;
 import com.pokemonnxt.types.trainer.PlayableTrainer;
@@ -459,7 +459,7 @@ public void PrintPokemon(Pokemon pp){
 	        					continue;
 	        				}else if (args[3].equalsIgnoreCase("PLAIN")){
 	        				}else{
-	        					os.println("[ERR] Unknown print type (JSON/CSV) must be specified");
+	        					os.println("[ERR] Unknown print type (JSON/CSV/PLAIN) must be specified");
 	        					continue;
 	        				}
 	        			}
@@ -519,61 +519,66 @@ public void PrintPokemon(Pokemon pp){
 	        	os.println("--- -------------------------------- ---");
 	        	continue;
 	        } else if (args[0].equalsIgnoreCase("connections")){
-	        	ArrayList<connRow> results = new ArrayList<connRow>();
-	        	 for(Client c : MainServer.Clients){
-	        		 if (c == null) continue;
-	        		 connRow CR = new connRow();
-	        		 CR.STATE = State.WAITING;
-	        		 CR.CPU = -1;
-	        		 CR.THREAD = c.getId();
-	        		 CR.PORT = c.clientSocket.getLocalPort();
-	        		 if(c.Performance != null) CR.STATE = c.Performance.STATE;
-	        		 CR.Username = "N/A";
-	        		 CR.GTID = -1;
-	        		 CR.IP = c.IP;
-	        		 if(c.Performance != null)  CR.CPU = c.Performance.CPU;
-	        		 CR.Uptime = System.currentTimeMillis() - c.startTime;
-	        		 if(c.player != null) CR.Username = c.player.Username;
-	        		 if(c.player != null) CR.GTID = c.player.GTID;
-	        		 results.add(CR);
-	        	 }
-	        	 if( args.length<2 ){
-	        		 os.print("[ERR] No output type sepcified:" + ((char) 13));
-	 		        os.println("Please choose either LIST or JSON");
-	 		        continue;
-	        	 }
 	        	if (args[1].equalsIgnoreCase("LIST")){
-	        		os.print("-------------------------------- ACTIVE CLIENTS PERFORMANCE AND STATE MATRIX ---------------------------------------" + ((char) 13));
-        			os.print("THREAD |      IP       | PORT |    STATE    | UPTIME | CPU |      USERNAME      |" + ((char) 13));
-	        		for(connRow conn : results){
-        				os.print(Functions.padString(Long.toString(conn.THREAD), " ", 7));
-        				os.print("|");
-        				os.print(Functions.padString(conn.IP, " ", 15));
-        				os.print("|");
-        				os.print(Functions.padString(Integer.toString(conn.PORT), " ", 6));
-        				os.print("|");
-        				os.print(Functions.padString(conn.STATE.toString(), " ", 13));
-        				os.print("|");
-        				Date date = new Date(conn.Uptime);
-        				DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-        				String dateFormatted = formatter.format(date);
-        				os.print(Functions.padString(dateFormatted, " ", 8));
-        				os.print("|");
-        				os.print(Functions.padString(Long.toString(conn.CPU), " ", 5));
-        				os.print("|");
-        				os.print(Functions.padString(conn.Username, " ",20));
-        				os.print("|");
-        				os.print(((char) 13));
-        			}
-        			os.println("---------------------------");
-        			continue;
-		        }else if (args[1].equalsIgnoreCase("JSON")){
-		        	os.println(gson.toJson(results));
+		        	ArrayList<connRow> results = new ArrayList<connRow>();
+		        	 for(Client c : MainServer.Clients){
+		        		 if (c == null) continue;
+		        		 connRow CR = new connRow();
+		        		 CR.STATE = State.WAITING;
+		        		 CR.Status = STATES.UNKNOWN;
+		        		 CR.THREAD = c.getId();
+		        		 CR.PORT = c.clientSocket.getLocalPort();
+		        		 if(c.Performance != null) CR.STATE = c.Performance.STATE;
+		        		 CR.Username = "N/A";
+		        		 CR.GTID = -1;
+		        		 CR.IP = c.IP;
+		        		 CR.Status = c.State;
+		        		 CR.Uptime = System.currentTimeMillis() - c.startTime;
+		        		 if(c.player != null) CR.Username = c.player.Username;
+		        		 if(c.player != null) CR.GTID = c.player.GTID;
+		        		 results.add(CR);
+		        	 }
+		        	 if( args.length<2 ){
+		        		 os.print("[ERR] No output type sepcified:" + ((char) 13));
+		 		        os.println("Please choose either PLAIN or JSON");
+		 		        continue;
+		        	 }
+		        	if (args[2].equalsIgnoreCase("PLAIN")){
+		        		os.print("-------------------------------- ACTIVE CLIENTS PERFORMANCE AND STATE MATRIX ---------------------------------------" + ((char) 13));
+	        			os.print("THREAD |      IP       | PORT |    STATE    | UPTIME |  STATUS  |      USERNAME      |" + ((char) 13));
+		        		for(connRow conn : results){
+	        				os.print(Functions.padString(Long.toString(conn.THREAD), " ", 7));
+	        				os.print("|");
+	        				os.print(Functions.padString(conn.IP, " ", 15));
+	        				os.print("|");
+	        				os.print(Functions.padString(Integer.toString(conn.PORT), " ", 6));
+	        				os.print("|");
+	        				os.print(Functions.padString(conn.STATE.toString(), " ", 13));
+	        				os.print("|");
+	        				Date date = new Date(conn.Uptime);
+	        				DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+	        				String dateFormatted = formatter.format(date);
+	        				os.print(Functions.padString(dateFormatted, " ", 8));
+	        				os.print("|");
+	        				os.print(Functions.padString(conn.Status.toString(), " ", 10));
+	        				os.print("|");
+	        				os.print(Functions.padString(conn.Username, " ",20));
+	        				os.print("|");
+	        				os.print(((char) 13));
+	        			}
+	        			os.println("---------------------------");
+	        			continue;
+			        }else if (args[2].equalsIgnoreCase("JSON")){
+			        	os.println(gson.toJson(results));
+			        	continue;
+			        }else{
+			        	os.println("[ERR] Unknown Connection Print Option. Please choose either list, or list_json" + args[1]);
+			        	continue;
+			        }
+	        	}else{
+	        		os.println("[ERR] Unknown Connection Option. Please specify list/trace" + args[1]);
 		        	continue;
-		        }else{
-		        	os.println("[ERR] Unknown Connection Print Option. Please choose either list, or list_json" + args[1]);
-		        	continue;
-		        }
+	        	}
 	        } else if (args[0].equalsIgnoreCase("output")){
 	        	if( args.length<2 ){
 	        		PrintLevel = -1;
@@ -589,6 +594,7 @@ public void PrintPokemon(Pokemon pp){
 	        	os.print("users - Provides collective user processes" + ((char) 13));
 	        	os.print("user <username/GTID> - Provides user modification/information options" + ((char) 13));
 	        	os.print("pokemon <GPID> - Provides pokemon modification/information options." + ((char) 13));
+	        	os.print("connection - Provides connection modification options." + ((char) 13));
 	        	os.println("output <off/0/1/2/3/4/5> - Sets the server verboisity output level, or off to detach from the main server process");
 	        }
 	      
@@ -638,7 +644,7 @@ public void PrintPokemon(Pokemon pp){
 			  Username = "NOT SET";
 			  GTID = -1;
 			  Uptime = 0;
-			  CPU = -1;
+			  Status = STATES.UNKNOWN;
 			  THREAD = -1;
 		  }
 		  @Expose public long THREAD;
@@ -648,7 +654,7 @@ public void PrintPokemon(Pokemon pp){
 		  @Expose public String Username;
 		  @Expose public int GTID;
 		  @Expose public long Uptime;
-		  @Expose public long CPU;
+		  @Expose public Client.STATES Status;
 	  }
 	  public class loginRow{
 		  public loginRow(){

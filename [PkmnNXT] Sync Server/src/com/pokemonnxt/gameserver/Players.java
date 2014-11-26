@@ -14,7 +14,7 @@ import com.pokemonnxt.packets.Communications.*;
 
 public class Players {
 public static HashMap<Integer,PlayableTrainer> Players = new HashMap<Integer,PlayableTrainer>();
-public static HashMap<Integer,PlayablePokemon> Pokemon = new HashMap<Integer,PlayablePokemon>();
+public static HashMap<Integer,Pokemon> Pokemon = new HashMap<Integer,Pokemon>();
 public static HashMap<String,Integer> Usernames = new HashMap<String,Integer>();
 
 /*
@@ -159,7 +159,7 @@ public static void SendChat(ChatTypes Type,int Sender, int Recipient, String Mes
 	    
 }
 
-public static void AddPokemon(PlayablePokemon p){
+public static void AddPokemon(Pokemon p){
 	if (p != null){
 		Pokemon.put(p.GPID,p);
 	}

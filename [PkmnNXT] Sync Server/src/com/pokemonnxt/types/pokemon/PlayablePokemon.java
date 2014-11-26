@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.annotations.Expose;
+import com.pokemonnxt.gameserver.Cache;
 import com.pokemonnxt.gameserver.GlobalExceptionHandler;
 import com.pokemonnxt.gameserver.Logger;
 import com.pokemonnxt.gameserver.Main;
@@ -24,32 +25,12 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 
 	public PlayableTrainer owner;
 
+	@Expose public String Name;
+	@Expose public boolean inBall;
+	
 	public PlayablePokemon (int ID){
-		Logger.log_server(Logger.LOG_PROGRESS, "Loading GPID" + ID + "...");
-		ResultSet BasicInfo = Main.SQL.Query("SELECT * FROM `CAUGHT_POKEMON` WHERE `GPID`='" + ID  + "'");
-		try {
-			BasicInfo.next();
-			STATE = STATUS.valueOf(BasicInfo.getInt("STATE"));
-			GTID = BasicInfo.getInt("GTID");
-			DEX = BasicInfo.getInt("DEX");
-			Name = BasicInfo.getString("Name");
-			BOXLoc = BasicInfo.getInt("LOC"); 
-			EXP = BasicInfo.getInt("EXP"); 
-			Level = BasicInfo.getInt("Level"); 
-			ResultSet RBasicStats = Main.SQL.Query("SELECT * FROM `CAUGHT_POKEMON_STATS` WHERE `GPID`='" + ID  + "' AND `TYPE`='0'");
-			RBasicStats.next();
-			BasicStats = new Pokemon.Stats(RBasicStats.getInt("Attack"), RBasicStats.getInt("SpAttack") ,RBasicStats.getInt("Defense"),RBasicStats.getInt("SpDefense"),RBasicStats.getInt("Speed"),RBasicStats.getInt("Accuracy"),RBasicStats.getInt("Evasion"),RBasicStats.getInt("HP"));
-			ResultSet RCurrentStats = Main.SQL.Query("SELECT * FROM `CAUGHT_POKEMON_STATS` WHERE `GPID`='" + ID  + "' AND `TYPE`='1'");
-			RCurrentStats.next();
-			CurrentStats = new Pokemon.Stats(RCurrentStats.getInt("Attack"), RCurrentStats.getInt("SpAttack") ,RCurrentStats.getInt("Defense"),RCurrentStats.getInt("SpDefense"),RCurrentStats.getInt("Speed"),RCurrentStats.getInt("Accuracy"),RCurrentStats.getInt("Evasion"),RCurrentStats.getInt("HP"));
-			GPID = BasicInfo.getInt("GPID");
-			Players.AddPokemon(this);
-			
-		} catch (SQLException e) {
-			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
-			GEH.uncaughtException(Thread.currentThread(), (Throwable) e,"SQL Exception encountered whilst loading GPID" + GPID);
-		}
-		Players.AddPokemon(this);
+	GPID = ID;
+			loadPokemon();
 		
 	}
 
@@ -59,13 +40,15 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 		 PreparedStatement insertPokemon = null;
 		int boxloc = 1;
 		for(PlayablePokemon p : trainer.Party){
+		/* Box number generator. 
 			if (p.BOXLoc >= boxloc){
 				boxloc = p.BOXLoc+1;
 			}
+			*/
 		}
 
 		try {
-			insertPokemon = Main.SQL.SQL.prepareStatement("INSERT INTO `NXT_GAME`.`CAUGHT_POKEMON` (`GTID`, `DEX`, `LOC`, `Name`, `Level`, `EXP`) VALUES (?, ?, ?, ?, ?, ?)",Statement.RETURN_GENERATED_KEYS);
+			insertPokemon = Main.SQL.SQL.prepareStatement("INSERT INTO `NXT_GAME`.`POKEMON` (`GTID`, `DEX`, `LOC`, `Name`, `Level`, `EXP`) VALUES (?, ?, ?, ?, ?, ?)",Statement.RETURN_GENERATED_KEYS);
 			insertPokemon.setInt(1, trainer.GTID);
 			insertPokemon.setInt(2, lDEX);
 			insertPokemon.setInt(3, boxloc);
@@ -82,11 +65,10 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 				Name = lName;
 				DEX = lDEX;
 				// Stats = stats;
-				BOXLoc = boxloc;
 				owner = trainer;
 				Level = lLevel;
 				EXP = lEXP;
-				PreparedStatement currentStatUpdate = Main.SQL.SQL.prepareStatement("INSERT INTO `NXT_GAME`.`CAUGHT_POKEMON_STATS` (`GPID`, `Type`, `Attack`, `SpAttack`, `Defense`, `SpDefense`, `Accuracy`, `Speed`, `Evasion`, `HP`) VALUES (?,?,?,?,?,?,?,?,?,?)");
+				PreparedStatement currentStatUpdate = Main.SQL.SQL.prepareStatement("INSERT INTO `NXT_GAME`.`POKEMON_STATS` (`GPID`, `TYPE`, `Attack`, `SpAttack`, `Defense`, `SpDefense`, `Accuracy`, `Speed`, `Evasion`, `HP`) VALUES (?,?,?,?,?,?,?,?,?,?)");
 				currentStatUpdate.setInt(1, GPID);
 				currentStatUpdate.setInt(2, 1);
 				currentStatUpdate.setInt(3, lBaseStats.Attack);
@@ -99,7 +81,7 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 				currentStatUpdate.setInt(10, lBaseStats.HP);
 				currentStatUpdate.executeUpdate();
 				BasicStats = lBaseStats;
-				PreparedStatement baseStatUpdate = Main.SQL.SQL.prepareStatement("INSERT INTO `NXT_GAME`.`CAUGHT_POKEMON_STATS` (`GPID`, `Type`, `Attack`, `SpAttack`, `Defense`, `SpDefense`, `Accuracy`, `Speed`, `Evasion`, `HP`) VALUES (?,?,?,?,?,?,?,?,?,?)");
+				PreparedStatement baseStatUpdate = Main.SQL.SQL.prepareStatement("INSERT INTO `NXT_GAME`.`POKEMON_STATS` (`GPID`, `TYPE`, `Attack`, `SpAttack`, `Defense`, `SpDefense`, `Accuracy`, `Speed`, `Evasion`, `HP`) VALUES (?,?,?,?,?,?,?,?,?,?)");
 				baseStatUpdate.setInt(1, GPID);
 				baseStatUpdate.setInt(2, 0);
 				baseStatUpdate.setInt(3, lCurrentStats.Attack);
@@ -161,15 +143,18 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 		return true;
 	}
 	
+	
+	
+	/*
 	public boolean BoxMove(int NewLoc){
 		
 		Logger.log_server(Logger.LOG_VERB_LOW, "Moving GPID" + GPID + " to " + NewLoc);
 			int OldLoc = BOXLoc;
-			ResultSet OccupyingPokemon = Main.SQL.Query("SELECT * FROM `CAUGHT_POKEMON` WHERE `GTID`='" + owner.GTID  + "' AND `LOC`='" + NewLoc + "'");
+			ResultSet OccupyingPokemon = Main.SQL.Query("SELECT * FROM `POKEMON` WHERE `GTID`='" + owner.GTID  + "' AND `LOC`='" + NewLoc + "'");
 			try {
 				if(OccupyingPokemon.next() == true){ // if there's a pokemon in the new location
 					int OccupyingPokemonGPID = OccupyingPokemon.getInt("GPID"); // move it to the old one
-					int MoveOne = Main.SQL.Update("UPDATE `CAUGHT_POKEMON` SET `LOC`='" + OldLoc + "' WHERE `GPID`='" + OccupyingPokemonGPID  + "'");
+					int MoveOne = Main.SQL.Update("UPDATE `POKEMON` SET `LOC`='" + OldLoc + "' WHERE `GPID`='" + OccupyingPokemonGPID  + "'");
 					if(MoveOne > 0){
 						Logger.log_server(Logger.LOG_PROGRESS, "Moved occupying pokemon GPID" + OccupyingPokemonGPID + " to " + OldLoc);
 					}else{
@@ -177,7 +162,7 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 						return false;
 					}
 				}
-				int MoveTwo = Main.SQL.Update("UPDATE `CAUGHT_POKEMON` SET `LOC`='" + NewLoc + "' WHERE `GPID`='" + GPID  + "'");
+				int MoveTwo = Main.SQL.Update("UPDATE `POKEMON` SET `LOC`='" + NewLoc + "' WHERE `GPID`='" + GPID  + "'");
 				if(MoveTwo > 0){
 					Logger.log_server(Logger.LOG_PROGRESS, "Moved pokemon GPID" + GPID + " to " + NewLoc);
 					BOXLoc = NewLoc;
@@ -196,21 +181,21 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 			return true;
 		
 	}
+	*/
 	public void CommitToDB(){
 		Logger.log_server(Logger.LOG_PROGRESS, "Commiting GPID" + GPID + " to the database...");
 		PreparedStatement UpdatePokemon = null;
 		PreparedStatement UpdateStatsA = null;
 		PreparedStatement UpdateStatsB = null;
 		try {
-			UpdatePokemon = Main.SQL.SQL.prepareStatement("UPDATE `NXT_GAME`.`CAUGHT_POKEMON` SET `GTID`=? " +
-					"`LOC`=? `Name`=? `Level`=? `EXP`=? WHERE GPID='" + GPID + "'");
+			UpdatePokemon = Main.SQL.SQL.prepareStatement("UPDATE `NXT_GAME`.`POKEMON` SET `GTID`=? " +
+					"`Name`=? `Level`=? `EXP`=? WHERE GPID='" + GPID + "'");
 			UpdatePokemon.setInt(1, owner.GTID);
-			UpdatePokemon.setInt(2, BOXLoc);
-			UpdatePokemon.setString(3, Name);
-			UpdatePokemon.setInt(4, Level);
-			UpdatePokemon.setInt(5, EXP);
+			UpdatePokemon.setString(2, Name);
+			UpdatePokemon.setInt(3, Level);
+			UpdatePokemon.setInt(4, EXP);
 			UpdatePokemon.execute();
-			UpdateStatsA = Main.SQL.SQL.prepareStatement("UPDATE `NXT_GAME`.`CAUGHT_POKEMON` SET `GTID`=? " +
+			UpdateStatsA = Main.SQL.SQL.prepareStatement("UPDATE `NXT_GAME`.`POKEMON_STATS` SET " +
 					"`Attack`=? `SpAttack`=? `Defense`=? `SpDefense`=? `Accuracy`=? `Speed`=? `Evasion`=? `HP`=? WHERE GPID='" + GPID + "' AND `TYPE`='0'");
 			UpdateStatsA.setInt(1, BasicStats.Attack);
 			UpdateStatsA.setInt(2, BasicStats.SpAttack);
@@ -221,7 +206,7 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 			UpdateStatsA.setInt(7, BasicStats.Evasion);
 			UpdateStatsA.setInt(8, BasicStats.HP);
 			UpdateStatsA.execute();
-			UpdateStatsB = Main.SQL.SQL.prepareStatement("UPDATE `NXT_GAME`.`CAUGHT_POKEMON` SET `GTID`=? " +
+			UpdateStatsB = Main.SQL.SQL.prepareStatement("UPDATE `NXT_GAME`.`POKEMON_STATS` SET " +
 					"`Attack`=? `SpAttack`=? `Defense`=? `SpDefense`=? `Accuracy`=? `Speed`=? `Evasion`=? `HP`=? WHERE GPID='" + GPID + "' AND `TYPE`='1'");
 			UpdateStatsB.setInt(1, CurrentStats.Attack);
 			UpdateStatsB.setInt(2, CurrentStats.SpAttack);
