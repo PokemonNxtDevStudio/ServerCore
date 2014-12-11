@@ -1,0 +1,116 @@
+package packets;
+
+option java_package = "com.pokemonnxt.packets";
+option java_outer_classname = "CommTypes";
+option optimize_for = SPEED;
+
+message AREA{
+	required LOCATION PointA = 1;
+	required LOCATION PointB = 2;
+}
+
+message LOCATION{
+	required double X = 1;
+	required double Y = 2;
+	required double Z = 3;
+	optional double Pitch = 4;
+	optional double Yaw = 5;
+	optional double Roll = 6;
+}
+
+message TRAINER{
+	required int32 gtid = 1; 		// The Trainer's ID this packet is describing
+	optional LOCATION location = 2; // Where the player is last time they updated the server
+	optional string username = 3; 	// The username of the player that this packet is describing
+	repeated POKEMON party = 4; 	// What pokémon they have
+}
+message POKEMON{
+	required int32 id = 1;
+	required int32 dex = 2;
+	required ATTACKSET attacks = 3;
+	required STATS normalStats = 4;
+	required STATS currentStats = 5;
+	required string name = 6;
+}
+
+message BASE_POKEMON{
+	required int32 dex = 1;
+	required ATTACKSET attacks = 3;
+	required STATS baseStats = 4;
+	required STATS currentStats = 5;
+}
+
+message STATS{
+	required int32 Attack=1;
+	required int32 Defense=2;
+	required int32 Speed=3;
+	required int32 Accuracy=4;
+	required int32 SpAttack=5;
+	required int32 SpDefense=6;
+	required int32 Evasion=7;
+	required int32 HP=8;
+}
+message ATTACKSET{
+	required ATTACK slotOne = 1;
+	required ATTACK slotTwo = 2;
+	required ATTACK slotThree = 3;
+	required ATTACK slotFour = 4;
+}
+
+message ATTACK{
+	required int32 mid = 1;
+	required int32 maxPP = 2;
+	required int32 currentPP = 3;
+}
+message MOVE{
+	required int32 mid = 1;
+	required string Name = 2;
+	//required POKEMON_TYPES Type = 3;
+	required int32 power = 4;
+	required int32 pp = 5;
+	required int32 accuracy = 6;
+	required int32 priority = 7;
+	required int32 target_ID = 8;
+	required string description = 9;
+}
+message MOVE_ENTRY{
+	required int32 mid = 1;
+	//required MOVE_METHODS method = 2;
+	required int32 level = 3;
+}
+
+/* I <3 Enumerations */
+
+enum ERROR_TYPES {
+	INTERNAL_SERVER_ERROR = 0;
+	UNKNOWN_ERROR = 1;
+    LOGIN_INCORRECT = 2;
+   	USER_BANNED = 3;
+	UNKNOWN_USER = 4;
+	UNKNOWN_POKEMON = 6;
+	MISSING_ARGUMENT = 7;
+	INVALID_ARGUMENT = 8;
+	ACCESS_DENIED = 9;
+	TIMEOUT = 10;
+	NO_SPAWN_RESOLUTION = 11;
+  }
+  enum CHAT_TYPES {
+	PUBLIC = 0;
+	SHOUT = 1;
+	PRIVATE = 2;
+  }
+
+  enum TRANSFER_STAGE {
+	REQUEST = 0;
+	DATA_TRANSFER = 1;
+	USER_TRANSFER = 2;
+	DATA_REMOVAL = 3;
+	TRANSFER_COMPLETE = 3;
+  }
+
+  enum SERVER_STATUS_TYPE {
+	OFFLINE = 0;
+	CLOSED = 1;
+	LIMITED = 2;
+	ONLINE = 3;
+  }
