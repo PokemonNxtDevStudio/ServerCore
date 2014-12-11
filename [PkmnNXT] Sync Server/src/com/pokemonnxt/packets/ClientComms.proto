@@ -1,0 +1,87 @@
+package packets;
+
+import "CommTypes.proto";
+option java_package = "com.pokemonnxt.packets";
+option java_outer_classname = "ClientComms";
+option optimize_for = SPEED;
+
+message Packet{
+ required Header header= 1;
+ required Payload payload = 2;
+}
+enum PacketType {
+    GAME = 0;
+   	LOGIN = 1;
+	PLAYER_DATA = 2;
+	ACTION_FAILED = 3;
+	CHAT = 4;
+	SERVER_TRANSFER = 6;
+  }
+message Header {
+  required int32 id = 1;        // Unique ID number for this person.
+  optional PacketType type = 2 [default = LOGIN];
+ }
+
+message Payload {
+ optional LoginPayload loginpayload=1;
+  optional PlayerDataPayload playerdatapayload=2;
+ optional TrainerDataPayload trainerdatapayload=3;
+ optional ActionFailedPayload actionfailedpayload=4;
+ optional ChatMsgPayload chatmsgpayload=5;
+  optional ServerTransferPayload servertransferpayload=6;
+}
+
+
+
+
+message LoginPayload{
+required string username = 1;        //Username
+  required string password = 2;       //Password
+ required string email  =3;
+ optional string token = 4;
+}
+message PlayerDataPayload{
+	required int32 pid = 1;     // The Player's ID this packet is describing
+	optional int32 trainer = 2; // The Trainer this player is associated to (0 for none, otherwise the Trainer ID)
+	optional string server = 3; // The specific ID of the server they're currently on
+	repeated int32 assets = 4; 	// A list of assets this player owns
+}
+message TrainerDataPayload{
+	required TRAINER trainer = 1;
+}
+message ActionFailedPayload{
+	required ERROR_TYPES error = 1 [default = UNKNOWN_ERROR];
+	optional int32 id = 2; // If a GTID, GPID or any other ID was involved in this error, put it here
+	optional string message = 3; // Any further details on the message
+	optional int32 errorID = 4;  // Server-side error ID, used for reporting.
+}
+message ChatMsgPayload{
+	required CHAT_TYPES type = 1;	// What the target of the message is
+	required string msg = 2; 		// what the message is
+	optional string username = 3; 	// who the message is to/from [Only needed for private messages. Specify username OR gtid]
+	optional int32 gtid = 4; 	// who the message is to/from [Only needed for private messages. Specify username OR gtid]
+}
+
+message OwnershipPayload{
+	required CHAT_TYPES type = 1;	// What the target of the message is
+	required string msg = 2; 		// what the message is
+	optional string username = 3; 	// who the message is to/from [Only needed for private messages. Specify username OR gtid]
+	optional int32 gtid = 4; 	// who the message is to/from [Only needed for private messages. Specify username OR gtid]
+}
+message SpawnRequestPayload{
+	required int32 type = 1;		// What the target of the message is
+	required string msg = 2; 		// what the message is
+}
+message ServerTransferPayload{
+	required TRANSFER_STAGE stage = 1;		// What the target of the message is
+	required string ipFrom = 2; 			// Where the user is transfering from
+	required string ipTo = 3; 				// The IP the user must transfer to
+	optional string token = 5;				// The token to use for logging in
+}
+message DataRequestPayload{
+	optional int32 gtid = 1;	// Request information on a trainer
+	optional int32 gpid = 2;	// Request information on a pokemon
+	optional int32 asset = 3;   //
+}
+
+
