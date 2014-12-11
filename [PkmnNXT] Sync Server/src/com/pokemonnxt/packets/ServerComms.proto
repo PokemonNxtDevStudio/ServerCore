@@ -1,7 +1,9 @@
 package packets;
 
+import "CommTypes.proto";
 option java_package = "com.pokemonnxt.packets";
 option java_outer_classname = "ServerComms";
+option optimize_for = SPEED;
 
 enum PacketType {
     LOGIN = 0;
@@ -14,32 +16,29 @@ message Header {
   optional int32 optionalParameter = 3;
  }
 
-message LOGIN {
-  required string username = 1;
-  required string password = 2;
-  optional string email = 3;
+message USERLIST {
+  repeated int32 OnlineUIDs = 1;
+  repeated int32 RegisteredUIDs = 2;
 }
-/*
-message LOGIN_SUCCESS {
-	required int32 GTID = 1;
-	required bool new = 2;
-	required TYPE_LOCATION spawn = 3;
+
+message USER_TRANSFER {
+  required int32 UID = 1;
+  required string PassHash = 2;
+  required string Email = 3;
+  required TRAINER object = 4;
+}
+message USER_TRANSFER_COMPLETE {
+  required int32 UID = 1;
+  required string LoginToken = 2;
+  required string Email = 3;
+}
+
+message SERVER_INFO {
+  required int32 ID = 1;
+  required SERVER_STATUS_TYPE Status = 2;
+  required string IP = 3;
+  required string Name = 4;
+  required AREA UID = 5;
 }
 
 
-message TYPE_SPAWN_MATRIX_ENTRY{
-	required int32 PID = 1;
-	required int32 MinLevel = 2;
-	required int32 MaxLevel = 3;
-	required double Chance = 4;
-}
-
-message TYPE_LOCATION {
-		required double X = 1;
-		required double Y = 2;
-		required double Z = 3;
-		required double Pitch = 4;
-		required double Yaw = 5;
-		required double Roll = 6;
-}
- */
