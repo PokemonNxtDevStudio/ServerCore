@@ -10,6 +10,10 @@ import com.google.gson.GsonBuilder;
 
 public class MainServer extends Thread{
 	public static Gson gson = new GsonBuilder().create();
+	
+	
+	
+	
 	public MainServer(){
 		
 	}

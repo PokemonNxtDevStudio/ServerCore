@@ -21,6 +21,12 @@ import java.util.Map;
 
 
 
+
+
+
+
+
+import com.pokemonnxt.types.Asset;
 import com.pokemonnxt.types.Location;
 import com.pokemonnxt.types.pokemon.Pokemon;
 import com.pokemonnxt.types.trainer.PlayableTrainer;
@@ -30,7 +36,12 @@ import com.pokemonnxt.gameserver.Packet.InvalidPacket;
 import com.pokemonnxt.gameserver.Packet.ParseError;
 import com.pokemonnxt.gameserver.ThreadMonitor.ThreadUsage;
 import com.pokemonnxt.packets.ClassToPayload;
-import com.pokemonnxt.packets.Communications.*;
+import com.pokemonnxt.packets.ClientComms.ChatMsgPayload;
+import com.pokemonnxt.packets.ClientComms.PlayerDataPayload;
+import com.pokemonnxt.packets.CommTypes.CHAT_TYPES;
+import com.pokemonnxt.packets.CommTypes.ERROR_TYPES;
+import com.pokemonnxt.packets.CommTypes.*;
+import com.pokemonnxt.packets.ClientComms.*;
 
 public class Client extends Thread implements AutoCloseable {
 
@@ -68,7 +79,7 @@ public class Client extends Thread implements AutoCloseable {
                 this.value = value;
         }
 };   
-
+	  public int ID = 0;
 	  public String IP = null;
 	  private DataInputStream  is = null;
 	  private DataOutputStream os = null;
@@ -83,6 +94,7 @@ public class Client extends Thread implements AutoCloseable {
 	  public PlayableTrainer player = null;
 	  public boolean shutdown = false;
 	  public List<PlayableTrainer> NearbyPlayers = new ArrayList<PlayableTrainer>();
+	  public List<Asset> Assets = new ArrayList<Asset>();
 	  
 	  public Client(Socket clientSocket, Client[] threads) {
 		  State = STATES.INITIATED;
@@ -96,6 +108,16 @@ public class Client extends Thread implements AutoCloseable {
 		  return clientSocket.isConnected();
 	  }
 	 
+	  public PlayerDataPayload toPayload(){
+		  PlayerDataPayload.Builder PDPb = PlayerDataPayload.newBuilder()
+				  .setServer(ServerVars.ServerID)
+				  .setPid(ID)
+				  .setTrainer(player.toProtobuf());
+		  for(Asset A : Assets){
+			  PDPb.addAssets(A.AID);
+		  }
+		  return PDPb.build();
+	  }
 	  
 	  private boolean SendPacket(Packet p){
 		  
@@ -152,7 +174,6 @@ public class Client extends Thread implements AutoCloseable {
 	  
 	  private void ActionPacket(Packet p) throws ParseError, InvalidHeader{
 		  State = STATES.WORKING;
-		  
 		  if (p.getPacket() == null || p.getType() == null){
 			  Logger.log_client(Logger.LOG_ERROR, IP, "Blank Packet (Type " + p.getType() + ") Received.");
 			  return;
@@ -160,8 +181,19 @@ public class Client extends Thread implements AutoCloseable {
 		  switch(p.getType()){
 		  	  case PLAYER_DATA:
 		  		  PlayerDataPayload PlayerData = p.getPayload().getPlayerdatapayload();
-		  		  if (PlayerData.getLocation() != null){
-		  			  player.Move(new Location(PlayerData.getLocation()));
+
+		  		  //if (PlayerData.getTrainer() != null){
+		  		//	  player.Move(new Location(PlayerData.getLocation()));
+		  		  //}
+		  	  case TRAINER_DATA:
+		  		  TrainerDataPayload TrainerData = p.getPayload().getTrainerdatapayload();
+
+		  		  if (TrainerData.getTrainer() != null){
+		  			  if(TrainerData.getTrainer().getGtid() == player.GTID){
+		  			  player.Move(new Location(TrainerData.getTrainer().getLocation()));
+		  			  }else{
+		  				  
+		  			  }
 		  		  }
 			  case LOGIN:
 				  LoginPayload LoginPacket = p.getPayload().getLoginpayload();
@@ -169,12 +201,12 @@ public class Client extends Thread implements AutoCloseable {
 				 Logger.log_client(Logger.LOG_VERB_LOW, IP, "Received Login For User: " + LoginPacket.getUsername());
 				 try {
 						player = new PlayableTrainer(LoginPacket.getUsername(), LoginPacket.getPassword(),LoginPacket.getEmail(),this);
-						PlayerDataPayload PDP = player.toPayload();
+						PlayerDataPayload PDP = toPayload();
 						Packet pac = new Packet(PDP,IP);
 						SendPacket(pac);
 						Logger.log_client(Logger.LOG_VERB_LOW, IP, "User Logged in: " + player.GTID);
 					} catch (LoginFailed e) {
-						ActionFailedPayload AFP = ClassToPayload.makeActionFailedPayload(ErrorTypes.LOGIN_INCORRECT,e.message);
+						ActionFailedPayload AFP = ClassToPayload.makeActionFailedPayload(ERROR_TYPES.LOGIN_INCORRECT,e.message);
 						Packet pac = new Packet(AFP,IP);
 						SendPacket(pac);
 						Logger.log_client(Logger.LOG_VERB_LOW, IP, "Login Failed For User: " + LoginPacket.getUsername() + " Reason: " + e.message);
@@ -186,7 +218,7 @@ public class Client extends Thread implements AutoCloseable {
 				case PRIVATE:
 					break;
 				case PUBLIC:
-					Players.SendChat(ChatTypes.PUBLIC, player.GTID, ChatMessagePacket.getMsg());
+					Players.SendChat(CHAT_TYPES.PUBLIC, player.GTID, ChatMessagePacket.getMsg());
 					break;
 				case SHOUT:
 					break;
@@ -270,7 +302,7 @@ public class Client extends Thread implements AutoCloseable {
 	    	  Packet p = ReceivePacket();
 	    	try {
 	    	  if (player == null && p.getType() != PacketType.LOGIN){
-	    		  ActionFailedPayload AFP = ClassToPayload.makeActionFailedPayload(ErrorTypes.ACCESS_DENIED);
+	    		  ActionFailedPayload AFP = ClassToPayload.makeActionFailedPayload(ERROR_TYPES.ACCESS_DENIED);
 					Packet pac = new Packet(AFP,IP);
 					SendPacket(pac);
 					Logger.log_client(Logger.LOG_VERB_LOW, IP, "Attempt to do action without logging in.");
@@ -339,22 +371,21 @@ public class Client extends Thread implements AutoCloseable {
 		  shutdown = true;
 	  }
 	  
-
 	  
-	  
-	  public void sendLocationUpdate( PlayerDataPayload AFP){
-			Packet pac = new Packet(AFP,IP);
-			SendPacket(pac);
-			Logger.log_client(Logger.LOG_VERB_LOW, IP, "Sent Location Message");
-	  }
-	  public void sendLocationUpdate(PlayableTrainer p){
-		  PlayerDataPayload AFP = p.toLocationUpdatePayload();
-			Packet pac = new Packet(AFP,IP);
+	  public void sendLocationUpdate(AssetDataPayload toUpdate){
+			Packet pac = new Packet(toUpdate,IP);
 			SendPacket(pac);
 			Logger.log_client(Logger.LOG_VERB_LOW, IP, "Sent Location Message");
 	  }
 	  
-	  public void sendChatUpdate(ChatTypes CLASS, int sender, String Message){
+	  public void sendLocationUpdate(Asset toUpdate){
+		  AssetDataPayload AFP = toUpdate.toAssetPayload();
+			Packet pac = new Packet(AFP,IP);
+			SendPacket(pac);
+			Logger.log_client(Logger.LOG_VERB_LOW, IP, "Sent Location Message");
+	  }
+	  
+	  public void sendChatUpdate(CHAT_TYPES CLASS, int sender, String Message){
 		  ChatMsgPayload AFP = ClassToPayload.makeChatMsgPayload(CLASS,Message,sender);
 			Packet pac = new Packet(AFP,IP);
 			SendPacket(pac);

@@ -1,7 +1,10 @@
 package com.pokemonnxt.packets;
 
 import com.pokemonnxt.types.Location;
-import com.pokemonnxt.packets.Communications.*;
+import com.pokemonnxt.packets.ClientComms.ActionFailedPayload;
+import com.pokemonnxt.packets.ClientComms.ChatMsgPayload;
+import com.pokemonnxt.packets.CommTypes.CHAT_TYPES;
+import com.pokemonnxt.packets.CommTypes.ERROR_TYPES;
 
 public class ClassToPayload {
 
@@ -9,7 +12,7 @@ public class ClassToPayload {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static ActionFailedPayload makeActionFailedPayload(ErrorTypes E){
+	public static ActionFailedPayload makeActionFailedPayload(ERROR_TYPES E){
 		ActionFailedPayload.Builder PDPB =
 				ActionFailedPayload.newBuilder()
 				.setError(E);
@@ -17,7 +20,7 @@ public class ClassToPayload {
 		return PDP;
 	}
 	
-	public static ActionFailedPayload makeActionFailedPayload(ErrorTypes E, String msg){
+	public static ActionFailedPayload makeActionFailedPayload(ERROR_TYPES E, String msg){
 		ActionFailedPayload.Builder PDPB =
 				ActionFailedPayload.newBuilder()
 				.setError(E)
@@ -25,7 +28,7 @@ public class ClassToPayload {
 		ActionFailedPayload PDP = PDPB.build();
 		return PDP;
 	}
-	public static ActionFailedPayload makeActionFailedPayload(ErrorTypes E, int errorID){
+	public static ActionFailedPayload makeActionFailedPayload(ERROR_TYPES E, int errorID){
 		ActionFailedPayload.Builder PDPB =
 				ActionFailedPayload.newBuilder()
 				.setError(E)
@@ -33,7 +36,7 @@ public class ClassToPayload {
 		ActionFailedPayload PDP = PDPB.build();
 		return PDP;
 	}
-	public static ActionFailedPayload makeActionFailedPayload(ErrorTypes E, int errorID, String msg){
+	public static ActionFailedPayload makeActionFailedPayload(ERROR_TYPES E, int errorID, String msg){
 		ActionFailedPayload.Builder PDPB =
 				ActionFailedPayload.newBuilder()
 				.setError(E)
@@ -42,7 +45,7 @@ public class ClassToPayload {
 		ActionFailedPayload PDP = PDPB.build();
 		return PDP;
 	}
-	public static ActionFailedPayload makeActionFailedPayload(ErrorTypes E, String msg,int ID){
+	public static ActionFailedPayload makeActionFailedPayload(ERROR_TYPES E, String msg,int ID){
 		ActionFailedPayload.Builder PDPB =
 				ActionFailedPayload.newBuilder()
 				.setError(E)
@@ -51,7 +54,7 @@ public class ClassToPayload {
 		ActionFailedPayload PDP = PDPB.build();
 		return PDP;
 	}
-	public static ChatMsgPayload makeChatMsgPayload(ChatTypes C, String msg,int ID){
+	public static ChatMsgPayload makeChatMsgPayload(CHAT_TYPES C, String msg,int ID){
 		ChatMsgPayload.Builder PDPB =
 				ChatMsgPayload.newBuilder()
 				.setType(C)
@@ -60,7 +63,7 @@ public class ClassToPayload {
 		ChatMsgPayload PDP = PDPB.build();
 		return PDP;
 	}
-	public static ChatMsgPayload makeChatMsgPayload(ChatTypes C, String msg,String ID){
+	public static ChatMsgPayload makeChatMsgPayload(CHAT_TYPES C, String msg,String ID){
 		ChatMsgPayload.Builder PDPB =
 				ChatMsgPayload.newBuilder()
 				.setType(C)
@@ -69,7 +72,7 @@ public class ClassToPayload {
 		ChatMsgPayload PDP = PDPB.build();
 		return PDP;
 	}
-	public static ChatMsgPayload makeChatMsgPayload(ChatTypes C, String msg){
+	public static ChatMsgPayload makeChatMsgPayload(CHAT_TYPES C, String msg){
 		ChatMsgPayload.Builder PDPB =
 				ChatMsgPayload.newBuilder()
 				.setType(C)

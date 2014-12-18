@@ -5,17 +5,20 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import com.pokemonnxt.types.Asset;
 import com.pokemonnxt.types.Location;
 import com.pokemonnxt.types.pokemon.PlayablePokemon;
 import com.pokemonnxt.types.pokemon.Pokemon;
 import com.pokemonnxt.types.trainer.PlayableTrainer;
-import com.pokemonnxt.packets.Communications.*;
+import com.pokemonnxt.packets.ClientComms.AssetDataPayload;
+import com.pokemonnxt.packets.CommTypes.CHAT_TYPES;
 
 
 public class Players {
 public static HashMap<Integer,PlayableTrainer> Players = new HashMap<Integer,PlayableTrainer>();
 public static HashMap<Integer,Pokemon> Pokemon = new HashMap<Integer,Pokemon>();
 public static HashMap<String,Integer> Usernames = new HashMap<String,Integer>();
+public static HashMap<String,Integer> LoginTokens = new HashMap<String,Integer>();
 
 /*
 	public static enum MESSAGE_TYPE {
@@ -121,8 +124,8 @@ public static int getGTID(String username){
 
 
 
-public static void SendLocationUpdate(PlayableTrainer moved){
-	PlayerDataPayload PDP = moved.toLocationUpdatePayload();
+public static void SendLocationUpdate(Asset moved){
+	AssetDataPayload PDP = moved.toAssetPayload();
 	for(Entry<Integer, PlayableTrainer> entry : Players.entrySet()) {
 	    Integer GTID = entry.getKey();
 	    PlayableTrainer player = entry.getValue();
@@ -136,11 +139,11 @@ public static void SendLocationUpdate(PlayableTrainer moved){
 
 
 
-public static void SendChat(ChatTypes Type, int Sender, String Message){
+public static void SendChat(CHAT_TYPES Type, int Sender, String Message){
 	SendMessageToLocals(Type,Sender,getPlayer(Sender).location,Message);
 }
 
-private static void SendMessageToLocals(ChatTypes Type,int Sender, Location LOC, String Message){
+private static void SendMessageToLocals(CHAT_TYPES Type,int Sender, Location LOC, String Message){
 	for(Entry<Integer, PlayableTrainer> entry : Players.entrySet()) {
 	    Integer GTID = entry.getKey();
 	    PlayableTrainer player = entry.getValue();
@@ -150,7 +153,7 @@ private static void SendMessageToLocals(ChatTypes Type,int Sender, Location LOC,
 	}
 }
 
-public static void SendChat(ChatTypes Type,int Sender, int Recipient, String Message) throws PlayerOffline{
+public static void SendChat(CHAT_TYPES Type,int Sender, int Recipient, String Message) throws PlayerOffline{
 	if(isOnline(Recipient)){
 		getPlayer(Recipient).sendMessage(Type, Sender, Message);
 	}else{

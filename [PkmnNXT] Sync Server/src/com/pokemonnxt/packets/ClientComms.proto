@@ -13,22 +13,26 @@ enum PacketType {
     GAME = 0;
    	LOGIN = 1;
 	PLAYER_DATA = 2;
-	ACTION_FAILED = 3;
-	CHAT = 4;
+	TRAINER_DATA = 3;
+	ACTION_FAILED = 4;
+	CHAT = 5;
 	SERVER_TRANSFER = 6;
+	ASSET_DATA = 1;
   }
+
 message Header {
   required int32 id = 1;        // Unique ID number for this person.
   optional PacketType type = 2 [default = LOGIN];
  }
 
 message Payload {
- optional LoginPayload loginpayload=1;
-  optional PlayerDataPayload playerdatapayload=2;
- optional TrainerDataPayload trainerdatapayload=3;
- optional ActionFailedPayload actionfailedpayload=4;
- optional ChatMsgPayload chatmsgpayload=5;
-  optional ServerTransferPayload servertransferpayload=6;
+	 optional LoginPayload loginpayload=1;
+ optional AssetDataPayload assetdatapayload=2;
+  optional PlayerDataPayload playerdatapayload=3;
+ optional TrainerDataPayload trainerdatapayload=4;
+ optional ActionFailedPayload actionfailedpayload=5;
+ optional ChatMsgPayload chatmsgpayload=6;
+  optional ServerTransferPayload servertransferpayload=7;
 }
 
 
@@ -42,12 +46,20 @@ required string username = 1;        //Username
 }
 message PlayerDataPayload{
 	required int32 pid = 1;     // The Player's ID this packet is describing
-	optional int32 trainer = 2; // The Trainer this player is associated to (0 for none, otherwise the Trainer ID)
-	optional string server = 3; // The specific ID of the server they're currently on
-	repeated int32 assets = 4; 	// A list of assets this player owns
+	optional TRAINER trainer = 2; // The Trainer this player is associated to (0 for none, otherwise the GTID ID)
+	repeated int32 assets = 3; 	// A list of assets this player owns
+	optional string server = 4; // The specific ID of the server they're currently on
 }
+
+message AssetDataPayload{
+	required int32 aid = 1;
+	optional LOCATION location = 2;
+	optional int32 owner = 3;
+}
+
 message TrainerDataPayload{
 	required TRAINER trainer = 1;
+	repeated POKEMON pokemon = 3;
 }
 message ActionFailedPayload{
 	required ERROR_TYPES error = 1 [default = UNKNOWN_ERROR];
@@ -61,7 +73,7 @@ message ChatMsgPayload{
 	optional string username = 3; 	// who the message is to/from [Only needed for private messages. Specify username OR gtid]
 	optional int32 gtid = 4; 	// who the message is to/from [Only needed for private messages. Specify username OR gtid]
 }
-
+/*
 message OwnershipPayload{
 	required CHAT_TYPES type = 1;	// What the target of the message is
 	required string msg = 2; 		// what the message is
@@ -72,6 +84,8 @@ message SpawnRequestPayload{
 	required int32 type = 1;		// What the target of the message is
 	required string msg = 2; 		// what the message is
 }
+*
+*/
 message ServerTransferPayload{
 	required TRANSFER_STAGE stage = 1;		// What the target of the message is
 	required string ipFrom = 2; 			// Where the user is transfering from

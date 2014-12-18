@@ -13,7 +13,7 @@ import com.pokemonnxt.gameserver.GlobalExceptionHandler;
 import com.pokemonnxt.gameserver.Logger;
 import com.pokemonnxt.gameserver.Main;
 import com.pokemonnxt.gameserver.Players;
-import com.pokemonnxt.packets.Communications;
+import com.pokemonnxt.packets.CommTypes.POKEMON;
 import com.pokemonnxt.types.Attack;
 import com.pokemonnxt.types.Location;
 import com.pokemonnxt.types.pokemon.Pokemon;
@@ -105,14 +105,7 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 		Players.AddPokemon(this);
 	}
 
-	public Communications.POKEMON generatePayload(){
-				 Communications.POKEMON payload =
-						 Communications.POKEMON.newBuilder()
-				.setDex(DEX)
-				.setId(GPID)
-				.build();
-		return payload;
-	}
+	
 
 
 

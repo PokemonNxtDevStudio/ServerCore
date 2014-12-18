@@ -2,8 +2,7 @@ package com.pokemonnxt.types;
 
 import com.google.gson.annotations.Expose;
 import com.pokemonnxt.gameserver.Zones;
-import com.pokemonnxt.packets.Communications;
-import com.pokemonnxt.packets.Communications.LOCATION;
+import com.pokemonnxt.packets.CommTypes.LOCATION;
 
 public class Location {
 	@Expose public double X = -1;
@@ -49,7 +48,7 @@ public void Move(double Xl, double Yl, double Zl, double Pl, double Yal, double 
 public void Move(Location NL){
 	Move(NL.X,NL.Y,NL.Z,NL.P,NL.Ya,NL.R);
 }
-public Location(Communications.LOCATION LO){
+public Location(LOCATION LO){
 	X = LO.getX();
 	Y = LO.getY();
 	Z = LO.getZ();
@@ -58,7 +57,7 @@ public Location(Communications.LOCATION LO){
 	R = LO.getRoll();
 	
 }
-public  LOCATION toPayload(){
+public LOCATION toPayload(){
 	LOCATION payload =
 			LOCATION.newBuilder()
 			.setX(X)

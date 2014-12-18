@@ -3,6 +3,9 @@ package com.pokemonnxt.types;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.pokemonnxt.packets.ClientComms.AssetDataPayload;
+import com.pokemonnxt.packets.CommTypes.LOCATION;
+
 public abstract class Asset {
 	public int AID = 0;
 	public int owner = -1; // 0 = owned by server, anything else is THE APPROPRIATE CLIENT ID
@@ -32,4 +35,14 @@ public abstract class Asset {
         }
 };  
 	
+	public AssetDataPayload toAssetPayload(){
+		LOCATION l = location.toPayload();
+				AssetDataPayload ADP = AssetDataPayload.newBuilder().setOwner(owner).setAid(AID).setLocation(l).build();
+				return ADP;
+	}
+	public AssetDataPayload toAssetPayload_LOCATION(){
+		LOCATION l = location.toPayload();
+				AssetDataPayload ADP = AssetDataPayload.newBuilder().setAid(AID).setLocation(l).build();
+				return ADP;
+	}
 }

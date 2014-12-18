@@ -10,6 +10,9 @@ import java.util.List;
 
 
 
+
+
+
 import com.google.gson.annotations.Expose;
 import com.pokemonnxt.types.Location;
 import com.pokemonnxt.types.pokemon.Pokemon.Stats;
@@ -24,13 +27,16 @@ import com.pokemonnxt.gameserver.PlayerLog;
 import com.pokemonnxt.gameserver.Players;
 import com.pokemonnxt.gameserver.ServerVars;
 import com.pokemonnxt.gameserver.PlayerLog.LOGTYPE;
-import com.pokemonnxt.packets.Communications.*;
+import com.pokemonnxt.node.OuterNode;
+import com.pokemonnxt.packets.CommTypes.CHAT_TYPES;
+import com.pokemonnxt.packets.CommTypes.TRAINER;;
 
 public class PlayableTrainer extends Trainer implements AutoCloseable{
 
 	public boolean isLoggedIn = false;
 	public boolean isNew = false;
 	public Client Connection;
+	public boolean frozen = false;
 	
 	@Expose public String Username;
 	@Expose public int GTID;
@@ -126,13 +132,57 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 			throw new LoginFailed(5, "Internal Server Error occured during login: Please contact admins.");
 		}
 		// Now load their shit up
+		
 		Connection = conn;
 		LoadFromDB();
 		
 		 Players.AddPlayer(this);
 		 setOnline(true);
 		
-		Logger.log_server(Logger.LOG_PROGRESS, username + " Loaded!");
+		Logger.log_server(Logger.LOG_PROGRESS, username + " Logged in and Loaded!");
+	}
+	
+	
+	public PlayableTrainer(String token, Client conn) throws PlayerNotFound{
+		int ID = 0;
+		if(Players.LoginTokens.containsKey(token)){
+			ID = Players.LoginTokens.get(token);
+			Players.LoginTokens.remove(token);
+		}else{
+			throw new PlayerNotFound();
+		}
+		ResultSet PlayerResult = Main.SQL.Query("SELECT * FROM `NXT_USERS` WHERE `GTID`=" + ID );
+		if(!Functions.hasResults(PlayerResult)) throw new PlayerNotFound();
+		try {
+			GTID = PlayerResult.getInt("GTID");
+			Username = PlayerResult.getString("Username");
+			Connection = conn;
+			LoadFromDB();
+			Players.AddPlayer(this);
+			setOnline(true);
+			
+			Logger.log_server(Logger.LOG_PROGRESS, Username + " Loaded from User ID!");
+			
+		} catch (SQLException e) {
+			 throw new PlayerNotFound();
+		}
+	}
+	public PlayableTrainer(int ID, Client conn) throws PlayerNotFound{
+		ResultSet PlayerResult = Main.SQL.Query("SELECT * FROM `NXT_USERS` WHERE `GTID`=" + ID );
+		if(!Functions.hasResults(PlayerResult)) throw new PlayerNotFound();
+		try {
+			GTID = PlayerResult.getInt("GTID");
+			Username = PlayerResult.getString("Username");
+			Connection = conn;
+			LoadFromDB();
+			Players.AddPlayer(this);
+			setOnline(true);
+			
+			Logger.log_server(Logger.LOG_PROGRESS, Username + " Loaded from User ID!");
+			
+		} catch (SQLException e) {
+			 throw new PlayerNotFound();
+		}
 	}
 	
 	
@@ -140,12 +190,13 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 		ResultSet PlayerResult = Main.SQL.Query("SELECT * FROM `NXT_USERS` WHERE `GTID`=" + ID );
 		if(!Functions.hasResults(PlayerResult)) throw new PlayerNotFound();
 		try {
-		GTID = PlayerResult.getInt("GTID");
-		Username = PlayerResult.getString("Username");
-		ReloadPokemon();
-	} catch (SQLException e) {
-		 throw new PlayerNotFound();
-	}
+			GTID = PlayerResult.getInt("GTID");
+			Username = PlayerResult.getString("Username");
+			LoadFromDB();
+			ReloadPokemon();
+		} catch (SQLException e) {
+			 throw new PlayerNotFound();
+		}
 	}
 	
 	public void setOnline(boolean on){
@@ -192,7 +243,12 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 		
 	}
 
-	
+
+	public boolean transferToNode(OuterNode ON){
+		CommitToDB();
+		
+		return true;
+	}
 	public void Kick(String message, String kicker){
 
 			if(isLoggedIn){
@@ -203,7 +259,7 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 			PlayerLog.LogAction(LOGTYPE.KICK, GTID, kicker, message);
 	}
 	
-	public void sendMessage(ChatTypes Class, int Sender, String Message){
+	public void sendMessage(CHAT_TYPES Class, int Sender, String Message){
 		Connection.sendChatUpdate(Class, Sender, Message);
 	}
 	
@@ -252,6 +308,7 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 	}
 	
 	public boolean useItem(int itemID){
+		if (frozen) return false;
 		if (Items.contains(itemID)){
 			// TODO Script to remove item from inventory
 			return true;
@@ -260,12 +317,14 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 		}
 	}
 	public void Move(Location l){
+		if (frozen) return;
 		location.Move(l);
 		if(Connection != null){
 			Players.SendLocationUpdate(this);
 		}
 	}
 	public void Teleport(Location l){
+		if (frozen) return;
 		location.Move(l);
 		if(Connection != null){
 			Players.SendLocationUpdate(this);
@@ -274,12 +333,13 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 	}
 	
 	public void LoadFromDB(){
+		if (frozen) return;
 		ReloadLocation();
 		ReloadPokemon();
 		ReloadItems();
-	}
-	
+	}	
 	private void ReloadPokemon(){
+		if (frozen) return;
 		Party.clear();
 		ResultSet PokemonResult = Main.SQL.Query("SELECT `GPID` FROM `CAUGHT_POKEMON` WHERE `GTID`='" + GTID  + "'");
 		try {
@@ -309,8 +369,8 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 		}
 		Teleport(location);
 	}
-	
 	public void ReloadItems(){
+		if (frozen) return;
 		Items.clear();
 		ResultSet ItemResult = Main.SQL.Query("SELECT `GIID` FROM `PLAYER_ITEMS` WHERE `GTID`='" + GTID  + "'");
 		try {
@@ -349,21 +409,21 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 
 	
 	
-	public  PlayerDataPayload toPayload(){
-		PlayerDataPayload.Builder PDPB =
-				PlayerDataPayload.newBuilder()
+	public  TRAINER toProtobuf(){
+		TRAINER.Builder PDPB =
+				TRAINER.newBuilder()
 				.setGtid(GTID)
 				.setLocation(location.toPayload())
 				.setUsername(Username);
 		for(PlayablePokemon PP : Party){
 			PDPB.addParty(PP.generatePayload());
 		}
-		PlayerDataPayload PDP = PDPB.build();
+		TRAINER PDP = PDPB.build();
 		return PDP;
 	}
-	public  PlayerDataPayload toLocationUpdatePayload(){
-		PlayerDataPayload.Builder PDPB =
-				PlayerDataPayload.newBuilder()
+	public  TRAINER toLocationProtobuf(){
+		TRAINER.Builder PDPB =
+				TRAINER.newBuilder()
 				.setGtid(GTID)
 				.setLocation(location.toPayload());
 		return PDPB.build();

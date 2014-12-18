@@ -25,7 +25,7 @@ import com.pokemonnxt.types.pokemon.Pokemon.TYPE;
 
 public class Zone {
 	public static enum VISIBILITY {
-		PRIVATE(1), FRIENDS(2),LOCAL(3),SERVER_LOCAL(4),;
+		PRIVATE(1), FRIENDS(2),LOCAL(3),SERVER_LOCAL(4);
         private  int value;
         
         private static Map<Integer, VISIBILITY> map = new HashMap<Integer, VISIBILITY>();

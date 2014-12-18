@@ -1,13 +1,14 @@
 package com.pokemonnxt.gameserver;
 
 import com.pokemonnxt.node.Nodes;
+import com.pokemonnxt.types.Area;
 
 
 
 
 /**
  * @author 	TheModerator
- * @version 0.1.5
+ * @version 0.1.6
  * 
  * ########## SECURITY NOTICE #############
  * # THIS FILE CONTAINS INFORMATION WHICH #
@@ -25,13 +26,15 @@ import com.pokemonnxt.node.Nodes;
  */
 public class Main {
 	
-	static String version = "0.1.5";
+	static String version = "0.1.6";
 	
 	
 	public static SQLConnection SQL;
 	public static MainServer Server;
 	public static ControlServer Master;
 	public static Nodes ServerNodes;
+	public static Area ServerControlArea;
+	
 	public void UserQuit(){
 		System.out.println(" ");
 		System.out.println(">>>> Press ENTER to quit <<<<");

@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.pokemonnxt.gameserver.Client.STATES;
+import com.pokemonnxt.packets.CommTypes.CHAT_TYPES;
 import com.pokemonnxt.types.pokemon.PlayablePokemon;
 import com.pokemonnxt.types.pokemon.Pokemon;
 import com.pokemonnxt.types.trainer.PlayableTrainer;
@@ -419,7 +420,7 @@ public void PrintPokemon(Pokemon pp){
 	        				if (i <= 3) continue;
 	        						msg = msg + " " + str;
 	        			}
-	        			p.sendMessage(com.pokemonnxt.packets.Communications.ChatTypes.PRIVATE, 0, msg);
+	        			p.sendMessage(CHAT_TYPES.PRIVATE, 0, msg);
 	        			os.println("[ OK ] Message sent AOK.");
 	        			
 	        		}else{

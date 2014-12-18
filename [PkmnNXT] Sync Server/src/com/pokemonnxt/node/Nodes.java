@@ -4,17 +4,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pokemonnxt.types.trainer.PlayableTrainer;
+
 public class Nodes {
-	List<OuterNode> Nodes = new ArrayList<OuterNode>();
+	public List<OuterNode> Nodes = new ArrayList<OuterNode>();
 	NodeServer nodeServer = new NodeServer();
-	
-	
-	public boolean TransferPlayer(int GTID){
-		return false;
-	}
 	
 	private void addNode(OuterNode ON){
 		Nodes.add(ON);
+	}
+	public void TransferPlayerToNode(OuterNode N, PlayableTrainer P){
+		
 	}
 	public void ConnectToNode(String IP){
 		OuterNode ON = new OuterNode(IP);

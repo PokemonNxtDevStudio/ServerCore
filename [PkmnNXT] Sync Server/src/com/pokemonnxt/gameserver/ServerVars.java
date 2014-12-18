@@ -28,4 +28,7 @@ public static int MaxNodes = 64;
 //The maximum amount of time a connection can go without inbound traffic (in milliseconds) before being kicked
 public static int Timeout = 999999999;
 
+//ServerID
+//This server's ID
+public static String ServerID = "X001";
 }

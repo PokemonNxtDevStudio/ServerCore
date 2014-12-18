@@ -13,8 +13,9 @@ import com.google.api.client.util.DateTime;
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
-import com.pokemonnxt.packets.Communications;
-import com.pokemonnxt.packets.Communications.*;
+import com.pokemonnxt.packets.ClientComms;
+import com.pokemonnxt.packets.ClientComms.*;
+
 
 public class Packet {
 
@@ -23,10 +24,10 @@ public boolean isReceiving = false;
 public boolean isComplete = false;
 public boolean Valid = false;
 public String ReceivingIP;
-private com.pokemonnxt.packets.Communications.Packet Packet;
-private com.pokemonnxt.packets.Communications.Header Head;
-private com.pokemonnxt.packets.Communications.Payload Payload;
-private com.pokemonnxt.packets.Communications.PacketType Type;
+private com.pokemonnxt.packets.ClientComms.Packet Packet;
+private com.pokemonnxt.packets.ClientComms.Header Head;
+private com.pokemonnxt.packets.ClientComms.Payload Payload;
+private com.pokemonnxt.packets.ClientComms.PacketType Type;
 public byte Data[];
 
 	public com.google.protobuf.GeneratedMessage getPacket() throws ParseError, InvalidHeader{
@@ -34,17 +35,17 @@ public byte Data[];
 		Interpret();
 		return Packet;
 	}
-	public com.pokemonnxt.packets.Communications.Payload getPayload() throws ParseError, InvalidHeader{
+	public Payload getPayload() throws ParseError, InvalidHeader{
 		if(Packet != null) return Payload;
 		Interpret();
 		return Payload;
 	}
-	public com.pokemonnxt.packets.Communications.Header getHeader() throws ParseError, InvalidHeader{
+	public Header getHeader() throws ParseError, InvalidHeader{
 		if(Packet != null) return Head;
 		Interpret();
 		return Head;
 	}
-	public com.pokemonnxt.packets.Communications.PacketType getType() throws ParseError, InvalidHeader{
+	public PacketType getType() throws ParseError, InvalidHeader{
 		if(Packet != null) return Type;
 		Interpret();
 		return Type;
@@ -52,7 +53,7 @@ public byte Data[];
 	
 	private void Interpret() throws ParseError, InvalidHeader{
 		try {
-			Packet = Communications.Packet.parseFrom(Data);
+			Packet = ClientComms.Packet.parseFrom(Data);
 			Head = Packet.getHeader();
 			Type = Head.getType();
 			Payload = Packet.getPayload();
@@ -88,10 +89,10 @@ public byte Data[];
 		isReceiving = false;
 		isComplete = true;
 		ReceivingIP = IP;
-		com.pokemonnxt.packets.Communications.Header.Builder HeaderBuilder = com.pokemonnxt.packets.Communications.Header.newBuilder();
-		com.pokemonnxt.packets.Communications.Packet.Builder PacketBuilder = com.pokemonnxt.packets.Communications.Packet.newBuilder();
-		com.pokemonnxt.packets.Communications.Payload.Builder PayloadBuilder = com.pokemonnxt.packets.Communications.Payload.newBuilder();
-		
+		Header.Builder HeaderBuilder = Header.newBuilder();
+		ClientComms.Packet.Builder PacketBuilder = ClientComms.Packet.newBuilder();
+		Payload.Builder PayloadBuilder = Payload.newBuilder();
+		if(M instanceof AssetDataPayload){ PayloadBuilder.setAssetdatapayload((AssetDataPayload) M); HeaderBuilder.setType(PacketType.ASSET_DATA);}
 		if(M instanceof PlayerDataPayload){ PayloadBuilder.setPlayerdatapayload((PlayerDataPayload) M); HeaderBuilder.setType(PacketType.PLAYER_DATA);}
 		if(M instanceof LoginPayload){ PayloadBuilder.setLoginpayload((LoginPayload) M); HeaderBuilder.setType(PacketType.LOGIN);}
 		if(M instanceof ChatMsgPayload){ PayloadBuilder.setChatmsgpayload((ChatMsgPayload) M); HeaderBuilder.setType(PacketType.CHAT);}

@@ -17,6 +17,7 @@ import java.sql.PreparedStatement;
 
 
 
+
 import com.google.gson.annotations.Expose;
 import com.pokemonnxt.gameserver.Cache;
 import com.pokemonnxt.gameserver.GlobalExceptionHandler;
@@ -24,8 +25,7 @@ import com.pokemonnxt.gameserver.Logger;
 import com.pokemonnxt.gameserver.Main;
 import com.pokemonnxt.gameserver.Players;
 import com.pokemonnxt.gameserver.Random;
-import com.pokemonnxt.packets.Communications;
-import com.pokemonnxt.packets.Communications.LOCATION;
+import com.pokemonnxt.packets.CommTypes.POKEMON;
 import com.pokemonnxt.types.Asset;
 import com.pokemonnxt.types.Attack;
 import com.pokemonnxt.types.Location;
@@ -136,7 +136,14 @@ public abstract class Pokemon extends Asset{
 	
 	
 	
-	
+	public POKEMON generatePayload(){
+		 POKEMON payload =
+				 POKEMON.newBuilder()
+		.setDex(DEX)
+		.setId(GPID)
+		.build();
+	return payload;
+	}
 	
 	
 	public KIND getKind(){

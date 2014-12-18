@@ -9,13 +9,18 @@ public class OuterNode {
 	NodeCommunicator Connection;
 	boolean Valid;
 	
-	List<Integer> Users = new ArrayList<Integer>();
+	public List<Integer> Users = new ArrayList<Integer>();
+	
 	
 	public OuterNode(NodeCommunicator NC) {
 		Connection = NC;
 	}
 	public OuterNode(String IP){
 		Connection = new NodeCommunicator(this,IP);
+		
+	}
+	
+	public void submitTransfer(){
 		
 	}
 
