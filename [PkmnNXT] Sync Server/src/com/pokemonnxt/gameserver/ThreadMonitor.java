@@ -24,7 +24,6 @@ public class ThreadMonitor extends Thread{
 					c.timeOut();
 					if (c.player != null) c.player.signOut();
 					c.forceClose();
-					
 				}
 				
 				long TID = c.getId();
@@ -38,10 +37,12 @@ public class ThreadMonitor extends Thread{
 					Logger.log_client(Logger.LOG_ERROR,c.IP,  "[MON] thread is in nullstate! Closing");
 					if (c.player != null) c.player.signOut();
 					c.forceClose();
+					c = null;
 				}else{
 				TU.STATE = tmxb.getThreadInfo(TID).getThreadState();
 				}
 				TU.GTID = -1;
+				if(c == null) continue;
 				if(c.player != null) TU.GTID = c.player.GTID;
 				c.Performance = TU;
 				if(!TUsageMatrix.containsKey(TID))  TUsageMatrix.put(TID,TU);

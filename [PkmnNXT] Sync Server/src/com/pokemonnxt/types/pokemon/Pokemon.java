@@ -2,12 +2,11 @@ package com.pokemonnxt.types.pokemon;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.sql.PreparedStatement;
+
 
 
 
@@ -23,26 +22,23 @@ import com.pokemonnxt.gameserver.Cache;
 import com.pokemonnxt.gameserver.GlobalExceptionHandler;
 import com.pokemonnxt.gameserver.Logger;
 import com.pokemonnxt.gameserver.Main;
-import com.pokemonnxt.gameserver.Players;
 import com.pokemonnxt.gameserver.Random;
-import com.pokemonnxt.packets.CommTypes.POKEMON;
+import com.pokemonnxt.gameserver.ServerAssets;
 import com.pokemonnxt.types.Asset;
 import com.pokemonnxt.types.Attack;
-import com.pokemonnxt.types.Location;
-import com.pokemonnxt.types.trainer.PlayableTrainer;
-import com.pokemonnxt.types.trainer.Trainer;
 
 
 public abstract class Pokemon extends Asset{
 	
 	@Expose public KIND Kind;
 	@Expose public STATUS STATE;
-	@Expose public int DEX;
+	@Expose public short DEX;
 	@Expose public int GPID;
 	@Expose public int Level;
 	@Expose public int EXP;
 	@Expose public int GTID;
 	@Expose public String Name;
+	@Expose public short Model;
 	@Expose public List<Attack> Attacks = new ArrayList<Attack>();
 	@Expose public Pokemon.Stats BasicStats ;
 	/*
@@ -58,17 +54,7 @@ public abstract class Pokemon extends Asset{
 	 * Fucking shit for fucking smogon fanboys. SMD.
 	 */
 	
-	public static Pokemon getPokemon(int GPID){
-		if (Players.Pokemon.containsKey(GPID)) return Players.Pokemon.get(GPID);
-		KIND Kind = getKind(GPID);
-		if(Kind == KIND.WILD){
-			return new WildPokemon(GPID);
-		}else if(Kind == KIND.PLAYER){
-			return new PlayablePokemon(GPID);
-		}else{
-			return new NPCPokemon(GPID);
-		}
-	}
+	
 	
 	public void loadPokemon(){
 		Logger.log_server(Logger.LOG_PROGRESS, "Loading GPID" + GPID + "...");
@@ -80,7 +66,7 @@ public abstract class Pokemon extends Asset{
 			STATE = STATUS.valueOf(BasicInfo.getInt("STATE"));
 			GTID = BasicInfo.getInt("GTID");
 			getKind();
-			DEX = BasicInfo.getInt("DEX");
+			DEX = BasicInfo.getShort("DEX");
 			Name = BasicInfo.getString("Name");
 			EXP = BasicInfo.getInt("EXP"); 
 			Level = BasicInfo.getInt("Level"); 
@@ -101,7 +87,7 @@ public abstract class Pokemon extends Asset{
 			EVResultSet.next();
 			IVs = new Pokemon.IEVs(EVResultSet.getInt("Attack"), EVResultSet.getInt("SpAttack") ,EVResultSet.getInt("Defense"),EVResultSet.getInt("SpDefense"),EVResultSet.getInt("Speed"),EVResultSet.getInt("HP"));
 
-			Players.AddPokemon(this);
+			ServerAssets.AddPokemon(this);
 			
 		} catch (SQLException e) {
 			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
@@ -136,14 +122,7 @@ public abstract class Pokemon extends Asset{
 	
 	
 	
-	public POKEMON generatePayload(){
-		 POKEMON payload =
-				 POKEMON.newBuilder()
-		.setDex(DEX)
-		.setId(GPID)
-		.build();
-	return payload;
-	}
+
 	
 	
 	public KIND getKind(){

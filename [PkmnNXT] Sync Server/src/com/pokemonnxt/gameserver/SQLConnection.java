@@ -47,7 +47,7 @@ public class SQLConnection {
 		  	BaseSQL = DriverManager.getConnection(url+baseDBName,gameDBUserName,gameDBPassword); 
 		  	
 		  	SQLRenew = new SQLRenewTask(); // Instantiate SheduledTask class
-			time.schedule(SQLRenew, 50000, 600000); // Create Repetitively task for every 1 secs
+			time.schedule(SQLRenew, 5000, 600000); // Create Repetitively task for every 1 secs
 		  	System.out.println("SQL SERVER CONNECTION						[" + ConsoleColors.ANSI_GREEN + "   OK   " + ConsoleColors.ANSI_RESET + "]");
 	  	} catch (Exception e) { 
 	  		GlobalExceptionHandler GEH = new GlobalExceptionHandler();

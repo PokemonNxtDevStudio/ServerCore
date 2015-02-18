@@ -14,6 +14,8 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,22 +28,32 @@ import java.util.Map;
 
 
 
+
+
+
+import com.pokemonnxt.packets.*;
 import com.pokemonnxt.types.Asset;
 import com.pokemonnxt.types.Location;
 import com.pokemonnxt.types.pokemon.Pokemon;
 import com.pokemonnxt.types.trainer.PlayableTrainer;
 import com.pokemonnxt.types.trainer.PlayableTrainer.LoginFailed;
-import com.pokemonnxt.gameserver.Packet.InvalidHeader;
-import com.pokemonnxt.gameserver.Packet.InvalidPacket;
-import com.pokemonnxt.gameserver.Packet.ParseError;
+import com.pokemonnxt.types.trainer.Trainer;
+//import com.pokemonnxt.gameserver.Packet.InvalidHeader;
+//import com.pokemonnxt.gameserver.Packet.InvalidPacket;
+//import com.pokemonnxt.gameserver.Packet.ParseError;
 import com.pokemonnxt.gameserver.ThreadMonitor.ThreadUsage;
-import com.pokemonnxt.packets.ClassToPayload;
-import com.pokemonnxt.packets.ClientComms.ChatMsgPayload;
-import com.pokemonnxt.packets.ClientComms.PlayerDataPayload;
-import com.pokemonnxt.packets.CommTypes.CHAT_TYPES;
-import com.pokemonnxt.packets.CommTypes.ERROR_TYPES;
-import com.pokemonnxt.packets.CommTypes.*;
-import com.pokemonnxt.packets.ClientComms.*;
+import com.pokemonnxt.packets.Packet;
+import com.pokemonnxt.packets.Packet.AssetData;
+import com.pokemonnxt.packets.Packet.ChatRX;
+import com.pokemonnxt.packets.Packet.ChatTX;
+import com.pokemonnxt.packets.Packet.DataRequest;
+import com.pokemonnxt.packets.Packet.LocationUpdate;
+import com.pokemonnxt.packets.Packet.Login;
+import com.pokemonnxt.packets.Packet.LoginResponse.LOGIN_RESPONSES;
+import com.pokemonnxt.packets.Packet.PokemonData;
+import com.pokemonnxt.packets.Packet.RequestFailed;
+import com.pokemonnxt.packets.Packet.RequestFailed.FAILURE;
+import com.pokemonnxt.packets.Packet.TrainerData;
 
 public class Client extends Thread implements AutoCloseable {
 
@@ -79,13 +91,11 @@ public class Client extends Thread implements AutoCloseable {
                 this.value = value;
         }
 };   
-	  public int ID = 0;
+	public int ID = 0;
 	  public String IP = null;
 	  private DataInputStream  is = null;
 	  private DataOutputStream os = null;
 	  public Socket clientSocket = null;
-	  private final Client[] threads;
-	  private int maxClientsCount;
 	  public long startTime = 0;
 	  public long lastRX = 0;
 	  public ThreadUsage Performance = null;
@@ -94,142 +104,266 @@ public class Client extends Thread implements AutoCloseable {
 	  public PlayableTrainer player = null;
 	  public boolean shutdown = false;
 	  public List<PlayableTrainer> NearbyPlayers = new ArrayList<PlayableTrainer>();
-	  public List<Asset> Assets = new ArrayList<Asset>();
+	  public HashMap<Integer,Asset> Assets = new HashMap<Integer, Asset>();
 	  
 	  public Client(Socket clientSocket, Client[] threads) {
+		  ID = ServerAssets.GenerateClientID();
 		  State = STATES.INITIATED;
 	    this.clientSocket = clientSocket;
-	    this.threads = threads;
-	    maxClientsCount = threads.length;
 	    IP = clientSocket.getRemoteSocketAddress().toString();
 	    IP = IP.substring(1,IP.indexOf(":"));
 	  }
+	  
 	  public boolean isConnected(){
 		  return clientSocket.isConnected();
 	  }
 	 
-	  public PlayerDataPayload toPayload(){
-		  PlayerDataPayload.Builder PDPb = PlayerDataPayload.newBuilder()
-				  .setServer(ServerVars.ServerID)
-				  .setPid(ID)
-				  .setTrainer(player.toProtobuf());
-		  for(Asset A : Assets){
-			  PDPb.addAssets(A.AID);
+
+	  
+	  public void GiveOwnership(Asset A){
+		  // TODO Dispense Ownership Given Packet
+		  Assets.put(A.AID, A);
+		  A.owner = this.ID;
+	  }
+	  
+	  public boolean TakeOwnership(Asset A) {
+		  if(!Assets.containsKey(A.AID)){
+				return false;
+		  }else{
+			  // TODO Dispense Ownership Taken Packet
+			  Assets.remove(A.AID);
+			  A.owner = 0;
+			  return true;
 		  }
-		  return PDPb.build();
+	  }
+	  
+	  public void SendFastPacket(byte TX[]){
+		  
+		  try {
+			os.write(TX);
+			os.flush();
+		} catch (IOException e) {
+			  Logger.log_client(Logger.LOG_ERROR, IP, " Error whilst sending packet: Closing connection");
+				Close();
+		}
 	  }
 	  
 	  private boolean SendPacket(Packet p){
 		  
 		  try {
-			os.write(p.Data);
-			Logger.log_client(Logger.LOG_PROGRESS,IP,  "Packet Sent: " + Functions.bytesToHex(p.Data));
+			  long starttime = System.nanoTime();
+			  byte[] data = p.Compile();
+			  long compiletime = System.nanoTime();
+			os.write(data);
+			os.flush();
+			long endtime = System.nanoTime();
+			//Logger.log_client(Logger.LOG_PROGRESS,IP,  "Packet Sent: " + Functions.bytesToHex(data));
+			Logger.log_client(Logger.LOG_PROGRESS,IP,  "Sent " + p.getType().toString() + " packet  of length" + data.length + " in times " + (endtime-starttime) + "(" + (compiletime-starttime) + ")");
+			
 			  return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			  Logger.log_client(Logger.LOG_ERROR, IP, " Error whilst sending packet: Closing connection");
+				Close();
 		}
 		  
 			return false;
 	  }
 	  
+	  
+	  private byte rx_transportBytes[] = new byte[4];
+	  private byte rx_sessionBytes[] = new byte[1];
+	  private byte rx_presentationBytes[] = new byte[1];
+	  private byte rx_applicationBytes[] = new byte[1024];
+
 	  private Packet ReceivePacket(){
-		  Logger.log_client(Logger.LOG_PROGRESS,IP, "Waiting for packet..." );
+		  boolean dbg = false;
+		  if(dbg) Logger.log_client(Logger.LOG_PROGRESS,IP, "Waiting for packet..." );
 		  try {
-				byte header[] = new byte[16];
-				byte startbytes[] = new byte[2];
-				State = STATES.WAITING;
-				short i = 0;
+			  	State = STATES.WAITING;
+			  	int TransIn = 0;
+			  	while(TransIn < rx_transportBytes.length){
+			  		rx_transportBytes[TransIn] = is.readByte();
+			  		TransIn +=1;
+			  	}
+			  	if(dbg) Logger.log_client(Logger.LOG_PROGRESS,IP, "Receiving size bytes..." );
 				State = STATES.RECEIVING;
-				startbytes[0] = is.readByte();
-				startbytes[1] = is.readByte();
-				Logger.log_client(Logger.LOG_PROGRESS,IP, "Length Bytes: " + Functions.bytesToHex(startbytes));
-			Packet Incoming = new Packet(Functions.twoBytesToShort(startbytes[0], startbytes[1]),IP);
-			Logger.log_client(Logger.LOG_PROGRESS,IP, "Starting receive of packet of length " + Functions.twoBytesToShort(startbytes[0], startbytes[1]));
-			while(Incoming.isComplete == false){
-				Incoming.addPayloadByte(is.readByte());
-			}
-			State = STATES.PARSING;
-			Logger.log_client(Logger.LOG_PROGRESS,IP, "Finished Receiving Packet: ");
-			Logger.log_client(Logger.LOG_PROGRESS,IP, "Packet: " + Functions.bytesToHex(Incoming.Data));
-			Logger.log_client(Logger.LOG_PROGRESS,IP, "Packet Size: " + Incoming.Data.length);
-			return Incoming;
+				if(dbg) Logger.log_client(Logger.LOG_PROGRESS,IP, "Size bytes received: " + Functions.bytesToHex(rx_transportBytes));
+				int packetsize = ByteBuffer.wrap(rx_transportBytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
+				TransIn = 0;
+				while(TransIn < rx_sessionBytes.length){
+					rx_sessionBytes[TransIn] = is.readByte();
+			  		TransIn +=1;
+			  		packetsize -=1;
+			  	}
+				TransIn = 0;
+				while(TransIn < rx_presentationBytes.length){
+					rx_presentationBytes[TransIn] = is.readByte();
+			  		TransIn +=1;
+			  		packetsize -=1;
+			  	}
+				
+				if(dbg) Logger.log_client(Logger.LOG_PROGRESS,IP, "Starting receive of packet of length " + packetsize);
+				
+				int i = 0;
+				rx_applicationBytes = new byte[packetsize];
+				while(i < packetsize ){
+					rx_applicationBytes[i] = is.readByte();
+					i+=1;
+				}
+				//receivebuffer[i+1] = (byte) 200;
+				State = STATES.PARSING;
+				Main.packetsReceived +=1;
+				if(dbg) Logger.log_client(Logger.LOG_PROGRESS,IP, "Finished Receiving Packet ");
+				return PacketParser.getPacket(rx_sessionBytes,rx_presentationBytes,rx_applicationBytes);
 		  	} catch (IOException e) {
 			  State = STATES.UNKNOWN;
-				e.printStackTrace();
-			} catch (InvalidHeader e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			} catch (InvalidPacket e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ParseError e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			  if(dbg)  Logger.log_client(Logger.LOG_ERROR, IP, " Error whilst communicating: Closing connection");
+				Close();
 			}
 			return null;
 		
 	  }
+	  public void SendFullUpdate(){
+		  List<Trainer> Ts = ServerAssets.getNearbyPlayers(player.location);
+		  
+		  Trainer T[] = new Trainer[Ts.size()];
+		  Ts.toArray(T);
+		  SendTrainerData(T);
+	  }
 	  
-	  
-	  private void ActionPacket(Packet p) throws ParseError, InvalidHeader{
+	  public void SendTrainerData(Trainer t){
+		  SendTrainerData(new Trainer[]{t});
+	  }
+	  public void SendTrainerData(Trainer[] t){
+		  Packet.TrainerData RF2 = new TrainerData(t);
+			SendPacket(RF2);
+	  }
+	  private void SendError(FAILURE F, String Message){
+		  Logger.log_client(Logger.LOG_WARN, IP, "User Encountered Error: " + F.toString() + " - " + Message);
+		  Packet.RequestFailed RF2 = new RequestFailed(F,Message);
+			SendPacket(RF2);
+	  }
+	  private void ActionPacket(Packet p) /*throws ParseError, InvalidHeader*/{
 		  State = STATES.WORKING;
-		  if (p.getPacket() == null || p.getType() == null){
-			  Logger.log_client(Logger.LOG_ERROR, IP, "Blank Packet (Type " + p.getType() + ") Received.");
+		  if (p == null){
+			  Logger.log_client(Logger.LOG_ERROR, IP, "Nothing received: Connection dead!");
 			  return;
 		  }
 		  switch(p.getType()){
-		  	  case PLAYER_DATA:
-		  		  PlayerDataPayload PlayerData = p.getPayload().getPlayerdatapayload();
-
-		  		  //if (PlayerData.getTrainer() != null){
-		  		//	  player.Move(new Location(PlayerData.getLocation()));
-		  		  //}
-		  	  case TRAINER_DATA:
-		  		  TrainerDataPayload TrainerData = p.getPayload().getTrainerdatapayload();
-
-		  		  if (TrainerData.getTrainer() != null){
-		  			  if(TrainerData.getTrainer().getGtid() == player.GTID){
-		  			  player.Move(new Location(TrainerData.getTrainer().getLocation()));
-		  			  }else{
-		  				  
-		  			  }
-		  		  }
+		  	  case LOCATION:
+		  		Packet.LocationUpdate LC = (LocationUpdate) p;
+		  		Logger.log_player(Logger.LOG_VERB_LOW, "Move packet received...", player.GTID);
+		  		if (Assets.containsKey(LC.AssetID)){
+		  			ServerAssets.SendLocationUpdate(LC);
+		  			player.Move(LC.location);
+		  		}else{
+		  		  Logger.log_client(Logger.LOG_WARN, IP, "User attempted to move object which they do not own (" + LC.AssetID + ")");
+		  		  SendError(FAILURE.INSUFFICIENT_PERMISSIONS,"You do not own AID" + LC.AssetID );
+		  		}
+		  		
+			  break;
 			  case LOGIN:
-				  LoginPayload LoginPacket = p.getPayload().getLoginpayload();
-				  
-				 Logger.log_client(Logger.LOG_VERB_LOW, IP, "Received Login For User: " + LoginPacket.getUsername());
+				  Packet.Login LoginPacket = (Login) p;
+				  Logger.log_client(Logger.LOG_VERB_LOW, IP, "Received Login For User: " + LoginPacket.Username);
+				  if (player!=null){
+					  SendError(FAILURE.STUPID_REQUEST,"You're already logged in dumbass");
+					  shutdown = true;
+				  }
 				 try {
-						player = new PlayableTrainer(LoginPacket.getUsername(), LoginPacket.getPassword(),LoginPacket.getEmail(),this);
-						PlayerDataPayload PDP = toPayload();
-						Packet pac = new Packet(PDP,IP);
-						SendPacket(pac);
+						player = new PlayableTrainer(LoginPacket.Username, LoginPacket.Password,LoginPacket.Email,this);
+						Packet.LoginResponse LR = new Packet.LoginResponse(LOGIN_RESPONSES.SUCCESSFUL, "Sardines shall rule the world", new Packet.IntrinsicType.TrainerData(player));
+						SendPacket(LR);
+						player.TransferTo(this);
 						Logger.log_client(Logger.LOG_VERB_LOW, IP, "User Logged in: " + player.GTID);
+						SendFullUpdate();
 					} catch (LoginFailed e) {
-						ActionFailedPayload AFP = ClassToPayload.makeActionFailedPayload(ERROR_TYPES.LOGIN_INCORRECT,e.message);
-						Packet pac = new Packet(AFP,IP);
-						SendPacket(pac);
-						Logger.log_client(Logger.LOG_VERB_LOW, IP, "Login Failed For User: " + LoginPacket.getUsername() + " Reason: " + e.message);
+						Packet.LoginResponse LR = new Packet.LoginResponse(LOGIN_RESPONSES.INVALID_PASSWORD, e.message, null);
+						SendPacket(LR);
+						Logger.log_client(Logger.LOG_VERB_LOW, IP, "Login Failed For User: " + LoginPacket.Username + " Reason: " + e.message);
 					}
 				  break;
 			  case CHAT:
-				  ChatMsgPayload ChatMessagePacket = p.getPayload().getChatmsgpayload();
-				  switch(ChatMessagePacket.getType()){
-				case PRIVATE:
-					break;
-				case PUBLIC:
-					Players.SendChat(CHAT_TYPES.PUBLIC, player.GTID, ChatMessagePacket.getMsg());
-					break;
-				case SHOUT:
-					break;
-				default:
-					break;
 				  
-				  }
+				  Packet.ChatRX CRX = (ChatRX) p;
+				  ServerAssets.SendChat(player, CRX.Message);
+				 break;
+				 
+			  case DATA_REQUEST:
+			  		Packet.DataRequest DR = (DataRequest) p;
+			  		Logger.log_player(Logger.LOG_VERB_LOW, "Request for data received", player.GTID);
+
+			  		switch(DR.DAT){
+			  		case UNKNOWN: // Scene
+			  			SendError(FAILURE.UNKNOWN_REQUEST,"Empty data request (DAT = 0) received!");
+			  			break;
+			  		case TRAINER: 
+			  			PlayableTrainer t = ServerAssets.getPlayer(DR.AssetID);
+			  			if (t==null){
+			  				SendError(FAILURE.DATA_MISSING,"Could not find Trainer with GTID" + DR.AssetID);
+			  			}else{
+			  				SendTrainerData(t);
+			  			}
+			  			break;
+			  		case ASSET: 
+			  			Asset a = ServerAssets.getAsset(DR.AssetID);
+			  			if (a==null){
+			  				SendError(FAILURE.DATA_MISSING,"Could not find Asset with AID" + DR.AssetID);
+			  			}else{
+			  				if(DR.ReturnObject){
+			  					if(a instanceof Trainer){
+			  						Packet.TrainerData RF2 = new TrainerData(new Trainer[]{(Trainer) a});
+						  			SendPacket(RF2);
+			  					}else if (a instanceof Pokemon){
+			  						Packet.PokemonData RF2 = new PokemonData(new Pokemon[]{(Pokemon) a});
+						  			SendPacket(RF2);
+			  					}else{
+			  						Packet.AssetData RF2 = new AssetData(new Asset[]{ a});
+						  			SendPacket(RF2);
+			  					}
+			  				}else{
+			  					Packet.AssetData RF2 = new AssetData(new Asset[]{ a});
+					  			SendPacket(RF2);
+			  				}
+			  			}
+			  			break;
+			  		case POKEMON: 
+			  			Pokemon poke = ServerAssets.getPokemon(DR.AssetID);
+			  			if (poke==null){
+			  				SendError(FAILURE.DATA_MISSING,"Could not find Pokemon with GPID" + DR.AssetID);
+			  			}else{
+			  				Packet.PokemonData RF2 = new PokemonData(new Pokemon[]{poke});
+				  			SendPacket(RF2);
+			  			}
+			  			break;
+			  		case SCENE:
+			  			SendError(FAILURE.NOT_IMPLEMENTED,"Scene data request not yet implemented");
+			  			break;
+			  		default:
+			  			SendError(FAILURE.NOT_IMPLEMENTED,"Not sure what data you're requesting!");
+			  			return;
+			  		}
+			  		
 				  break;
-			  default:
-				  break;
-			  
+		case ERROR:
+			break;
+		case LOGIN_RESPONSE:
+			SendError(FAILURE.STUPID_REQUEST,"PROTOCOL VIOLATION: CLIENTS SHOULD NOT GENERATE LOGIN RESPONSES");
+			break;
+		case OWNERSHIP_UPDATE:
+			SendError(FAILURE.NOT_IMPLEMENTED,"Ownership not implemented fully");
+			break;
+		case REQUEST_FAILED:
+			SendError(FAILURE.NOT_IMPLEMENTED,"Clients not currently able to refuse server requests at this time");
+			break;
+		case TRAINER_DATA:
+			SendError(FAILURE.NOT_IMPLEMENTED,"Not set up to receive Trainer Data packets");
+			break;
+		case UNKNOWN:
+			SendError(FAILURE.UNKNOWN_REQUEST,"Empty packet type received?");
+			break;
+		default:
+			SendError(FAILURE.NOT_IMPLEMENTED,"Unhadleable game packet type received!");
+			break;
 		  }
 	  }
 	  
@@ -250,16 +384,7 @@ public class Client extends Thread implements AutoCloseable {
 	  }
 	  
 
-	private void SendPacket(String Packet){
-		try {
-			os.writeUTF(Packet);
-			Logger.log_client(Logger.LOG_PROGRESS,IP,  "Packet Sent: " + Packet);
-		} catch (IOException e) {
-			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
-			GEH.uncaughtException(Thread.currentThread(), (Throwable) e, "Error sending string message");
-		}
-		
-	}
+	
 	
 	  public void run() {
 		  ClientExceptionHandler handler = new ClientExceptionHandler();
@@ -300,28 +425,12 @@ public class Client extends Thread implements AutoCloseable {
 	      
 	      while(!shutdown){
 	    	  Packet p = ReceivePacket();
-	    	try {
-	    	  if (player == null && p.getType() != PacketType.LOGIN){
-	    		  ActionFailedPayload AFP = ClassToPayload.makeActionFailedPayload(ERROR_TYPES.ACCESS_DENIED);
-					Packet pac = new Packet(AFP,IP);
-					SendPacket(pac);
-					Logger.log_client(Logger.LOG_VERB_LOW, IP, "Attempt to do action without logging in.");
-	    	  }
-	    	  
 				ActionPacket(p);
-				
-			} catch (InvalidHeader e) {
-				GlobalExceptionHandler GEH = new GlobalExceptionHandler();
-				GEH.uncaughtException(Thread.currentThread(), (Throwable) e, "Error actioning packet; Faulty header: " + e.Invalid);
-			} catch (ParseError e) {
-				GlobalExceptionHandler GEH = new GlobalExceptionHandler();
-				GEH.uncaughtException(Thread.currentThread(), (Throwable) e, "Error actioning packet; Could not parse: " + e.Invalid);
-			}
+		
 	      }
 	      
 	      /* if they reach here, they're exiting for whatever reason */
 	      if(clientSocket.isConnected() ){
-	    	  SendPacket("<CLOSING CONNECTION>");
 	    	  Close();
 	      }
 	    } catch (IOException e) {
@@ -331,18 +440,23 @@ public class Client extends Thread implements AutoCloseable {
 	    Logger.log_client(Logger.LOG_VERB_LOW, IP, "Client Finished.");
 	  }
 	  
+	  boolean closed;
+	  
 	  public void Close(){
+		  if(closed)return;
+		  closed = true;
 		  /*
 	       * Clean up. Set the current thread variable to null so that a new client
 	       * could be accepted by the server.
 	       */
 	      synchronized (this) {
-	        for (int i = 0; i < maxClientsCount; i++) {
-	          if (threads[i] == this) {
-	            threads[i] = null;
+	        for (int i = 0; i < MainServer.Clients.length; i++) {
+	          if (MainServer.Clients[i] == this) {
+	        	  MainServer.Clients[i] = null;
 	          }
 	        }
 	      }
+	      ServerAssets.RemoveClient(this);
 	      if (player != null) player.signOut();
 	      
 	    		  
@@ -351,48 +465,33 @@ public class Client extends Thread implements AutoCloseable {
 	       * Close the output stream, close the input stream, close the socket.
 	       */
 	      try {
+	    	  shutdown = true;
 	    	  clientSocket.close();
 	    	  is.close();
 		      os.close();
-		      shutdown = true;
 			Logger.log_client(Logger.LOG_VERB_HIGH, IP, "Connection Closed.");
 		} catch (IOException e) {
 			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
-			GEH.uncaughtException(Thread.currentThread(), (Throwable) e);
+			GEH.uncaughtException(Thread.currentThread(), (Throwable) e,"Error whilst soft-closing connection! Attempting force close.");
+			forceClose();
 		}
 	      
 	  }
 	  
-	  public void timeOut(){
-		  SendPacket("[TIMEOUT]");
-	  }
-	  public void sendKick(String Message){
-		  SendPacket("{'header':{'PTYPE':'KICK'},'payload':{'MSG' : " + Message + "} }");
-		  shutdown = true;
-	  }
 	  
 	  
-	  public void sendLocationUpdate(AssetDataPayload toUpdate){
-			Packet pac = new Packet(toUpdate,IP);
+  public void sendLocationUpdate(LocationUpdate LU){
+	  Logger.log_client(Logger.LOG_PROGRESS,IP, "Transmitting location update to " + player.Name);
+	  SendFastPacket(LU.Compile());
+  }
+	    
+	public void sendChatUpdate(int sender, String Message){
+		  Packet.ChatTX pac = new ChatTX(Message,sender);
 			SendPacket(pac);
-			Logger.log_client(Logger.LOG_VERB_LOW, IP, "Sent Location Message");
 	  }
+	
 	  
-	  public void sendLocationUpdate(Asset toUpdate){
-		  AssetDataPayload AFP = toUpdate.toAssetPayload();
-			Packet pac = new Packet(AFP,IP);
-			SendPacket(pac);
-			Logger.log_client(Logger.LOG_VERB_LOW, IP, "Sent Location Message");
-	  }
-	  
-	  public void sendChatUpdate(CHAT_TYPES CLASS, int sender, String Message){
-		  ChatMsgPayload AFP = ClassToPayload.makeChatMsgPayload(CLASS,Message,sender);
-			Packet pac = new Packet(AFP,IP);
-			SendPacket(pac);
-			Logger.log_client(Logger.LOG_VERB_LOW, IP, "Sent Chat Message");
-		  
-	  }
-	@Override
+	 @Override
 	public void close() throws Exception {
 		// TODO Auto-generated method stub
 		Close();
@@ -400,7 +499,7 @@ public class Client extends Thread implements AutoCloseable {
 	
 	public class ClientExceptionHandler implements Thread.UncaughtExceptionHandler{
 		 
-
+	
 		  public void uncaughtException(Thread t, Throwable e) {
 			  String ID;
 			  if(player==null){
@@ -410,21 +509,25 @@ public class Client extends Thread implements AutoCloseable {
 					  ID = IP;
 				  }
 			  }else{
-				  if(player.Username == null){
+				  if(player.Name == null){
 					ID = Integer.toString(player.GTID);
 				  }else{
-					  ID = player.Username;
+					  ID = player.Name;
 				  }
 			  }
 			try {
-				PrintWriter writer = new PrintWriter("/etc/NXT_SERVER/ERRORS/CLIENT" + ID + "ERROR" + System.currentTimeMillis() + ".txt", "UTF-8");
+				long EC = System.currentTimeMillis();
+				Logger.log_client(Logger.LOG_FATAL, IP, "UNHANDLED CLIENT ERROR OCCURED: " + EC);
+				
+				PrintWriter writer = new PrintWriter("/etc/NXT_SERVER/ERRORS/CLIENT" + ID + "ERROR" + EC + ".txt", "UTF-8");
 				 writer.println("The following Error occured in thread " + t.toString() + " with player " + ID);
 				    writer.println(e.getMessage());
 				    writer.println(e.getLocalizedMessage());
 				    e.printStackTrace(writer);
 				    writer.println("A SAFE CLIENT SHUTDOWN WILL BE ATTEMPTED");
 				    writer.close();
-				    SendPacket("[ERR " + System.currentTimeMillis() + "]");
+				   if (clientSocket.isConnected()) SendError(FAILURE.SERVER_FAULT,"Server Exception Occured: [CLIENT" + ID + "ERROR" + EC + "]");
+				    Logger.log_client(Logger.LOG_FATAL, IP, "Attempting safe shutdown...");
 				    Close();
 			} catch (FileNotFoundException e1) {
 				// TODO Auto-generated catch block
@@ -438,5 +541,29 @@ public class Client extends Thread implements AutoCloseable {
 		  }
 		}
 	
+	public class ThatsNotMineException extends Throwable{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1306933785573476832L;
+		
+		int AID = 0;
+		public String message = "Client does not own asset " + AID;
+		
+		
+		/*
+		 *  1 = Username/Password mismatch
+		 *  2 = User Banned
+		 *  3 = Email already in use
+		 */
+		public ThatsNotMineException(int lAID){
+			AID = lAID;
+		}
+	}
+
+	public void timeOut() {
+		// TODO Auto-generated method stub
+		Close();
+	}
 	
 }

@@ -8,18 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.annotations.Expose;
-import com.pokemonnxt.gameserver.Cache;
 import com.pokemonnxt.gameserver.GlobalExceptionHandler;
 import com.pokemonnxt.gameserver.Logger;
 import com.pokemonnxt.gameserver.Main;
-import com.pokemonnxt.gameserver.Players;
-import com.pokemonnxt.packets.CommTypes.POKEMON;
-import com.pokemonnxt.types.Attack;
+import com.pokemonnxt.gameserver.ServerAssets;
 import com.pokemonnxt.types.Location;
 import com.pokemonnxt.types.pokemon.Pokemon;
-import com.pokemonnxt.types.pokemon.Pokemon.STATUS;
 import com.pokemonnxt.types.trainer.PlayableTrainer;
-import com.pokemonnxt.types.trainer.Trainer;
 
 public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 
@@ -35,7 +30,7 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 	}
 
 
-	public PlayablePokemon(int lDEX, int lLevel, int lEXP, String lName, Pokemon.Stats lCurrentStats, Pokemon.Stats lBaseStats, PlayableTrainer trainer){
+	public PlayablePokemon(short lDEX, int lLevel, int lEXP, String lName, Pokemon.Stats lCurrentStats, Pokemon.Stats lBaseStats, PlayableTrainer trainer){
 		Logger.log_server(Logger.LOG_VERB_LOW, "Saving GPID" + GPID + " from packet:");
 		 PreparedStatement insertPokemon = null;
 		int boxloc = 1;
@@ -94,7 +89,7 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 				baseStatUpdate.setInt(10, lCurrentStats.HP);
 				baseStatUpdate.executeUpdate();
 				CurrentStats = lCurrentStats;
-				Players.AddPokemon(this);
+				ServerAssets.AddPokemon(this);
 			}else{
 				Logger.log_server(Logger.LOG_ERROR, "Pokemon ID " + GPID + " WAS UNABLE TO BE SAVED :/");
 			}
@@ -102,7 +97,7 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
 			GEH.uncaughtException(Thread.currentThread(), (Throwable) e, "SQL Exception encountered whilst saving GPID" + GPID);
 		}
-		Players.AddPokemon(this);
+		ServerAssets.AddPokemon(this);
 	}
 
 	
@@ -222,6 +217,6 @@ public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 	@Override
 	public void close() throws Exception {
 		// TODO Auto-generated method stub
-		Players.RemovePokemon(GPID);
+		ServerAssets.RemovePokemon(GPID);
 	}
 }

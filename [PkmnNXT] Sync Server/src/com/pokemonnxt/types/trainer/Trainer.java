@@ -11,4 +11,8 @@ import com.pokemonnxt.types.pokemon.Pokemon;
 public abstract class Trainer extends Asset{
 	@Expose public List<Pokemon> Party = new ArrayList<Pokemon>();
 	@Expose public List<Integer> Items = new ArrayList<Integer>();
+	
+	public String Name;
+	public int GTID;
+	public short BaseModel;
 }

@@ -6,7 +6,7 @@ public class ServerVars {
 
 // Spawn
 // The location at which new players will spawn
-public static Location Spawn = new Location(20,20,20,0,0,0);
+public static Location Spawn = new Location(20L,20L,20L,(short)0,(short)0,(short)0);
 
 // LocUpdateDist
 // The distance at which location updates are made

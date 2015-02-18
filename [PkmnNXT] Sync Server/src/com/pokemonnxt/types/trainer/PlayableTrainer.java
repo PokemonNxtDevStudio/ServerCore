@@ -13,9 +13,11 @@ import java.util.List;
 
 
 
+
+
+
 import com.google.gson.annotations.Expose;
 import com.pokemonnxt.types.Location;
-import com.pokemonnxt.types.pokemon.Pokemon.Stats;
 import com.pokemonnxt.types.pokemon.PlayablePokemon;
 import com.pokemonnxt.types.pokemon.Pokemon;
 import com.pokemonnxt.gameserver.Client;
@@ -24,46 +26,46 @@ import com.pokemonnxt.gameserver.GlobalExceptionHandler;
 import com.pokemonnxt.gameserver.Logger;
 import com.pokemonnxt.gameserver.Main;
 import com.pokemonnxt.gameserver.PlayerLog;
-import com.pokemonnxt.gameserver.Players;
+import com.pokemonnxt.gameserver.ServerAssets;
 import com.pokemonnxt.gameserver.ServerVars;
 import com.pokemonnxt.gameserver.PlayerLog.LOGTYPE;
 import com.pokemonnxt.node.OuterNode;
-import com.pokemonnxt.packets.CommTypes.CHAT_TYPES;
-import com.pokemonnxt.packets.CommTypes.TRAINER;;
 
-public class PlayableTrainer extends Trainer implements AutoCloseable{
+public class PlayableTrainer extends  Trainer implements AutoCloseable{
 
 	public boolean isLoggedIn = false;
 	public boolean isNew = false;
 	public Client Connection;
 	public boolean frozen = false;
+	public String Name;
 	
-	@Expose public String Username;
-	@Expose public int GTID;
 	@Expose public List<PlayablePokemon> Party = new ArrayList<PlayablePokemon>();
 	@Expose public List<Integer> Items = new ArrayList<Integer>();
 
 	public PlayableTrainer(String username, String password, String email, Client conn) throws  LoginFailed{
-		Logger.log_server(Logger.LOG_PROGRESS, "Username " + username + " login requested");
+		Logger.log_server(Logger.LOG_PROGRESS, "Name " + username + " login requested");
 		ResultSet PlayerResult = Main.SQL.Query("SELECT * FROM `NXT_USERS` WHERE `Username`='" + username  + "' AND `Password`='" + Functions.encryptPassword(password) + "'");
 		if(!Functions.hasResults(PlayerResult)){ // If player username and password do not match
-			Logger.log_server(Logger.LOG_PROGRESS, "Username and password do not match.");
-			ResultSet UsernameResult = Main.SQL.Query("SELECT * FROM `NXT_USERS` WHERE `Username`='" + username  + "'");
-			if(!Functions.hasResults(UsernameResult)){ // and the username is not in the database
-				Logger.log_server(Logger.LOG_PROGRESS, "Username " + username + " Not in database");
-				if(email != ""){ // but the email is present
+			Logger.log_server(Logger.LOG_PROGRESS, "Name and password do not match.");
+			ResultSet NameResult = Main.SQL.Query("SELECT * FROM `NXT_USERS` WHERE `Username`='" + username  + "'");
+			if(!Functions.hasResults(NameResult)){ // and the username is not in the database
+				Logger.log_server(Logger.LOG_PROGRESS, "Name " + username + " Not in database");
+				if(email != "" && email != null){ // but the email is present
 					Logger.log_server(Logger.LOG_PROGRESS, "Email specified: " + email);
 					ResultSet EmailResult = Main.SQL.Query("SELECT * FROM `NXT_USERS` WHERE `Email`='" + email  + "'");
 					if(!Functions.hasResults(EmailResult)){ // and the email is not in the database
 					try {
 						Logger.log_server(Logger.LOG_VERB_HIGH, "Creating new player: " + username);
 						PreparedStatement createPlayer = null;
-						
+						Logger.log_server(Logger.LOG_VERB_HIGH, "Prepping INSERT: " + username);
 						// Make the login details entry
 						createPlayer = Main.SQL.SQL.prepareStatement("INSERT INTO `NXT_USERS` (`Username`,`Password`, `Email`) VALUES (?, ?, ?)",Statement.RETURN_GENERATED_KEYS);
+						Logger.log_server(Logger.LOG_VERB_HIGH, "Adding usrname: " + username);
 						createPlayer.setString(1, username);
+						
 						createPlayer.setString(2, Functions.encryptPassword(password));
 						createPlayer.setString(3, email);
+						Logger.log_server(Logger.LOG_VERB_HIGH, "Updatiing: " + username);
 						GTID = createPlayer.executeUpdate();
 						ResultSet insertResult = createPlayer.getGeneratedKeys();
 						insertResult.first();
@@ -81,9 +83,15 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 						InsertLocation.setString(8, "SPAWN");
 						InsertLocation.executeUpdate();
 						
+						PreparedStatement ModelID = null;
+						ModelID = Main.SQL.SQL.prepareStatement("INSERT INTO `NXT_GAME`.`TRAINER_PREFABS` (`GTID`, `PREFAB`) VALUES (?, ?)",Statement.RETURN_GENERATED_KEYS);
+						ModelID.setInt(1, GTID);
+						ModelID.setInt(2, 1);
+						ModelID.executeUpdate();
 						
-						
-						Username = username;
+						Logger.log_server(Logger.LOG_VERB_HIGH, "Making name " + username);
+						Name = username;
+						Logger.log_server(Logger.LOG_VERB_HIGH, "Name made: " + username);
 						isLoggedIn = true;
 						isNew = true;
 					} catch (SQLException e) {
@@ -98,8 +106,8 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 						throw new LoginFailed(3, "Email in use!");
 					}
 				}else{
-					Logger.log_server(Logger.LOG_PROGRESS, "Username/Password mismatch");
-					throw new LoginFailed(1, "Username and password do not match!");
+					Logger.log_server(Logger.LOG_PROGRESS, "Name/Password mismatch");
+					throw new LoginFailed(1, "Name and password do not match!");
 				}
 			}else{
 				Logger.log_server(Logger.LOG_PROGRESS, "Password was just damn wrong");
@@ -121,7 +129,7 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 			if(isLoggedIn == false){
 				
 			GTID = PlayerResult.getInt("GTID");
-			Username = username;
+			Name = username;
 			}
 			isLoggedIn = true;
 			
@@ -136,49 +144,26 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 		Connection = conn;
 		LoadFromDB();
 		
-		 Players.AddPlayer(this);
+		ServerAssets.AddPlayer(this);
 		 setOnline(true);
 		
 		Logger.log_server(Logger.LOG_PROGRESS, username + " Logged in and Loaded!");
 	}
 	
 	
-	public PlayableTrainer(String token, Client conn) throws PlayerNotFound{
-		int ID = 0;
-		if(Players.LoginTokens.containsKey(token)){
-			ID = Players.LoginTokens.get(token);
-			Players.LoginTokens.remove(token);
-		}else{
-			throw new PlayerNotFound();
-		}
-		ResultSet PlayerResult = Main.SQL.Query("SELECT * FROM `NXT_USERS` WHERE `GTID`=" + ID );
-		if(!Functions.hasResults(PlayerResult)) throw new PlayerNotFound();
-		try {
-			GTID = PlayerResult.getInt("GTID");
-			Username = PlayerResult.getString("Username");
-			Connection = conn;
-			LoadFromDB();
-			Players.AddPlayer(this);
-			setOnline(true);
-			
-			Logger.log_server(Logger.LOG_PROGRESS, Username + " Loaded from User ID!");
-			
-		} catch (SQLException e) {
-			 throw new PlayerNotFound();
-		}
-	}
+	
 	public PlayableTrainer(int ID, Client conn) throws PlayerNotFound{
 		ResultSet PlayerResult = Main.SQL.Query("SELECT * FROM `NXT_USERS` WHERE `GTID`=" + ID );
 		if(!Functions.hasResults(PlayerResult)) throw new PlayerNotFound();
 		try {
 			GTID = PlayerResult.getInt("GTID");
-			Username = PlayerResult.getString("Username");
+			Name = PlayerResult.getString("Username");
 			Connection = conn;
 			LoadFromDB();
-			Players.AddPlayer(this);
+			ServerAssets.AddPlayer(this);
 			setOnline(true);
 			
-			Logger.log_server(Logger.LOG_PROGRESS, Username + " Loaded from User ID!");
+			Logger.log_server(Logger.LOG_PROGRESS, Name + " Loaded from User ID!");
 			
 		} catch (SQLException e) {
 			 throw new PlayerNotFound();
@@ -191,7 +176,7 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 		if(!Functions.hasResults(PlayerResult)) throw new PlayerNotFound();
 		try {
 			GTID = PlayerResult.getInt("GTID");
-			Username = PlayerResult.getString("Username");
+			Name = PlayerResult.getString("Username");
 			LoadFromDB();
 			ReloadPokemon();
 		} catch (SQLException e) {
@@ -252,15 +237,15 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 	public void Kick(String message, String kicker){
 
 			if(isLoggedIn){
-				Connection.sendKick(message);
+				// TODO Connection.sendKick(message);
 			}else{
 				message = "[OFFLINE] " + message;
 			}
 			PlayerLog.LogAction(LOGTYPE.KICK, GTID, kicker, message);
 	}
 	
-	public void sendMessage(CHAT_TYPES Class, int Sender, String Message){
-		Connection.sendChatUpdate(Class, Sender, Message);
+	public void sendMessage(int Sender, String Message){
+		Connection.sendChatUpdate(Sender, Message);
 	}
 	
 	public boolean Ban(String message, String Banner){
@@ -296,8 +281,8 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 			return false;
 		}
 	}
-	public Pokemon catchNew(int lDEX, int lLevel, int lEXP, String Name, Pokemon.Stats CurrentStats, Pokemon.Stats BaseStats){
-		PlayablePokemon poke = new PlayablePokemon(lDEX, lLevel, lEXP, Name, CurrentStats, BaseStats, this);
+	public Pokemon catchNew(short lDEX, int lLevel, int lEXP, String Nm, Pokemon.Stats CurrentStats, Pokemon.Stats BaseStats){
+		PlayablePokemon poke = new PlayablePokemon(lDEX, lLevel, lEXP, Nm, CurrentStats, BaseStats, this);
 		if(poke.GPID > 0){
 		Party.add(poke);
 		PlayerLog.LogAction(LOGTYPE.CATCH,GTID,Connection.IP,Integer.toString(poke.GPID));
@@ -319,25 +304,31 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 	public void Move(Location l){
 		if (frozen) return;
 		location.Move(l);
-		if(Connection != null){
-			Players.SendLocationUpdate(this);
-		}
 	}
 	public void Teleport(Location l){
 		if (frozen) return;
 		location.Move(l);
-		if(Connection != null){
-			Players.SendLocationUpdate(this);
-		}
 		CommitToDB();
 	}
 	
 	public void LoadFromDB(){
 		if (frozen) return;
 		ReloadLocation();
-		ReloadPokemon();
-		ReloadItems();
+		ReloadModelData();
+		//ReloadPokemon();
+		//ReloadItems();
 	}	
+	private void ReloadModelData(){
+		ResultSet PrefabResult = Main.SQL.Query("SELECT * FROM `TRAINER_PREFABS` WHERE `GTID`='" + GTID  + "'");
+		try {
+			while(PrefabResult.next()){
+				 BaseModel = (short) PrefabResult.getInt("PREFAB");
+			}
+		} catch (SQLException e) {
+			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
+			GEH.uncaughtException(Thread.currentThread(), (Throwable) e);
+		}
+	}
 	private void ReloadPokemon(){
 		if (frozen) return;
 		Party.clear();
@@ -356,12 +347,12 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 		ResultSet LocationResult = Main.SQL.Query("SELECT * FROM `PLAYER_LOCATION` WHERE `GTID`='" + GTID  + "'");
 		try {
 			while(LocationResult.next()){
-				 location.X = LocationResult.getInt("X");
-				 location.Y = LocationResult.getInt("Y");
-				 location.Z = LocationResult.getInt("Z");
-				 location.P = LocationResult.getInt("Pitch");
-				 location.Ya = LocationResult.getInt("Yaw");
-				 location.R = LocationResult.getInt("Roll");
+				 location.X = LocationResult.getLong("X");
+				 location.Y = LocationResult.getLong("Y");
+				 location.Z = LocationResult.getLong("Z");
+				 location.P = LocationResult.getShort("Pitch");
+				 location.Ya = LocationResult.getShort("Yaw");
+				 location.R = LocationResult.getShort("Roll");
 			}
 		} catch (SQLException e) {
 			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
@@ -385,9 +376,9 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 	
 	public void signOut(){
 		Logger.log_player(Logger.LOG_VERB_HIGH, "Logging out player...", GTID);
-		 Players.RemovePlayer(this);
+		ServerAssets.RemovePlayer(this);
 		 if(Party != null){
-			 for(PlayablePokemon pp : Party) Players.RemovePokemon(pp.GPID);
+			 for(PlayablePokemon pp : Party) ServerAssets.RemovePokemon(pp.GPID);
 			 Party.clear();
 		 }
 		if(isLoggedIn) {
@@ -409,25 +400,7 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 
 	
 	
-	public  TRAINER toProtobuf(){
-		TRAINER.Builder PDPB =
-				TRAINER.newBuilder()
-				.setGtid(GTID)
-				.setLocation(location.toPayload())
-				.setUsername(Username);
-		for(PlayablePokemon PP : Party){
-			PDPB.addParty(PP.generatePayload());
-		}
-		TRAINER PDP = PDPB.build();
-		return PDP;
-	}
-	public  TRAINER toLocationProtobuf(){
-		TRAINER.Builder PDPB =
-				TRAINER.newBuilder()
-				.setGtid(GTID)
-				.setLocation(location.toPayload());
-		return PDPB.build();
-	}
+
 	
 	@Override
 	public void close() throws Exception {
@@ -456,7 +429,7 @@ public class PlayableTrainer extends Trainer implements AutoCloseable{
 		int Type = 0;
 		
 		/*
-		 *  1 = Username/Password mismatch
+		 *  1 = Name/Password mismatch
 		 *  2 = User Banned
 		 *  3 = Email already in use
 		 */

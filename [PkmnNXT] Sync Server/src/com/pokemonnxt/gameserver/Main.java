@@ -1,6 +1,11 @@
 package com.pokemonnxt.gameserver;
 
+import java.io.Console;
+
 import com.pokemonnxt.node.Nodes;
+import com.pokemonnxt.packets.PacketParser;
+import com.pokemonnxt.packets.Serialiser;
+import com.pokemonnxt.packets.Serialiser.SerialiserNotWorkingException;
 import com.pokemonnxt.types.Area;
 
 
@@ -58,30 +63,56 @@ public class Main {
 		System.console().readLine();
 		System.exit(0);
 	}
+	
 	public static void main(String[] args) {
+		Console c = System.console();
 		GlobalExceptionHandler handler = new GlobalExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(handler);
-		
+		try{
+			// Run self-tests
+			//Serialiser.RunTests();
+			//PacketParser.RunTest();
+			
+			// Load up non-networking interfaces
 		Zones.reloadZones();
 		Functions.initGeoIP();
 		SQL = new SQLConnection();
+			
+			// Start up private network interfaces
 		initiateServerStartup();
 		SQL.ConnectToSQLServer();
 		Cache.updateCache();
-		Server = new MainServer();
-		Server.start();
+		ServerNodes = new Nodes();
+			
+			// Startup public network interfaces
 		Master = new ControlServer();
 		Master.start();
-		ServerNodes = new Nodes();
+		Server = new MainServer();
+		Server.start();
+
+		
 		System.out.println("SERVER STATUS:							[" + ConsoleColors.ANSI_GREEN + "   OK   " + ConsoleColors.ANSI_RESET + "]");
+		} catch(Exception e ){//| SerialiserNotWorkingException e){
+			GlobalExceptionHandler GEH = new GlobalExceptionHandler();
+			GEH.uncaughtException(Thread.currentThread(), (Throwable) e);
+			System.out.println("SERVER STATUS:							[" + ConsoleColors.ANSI_RED + "  FAIL  " + ConsoleColors.ANSI_RESET + "]");
+		}
+		System.out.println("SERVER RUNNING...");
 		while(true){
-			System.out.print("> ");
-			processCommand(System.console().readLine());
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+			if (c != null){
+				System.out.print("> ");
+				processCommand(c.readLine());
+			}
 		}
 		
 	}
-	
+	public static int packetsReceived;
 	public static void processCommand(String command){
+		System.out.print("@ " + command);
 	String args[] = command.split(" ");
 	if (args[0].equalsIgnoreCase("reload")){
 		if (args[1].equalsIgnoreCase("databases")){
@@ -93,10 +124,22 @@ public class Main {
 	if (args[0].equalsIgnoreCase("Exit")){
 		ShutdownServer();
 	}
+	if (args[0].equalsIgnoreCase("Reset")){
+		if (args[0].equalsIgnoreCase("rx_count")){
+			packetsReceived = 0;
+		}
+	}
 	if (args[0].equalsIgnoreCase("Info")){
 		if (args.length < 2){
 			
 		}else{
+				if (args[1].equalsIgnoreCase("printvar")){
+					if (args[2].equalsIgnoreCase("rx_count")){
+						System.out.println("Packets Received: " + packetsReceived);
+					}
+				}
+			
+			
 			if (args[1].equalsIgnoreCase("Clients")){
 				PrintClientsInfo();
 			}
@@ -110,7 +153,8 @@ public class Main {
 
 				}
 			}
-		}
+		
+			}
 		
 	}
 	System.out.println("# Not yet supported");

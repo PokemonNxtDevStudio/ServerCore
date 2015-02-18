@@ -3,14 +3,14 @@ package com.pokemonnxt.types;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.pokemonnxt.packets.ClientComms.AssetDataPayload;
-import com.pokemonnxt.packets.CommTypes.LOCATION;
+import com.pokemonnxt.gameserver.Client;
+import com.pokemonnxt.gameserver.ServerAssets;
 
 public abstract class Asset {
 	public int AID = 0;
 	public int owner = -1; // 0 = owned by server, anything else is THE APPROPRIATE CLIENT ID
 	public VISIBILITY visibility = VISIBILITY.UNDEFINED;
-	public Location location = new Location(-200,-200,-200,0,0,0);
+	public Location location = new Location(-200F,-200F,-200F,(short)0,(short)0,(short)0);
 	
 	
 	public static enum VISIBILITY {
@@ -34,15 +34,13 @@ public abstract class Asset {
                 this.value = value;
         }
 };  
+	public Asset(){
+		AID = ServerAssets.GenerateAssetID();
+		ServerAssets.AddAsset(this);
+	}
 	
-	public AssetDataPayload toAssetPayload(){
-		LOCATION l = location.toPayload();
-				AssetDataPayload ADP = AssetDataPayload.newBuilder().setOwner(owner).setAid(AID).setLocation(l).build();
-				return ADP;
+	public void TransferTo(Client C){
+		ServerAssets.TransferAsset(this, C);
 	}
-	public AssetDataPayload toAssetPayload_LOCATION(){
-		LOCATION l = location.toPayload();
-				AssetDataPayload ADP = AssetDataPayload.newBuilder().setAid(AID).setLocation(l).build();
-				return ADP;
-	}
+
 }

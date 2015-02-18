@@ -1,13 +1,6 @@
 package com.pokemonnxt.types.pokemon;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
-import com.pokemonnxt.gameserver.GlobalExceptionHandler;
-import com.pokemonnxt.gameserver.Logger;
-import com.pokemonnxt.gameserver.Main;
-import com.pokemonnxt.gameserver.Players;
-import com.pokemonnxt.types.pokemon.Pokemon.STATUS;
 
 public class WildPokemon extends Pokemon{
 
@@ -15,7 +8,7 @@ public class WildPokemon extends Pokemon{
 		GPID = ID;
 		loadPokemon();
 	}
-	public WildPokemon (int lDEX, int lLevel){
+	public WildPokemon (short lDEX, int lLevel){
 		DEX = lDEX;
 		Level = lLevel;
 		

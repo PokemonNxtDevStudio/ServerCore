@@ -158,7 +158,7 @@ public void PrintPokemon(Pokemon pp){
 			        			os.println(list);
 			        		}
 	        		}else if (args[2].equalsIgnoreCase("online")){
-	        		for(Entry<Integer, PlayableTrainer> entry : Players.Players.entrySet()) {
+	        		for(Entry<Integer, PlayableTrainer> entry : ServerAssets.Players.entrySet()) {
 		        		list = list + entry.getValue().Username + ((char) 13);
 		        	}
 	        		if(list == ""){
@@ -322,8 +322,8 @@ public void PrintPokemon(Pokemon pp){
 		        os.println("reload databases - Reconnects both game and base databases");
 		        continue;
 	        }else if (args[0].equalsIgnoreCase("user") || args[0].equalsIgnoreCase("player")){
-	        	 int GTID = Players.getGTID(args[1]);
-	        	 PlayableTrainer p = Players.getPlayer(args[1]);
+	        	 int GTID = ServerAssets.getGTID(args[1]);
+	        	 PlayableTrainer p = ServerAssets.getPlayer(args[1]);
         		 if(p == null){
         			 try {
 						p = new PlayableTrainer(GTID);
@@ -512,8 +512,8 @@ public void PrintPokemon(Pokemon pp){
 	        	long clientTime = System.nanoTime();
 	        	os.print("Registered Users: " + existingUsers + ((char) 13));
 	        	os.print("Connected Clients: " + connectedCount + ((char) 13));
-	        	os.print("Players Logged in: " + Players.Players.size() + ((char) 13));
-	        	os.print("Pokemon Loaded: " + Players.Pokemon.size() + ((char) 13));
+	        	os.print("Players Logged in: " + ServerAssets.Players.size() + ((char) 13));
+	        	os.print("Pokemon Loaded: " + ServerAssets.Pokemon.size() + ((char) 13));
 	        	os.print("DBQuery Time (ns): " + (dbtime - txTime) + ((char) 13));
 	        	os.print("Transmission Time (ns): " + (txTime - starttime) + ((char) 13));
 	        	os.print("Client List Time (ns): " + (clientTime - dbtime) + ((char) 13));

@@ -2,16 +2,16 @@ package com.pokemonnxt.types;
 
 import com.google.gson.annotations.Expose;
 import com.pokemonnxt.gameserver.Zones;
-import com.pokemonnxt.packets.CommTypes.LOCATION;
+import com.pokemonnxt.packets.Packet;
 
 public class Location {
-	@Expose public double X = -1;
-	@Expose public double Y = -1;
-	@Expose public double Z = -1;
+	@Expose public float X = -1;
+	@Expose public float Y = -1;
+	@Expose public float Z = -1;
 	
-	@Expose public double P = 0; //Pitch
-	@Expose public double Ya = 0; //Yaw
-	@Expose public double R = 0; //Roll
+	@Expose public short P = 0; //Pitch
+	@Expose public short Ya = 0; //Yaw
+	@Expose public short R = 0; //Roll
 	
 	public Zone zone;
 	
@@ -25,7 +25,7 @@ public Location(){
 	
 }
 
-public Location(double Xl, double Yl, double Zl, double Pl, double Yal, double Rl){
+public Location(float Xl, float Yl, float Zl, short Pl, short Yal, short Rl){
 	X = Xl;
 	Y = Yl;
 	Z = Zl;
@@ -34,40 +34,34 @@ public Location(double Xl, double Yl, double Zl, double Pl, double Yal, double R
 	R = Rl;
 	
 }
-public void Move(double Xl, double Yl, double Zl, double Pl, double Yal, double Rl){
+public void Move(float Xl, float Yl, float Zl, short Pl, short Yal, short Rl){
 	X = Xl;
 	Y = Yl;
 	Z = Zl;
 	P = Pl;
 	Ya = Yal;
 	R = Rl;
+	if(false){
 	if(!zone.inZone(this)){
 		zone = Zones.getZone(this);
+	}
 	}
 }
 public void Move(Location NL){
 	Move(NL.X,NL.Y,NL.Z,NL.P,NL.Ya,NL.R);
 }
-public Location(LOCATION LO){
-	X = LO.getX();
-	Y = LO.getY();
-	Z = LO.getZ();
-	P = LO.getPitch();
-	Ya = LO.getYaw();
-	R = LO.getRoll();
+public Location(Packet.IntrinsicType.Location LO){
+	X = LO.X;
+	Y = LO.Y;
+	Z = LO.Z;
+	P = LO.Pitch;
+	Ya = LO.Yaw;
+	R = LO.Roll;
 	
 }
-public LOCATION toPayload(){
-	LOCATION payload =
-			LOCATION.newBuilder()
-			.setX(X)
-			.setY(Y)
-			.setZ(Z)
-			.setPitch(P)
-			.setYaw(Ya)
-			.setRoll(R)
-			.build();
-	return payload;
+public Packet.IntrinsicType.Location toCommType(){
+	Packet.IntrinsicType.Location PL = new Packet.IntrinsicType.Location(this);
+	return PL;
 }
 public boolean isNear(Location LC2, int proximity){
 	double xdist = Math.abs(LC2.X-X);
