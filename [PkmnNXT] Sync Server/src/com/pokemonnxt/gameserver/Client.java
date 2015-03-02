@@ -275,7 +275,7 @@ public class Client extends Thread implements AutoCloseable {
 						SendPacket(LR);
 						player.TransferTo(this);
 						Logger.log_client(Logger.LOG_VERB_LOW, IP, "User Logged in: " + player.GTID);
-						SendFullUpdate();
+						
 					} catch (LoginFailed e) {
 						Packet.LoginResponse LR = new Packet.LoginResponse(LOGIN_RESPONSES.INVALID_PASSWORD, e.message, null);
 						SendPacket(LR);
@@ -336,7 +336,8 @@ public class Client extends Thread implements AutoCloseable {
 			  			}
 			  			break;
 			  		case SCENE:
-			  			SendError(FAILURE.NOT_IMPLEMENTED,"Scene data request not yet implemented");
+			  			SendFullUpdate();
+			  			//SendError(FAILURE.NOT_IMPLEMENTED,"Scene data request not yet implemented");
 			  			break;
 			  		default:
 			  			SendError(FAILURE.NOT_IMPLEMENTED,"Not sure what data you're requesting!");

@@ -14,7 +14,7 @@ public abstract class Asset {
 	
 	
 	public static enum VISIBILITY {
-		UNDEFINED(-1), SERVER_ONLY(0), CLIENT_ONLY(1), CLIENT_FRIENDS(2), LOCAL_AREA(3), SERVER(4), ALL(5);
+		UNDEFINED(-1), SERVER_ONLY(0), NONPHYSICAL(1), CLIENT_ONLY(2), CLIENT_FRIENDS(3), LOCAL_AREA(4), SERVER(5), ALL(6);
         private  int value;
         
         private static Map<Integer, VISIBILITY> map = new HashMap<Integer, VISIBILITY>();

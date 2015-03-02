@@ -37,7 +37,6 @@ public class PlayableTrainer extends  Trainer implements AutoCloseable{
 	public boolean isNew = false;
 	public Client Connection;
 	public boolean frozen = false;
-	public String Name;
 	
 	@Expose public List<PlayablePokemon> Party = new ArrayList<PlayablePokemon>();
 	@Expose public List<Integer> Items = new ArrayList<Integer>();
