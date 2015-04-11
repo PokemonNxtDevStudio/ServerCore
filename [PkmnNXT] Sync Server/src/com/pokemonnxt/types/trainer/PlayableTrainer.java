@@ -30,7 +30,7 @@ import com.pokemonnxt.gameserver.ServerAssets;
 import com.pokemonnxt.gameserver.ServerVars;
 import com.pokemonnxt.gameserver.PlayerLog.LOGTYPE;
 import com.pokemonnxt.node.OuterNode;
-
+//GIT UPDATE
 public class PlayableTrainer extends  Trainer implements AutoCloseable{
 
 	public boolean isLoggedIn = false;

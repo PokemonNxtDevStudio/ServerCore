@@ -1,7 +1,7 @@
 package com.pokemonnxt.types;
 
 import com.pokemonnxt.types.pokemon.Pokemon;
-
+//GIT UPDATE
 public class Move {
 public int MID;
 public String Name;

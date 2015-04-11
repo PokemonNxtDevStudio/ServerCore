@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.pokemonnxt.gameserver.Client;
 import com.pokemonnxt.gameserver.ServerAssets;
-
+//GIT UPDATE
 public abstract class Asset {
 	public int AID = 0;
 	public int owner = -1; // 0 = owned by server, anything else is THE APPROPRIATE CLIENT ID

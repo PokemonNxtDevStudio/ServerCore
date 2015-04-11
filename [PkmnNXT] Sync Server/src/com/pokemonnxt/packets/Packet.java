@@ -12,7 +12,7 @@ import com.pokemonnxt.types.Location;
 import com.pokemonnxt.types.pokemon.Pokemon;
 import com.pokemonnxt.types.trainer.Trainer;
 
-
+//GIT UPDATE
 public interface Packet {
 	public static enum PACKET_TYPE {
 		ERROR(-1), UNKNOWN(0), LOGIN(1), LOGIN_RESPONSE(2), TRAINER_DATA(3), CHAT(4), LOCATION(5), OWNERSHIP_UPDATE(6), DATA_REQUEST(7), REQUEST_FAILED(8), POKEMON_DATA(9), ASSET_DATA(10) ;

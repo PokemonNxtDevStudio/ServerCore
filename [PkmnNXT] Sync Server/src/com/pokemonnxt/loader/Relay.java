@@ -86,7 +86,7 @@ public class Relay{
 		Outgoing.start();
 		Incoming.start();
 	}
-	
+	//GIT UPDATE
 	public boolean isRunning(){
 		if (!Incoming.isAlive() || Incoming.shutdown || !Outgoing.isAlive() || Outgoing.shutdown){
 			Outgoing.shutdown = true;

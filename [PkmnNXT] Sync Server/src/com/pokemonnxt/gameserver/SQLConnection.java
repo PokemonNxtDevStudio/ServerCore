@@ -67,7 +67,7 @@ public class SQLConnection {
 			GEH.uncaughtException(Thread.currentThread(), (Throwable) e,"Error whilst attempting to run the following query: " + query);
 			RS = -1;
 		}
-		
+		//GIT UPDATE
 return RS;
 	}
 	public ResultSet Query(String query){

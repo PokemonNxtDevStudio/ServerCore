@@ -3,7 +3,7 @@ package com.pokemonnxt.types;
 import com.google.gson.annotations.Expose;
 import com.pokemonnxt.gameserver.Zones;
 import com.pokemonnxt.packets.Packet;
-
+//GIT UPDATE
 public class Location {
 	@Expose public float X = -1;
 	@Expose public float Y = -1;

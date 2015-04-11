@@ -1,7 +1,7 @@
 package com.pokemonnxt.types;
 
 import com.pokemonnxt.gameserver.Logger;
-
+//GIT UPDATE
 public class Area {
 	public Location BoundA;
 	public Location BoundB;

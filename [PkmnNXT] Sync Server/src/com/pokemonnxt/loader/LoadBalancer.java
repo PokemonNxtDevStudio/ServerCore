@@ -6,7 +6,7 @@ import java.util.HashMap;
 import com.pokemonnxt.gameserver.Client;
 import com.pokemonnxt.gameserver.ServerVars;
 
-
+//GIT UPDATE
 public class LoadBalancer {
 	
 	public static HashMap<Byte,Node> Nodes = new HashMap<Byte,Node>();

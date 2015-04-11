@@ -1,7 +1,7 @@
 package com.pokemonnxt.gameserver;
 
 public class Random {
-
+	//GIT UPDATE
 	/*
 	 * Secure (relating to IDs) random numbers should be generated
 	 * in accordance with RFC 4086 

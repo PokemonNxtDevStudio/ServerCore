@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.google.gson.annotations.Expose;
 import com.pokemonnxt.types.AttackMatrixObject;
-
+//GIT UPDATE
 public class BasePokemon {
 	
 

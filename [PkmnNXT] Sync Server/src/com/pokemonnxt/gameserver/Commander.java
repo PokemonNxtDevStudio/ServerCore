@@ -35,7 +35,7 @@ public class Commander extends Thread{
       /*
        * PrintLevel EXPLAINED
        * -1 OFF
-       */
+       *///GIT UPDATE
 	  private String IP = null;
 	  private BufferedReader  is = null;
 	  private PrintStream os = null;

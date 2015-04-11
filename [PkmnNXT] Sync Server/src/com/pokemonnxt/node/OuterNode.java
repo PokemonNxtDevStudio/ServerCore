@@ -3,7 +3,7 @@ package com.pokemonnxt.node;
 
 import java.util.ArrayList;
 import java.util.List;
-
+//GIT UPDATE
 public class OuterNode {
 
 	NodeCommunicator Connection;

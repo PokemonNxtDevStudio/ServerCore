@@ -26,7 +26,7 @@ import com.pokemonnxt.gameserver.Random;
 import com.pokemonnxt.gameserver.ServerAssets;
 import com.pokemonnxt.types.Asset;
 import com.pokemonnxt.types.Attack;
-
+//GIT UPDATE
 
 public abstract class Pokemon extends Asset{
 	

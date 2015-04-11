@@ -1,6 +1,6 @@
 package com.pokemonnxt.types.pokemon;
 
-
+//GIT UPDATE
 
 public class WildPokemon extends Pokemon{
 

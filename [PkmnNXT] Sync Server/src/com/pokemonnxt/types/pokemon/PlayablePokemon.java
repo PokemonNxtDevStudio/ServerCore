@@ -15,7 +15,7 @@ import com.pokemonnxt.gameserver.ServerAssets;
 import com.pokemonnxt.types.Location;
 import com.pokemonnxt.types.pokemon.Pokemon;
 import com.pokemonnxt.types.trainer.PlayableTrainer;
-
+//GIT UPDATE
 public class PlayablePokemon extends Pokemon  implements AutoCloseable{
 
 	public PlayableTrainer owner;

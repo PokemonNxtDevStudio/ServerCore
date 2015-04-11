@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import com.pokemonnxt.gameserver.GlobalExceptionHandler;
-
+//GIT UPDATE
 public class NodeCommunicator extends Thread implements AutoCloseable{
 
 	private OuterNode Master;

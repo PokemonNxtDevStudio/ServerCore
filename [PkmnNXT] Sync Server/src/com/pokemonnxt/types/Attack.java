@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import com.google.gson.annotations.Expose;
 import com.pokemonnxt.gameserver.GlobalExceptionHandler;
 import com.pokemonnxt.gameserver.Main;
-
+//GIT UPDATE
 public class Attack {
 
 @Expose public int GAID;

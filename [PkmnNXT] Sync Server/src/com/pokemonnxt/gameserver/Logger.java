@@ -64,7 +64,7 @@ public class Logger {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+    	//GIT UPDATE
     	StackTraceElement[] StackTrace =  e.getStackTrace();
     	distributeMessage(" -------------------------------------------------------------------------------------- ",LOG_ERROR);
 		distributeMessage( sdf.format(cal.getTime()) + " - [" + ConsoleColors.ANSI_RED + " ERROR " + ConsoleColors.ANSI_RESET + "]  AN ERROR OCCURED" ,LOG_ERROR);

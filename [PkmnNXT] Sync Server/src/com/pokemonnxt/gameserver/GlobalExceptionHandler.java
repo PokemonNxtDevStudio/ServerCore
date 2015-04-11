@@ -1,6 +1,6 @@
 package com.pokemonnxt.gameserver;
 
-
+//GIT UPDATE
 public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler{
 	 
 	public GlobalExceptionHandler(){

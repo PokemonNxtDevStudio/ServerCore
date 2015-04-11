@@ -17,7 +17,7 @@ import java.util.Formatter;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.model.CityResponse;
-
+//GIT UPDATE
 public class Functions {
 	static DatabaseReader reader;
 	

@@ -170,7 +170,7 @@ public class Client extends Thread implements AutoCloseable {
 			return false;
 	  }
 	  
-	  
+	//GIT UPDATE
 	  private byte rx_transportBytes[] = new byte[4];
 	  private byte rx_sessionBytes[] = new byte[1];
 	  private byte rx_presentationBytes[] = new byte[1];

@@ -165,7 +165,7 @@ public static void updatePermissionsCache(){
 	
 }
 
-
+//GIT UPDATE
 public static void updateCache(){
 	Logger.log_server(Logger.LOG_PROGRESS, "Updating Cache");
 	try {

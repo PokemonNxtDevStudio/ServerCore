@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import com.google.gson.annotations.Expose;
 import com.pokemonnxt.types.trainer.Trainer;
-
+//sdf
 public class Battle {
 
 	@Expose public ArrayList<Trainer> TeamA = new ArrayList<Trainer>();

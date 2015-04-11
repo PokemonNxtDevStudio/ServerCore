@@ -10,7 +10,7 @@ import java.net.Socket;
 import com.pokemonnxt.gameserver.GlobalExceptionHandler;
 import com.pokemonnxt.gameserver.Logger;
 import com.pokemonnxt.gameserver.ServerVars;
-
+//GIT UPDATE
 public class NodeServer extends Thread{
 
 	public NodeServer() {

@@ -218,6 +218,6 @@ public class BattleLogic {
 		}
 	
 	}
-	
+	//GIT UPDATE
 	
 }

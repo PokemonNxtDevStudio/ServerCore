@@ -6,7 +6,7 @@ import com.pokemonnxt.gameserver.Logger;
 import com.pokemonnxt.packets.Packet.Login;
 
 public class PacketParser {
-
+	//GIT UPDATE
 	public PacketParser() {
 		// TODO Auto-generated constructor stub
 	}

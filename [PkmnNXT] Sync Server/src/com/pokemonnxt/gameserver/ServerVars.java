@@ -3,7 +3,7 @@ package com.pokemonnxt.gameserver;
 import com.pokemonnxt.types.Location;
 
 public class ServerVars {
-
+	//GIT UPDATE
 
 // isLoadBalancer
 // Is this server acting as a load balancer for the other nodes?

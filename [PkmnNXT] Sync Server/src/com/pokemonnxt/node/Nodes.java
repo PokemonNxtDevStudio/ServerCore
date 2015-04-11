@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.pokemonnxt.types.trainer.PlayableTrainer;
-
+//GIT UPDATE
 public class Nodes {
 	public List<OuterNode> Nodes = new ArrayList<OuterNode>();
 	NodeServer nodeServer = new NodeServer();

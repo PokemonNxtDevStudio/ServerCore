@@ -3,7 +3,7 @@ package com.pokemonnxt.gameserver;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+//GIT UPDATE
 
 public class PlayerLog {
 	public enum LOGTYPE {
