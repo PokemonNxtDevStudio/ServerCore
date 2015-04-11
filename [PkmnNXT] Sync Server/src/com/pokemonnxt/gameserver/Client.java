@@ -114,6 +114,7 @@ public class Client extends Thread implements AutoCloseable {
 	    IP = IP.substring(1,IP.indexOf(":"));
 	  }
 	  
+	  
 	  public boolean isConnected(){
 		  return clientSocket.isConnected();
 	  }
@@ -404,25 +405,18 @@ public class Client extends Thread implements AutoCloseable {
 			GEH.uncaughtException(Thread.currentThread(), (Throwable) e1, "Error setting socket keep-alive");
 		}
 	    try {
-	      /*
-	       * Create input and output streams for this client.
-	       */
-	      //is = new DataInputStream(new InputStreamReader(clientSocket.getInputStream()));
+	    	
 	      is = new DataInputStream(clientSocket.getInputStream());
 	      os = new DataOutputStream(clientSocket.getOutputStream());
 	      
-	      for(IPPermission IPcheck : Cache.IPPermissions){
-	    	  if(IPcheck != null){
-				if(IPcheck.Permission != 1 && IP.startsWith(IPcheck.Mask)){
-					if (IPcheck.Permission == 0){
-						 //TODO Add code to let the connection know it was rejected
-						shutdown = true;
-						 PlayerLog.LogAction(PlayerLog.LOGTYPE.CONNECTION_REJECTED, 0, IP, "REJECTED ON MASK " + IPcheck.Mask + " MESSAGE " + IPcheck.Message);
-						 Logger.log_client(Logger.LOG_VERB_HIGH, IP, "Player connection rejected on mask: " + IPcheck.Mask);
-					}
-				}
-	    	  }
-			}
+	      if(ServerVars.BalancedPackets){
+		    	byte IP1 = is.readByte();
+		    	byte IP2 = is.readByte();
+		    	byte IP3 = is.readByte();
+		    	byte IP4 = is.readByte();
+	      IP = IP1 + "." + IP2 + "." + IP3 + "." + IP4;
+	      
+		  }
 	      
 	      while(!shutdown){
 	    	  Packet p = ReceivePacket();

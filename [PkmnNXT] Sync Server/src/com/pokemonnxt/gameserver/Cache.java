@@ -25,7 +25,6 @@ public static String moveListJSON;
 public static String pokemonListJSON;
 public static BasePokemon[] Pokedex = new BasePokemon[512]; 
 public static Move[] Movedex = new Move[1024]; 
-public static IPPermission[] IPPermissions = new IPPermission[1024]; 
 
 
 public static void updateMoveList(){
@@ -163,25 +162,7 @@ public static void updatePermissionsCache(){
 	
 	String[] Lines = everything.split(System.lineSeparator());
 	int i = 0;
-	while(i < IPPermissions.length){
-		IPPermission IP = null;
-		IPPermissions[i] = IP;
-		i +=1;
-	}
-	 i = 0;
-	for(String line : Lines){
-		String[] cells = line.split(",");
-		Logger.log_server(Logger.LOG_VERB_LOW,"Checking IP Perms for " +  cells[0]);
-		IPPermission IP = new IPPermission();
-		IP.Mask = cells[0];
-		IP.Permission = Integer.parseInt(cells[1]);
-		IP.Name = cells[2];
-		IP.Authority = cells[3];
-		IP.Message = cells[4];
-		
-		IPPermissions[i] = IP;
-		i +=1;
-	}
+	
 }
 
 

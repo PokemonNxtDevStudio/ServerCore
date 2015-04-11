@@ -1,4 +1,4 @@
-package com.pokemonnxt.gameserver;
+package com.pokemonnxt.loader;
 
 import java.io.PrintStream;
 import java.io.IOException;
@@ -7,14 +7,17 @@ import java.net.ServerSocket;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.pokemonnxt.gameserver.GlobalExceptionHandler;
+import com.pokemonnxt.gameserver.Logger;
+import com.pokemonnxt.gameserver.ServerVars;
 
-public class MainServer extends Thread{
+public class Server extends Thread{
 	public static Gson gson = new GsonBuilder().create();
 	
 	
 	
 	
-	public MainServer(){
+	public Server(){
 		
 	}
 	public void Shutdown(){
@@ -33,10 +36,6 @@ public class MainServer extends Thread{
 	  private static ServerSocket serverSocket = null;
 	  // The client socket.
 	  private static Socket clientSocket = null;
-
-	  static ThreadMonitor ThreadModerator = new ThreadMonitor();
-	  
-	   final static Client[] Clients = new Client[ServerVars.MaxGameConnections];
 	   
 	   
 	  public void run() {
@@ -46,7 +45,7 @@ public class MainServer extends Thread{
 		 
 		
 	    // The default port number.
-	    int portNumber = ServerVars.gameServerSocket;
+	    int portNumber = ServerVars.loadBalancerSocket;
 
 	    try {
 	    	
@@ -55,7 +54,6 @@ public class MainServer extends Thread{
 	      System.out.println(e);
 	    }
 	    // Startup Thread Monitor
-	    ThreadModerator.start();
 	    
 
 	    /*
@@ -67,16 +65,16 @@ public class MainServer extends Thread{
 	    	  if (shutdown) break;
 	        clientSocket = serverSocket.accept();
 	        if (shutdown) break;
-	        Logger.log_server(Logger.LOG_VERB_HIGH, "Connected to " + clientSocket.getRemoteSocketAddress().toString());
+	        Logger.log_server(Logger.LOG_VERB_HIGH, "[LOAD BALANCER] Connected to " + clientSocket.getRemoteSocketAddress().toString());
 	        int i = 0;
-	        for (i = 0; i < ServerVars.MaxGameConnections; i++) {
-	          if (Clients[i] == null) {
-	            (Clients[i] = new Client(clientSocket, Clients)).start();
+	        for (i = 0; i < ServerVars.MaxRelayConnections; i++) {
+	          if (LoadBalancer.Relays[i] == null) {
+	            (LoadBalancer.Relays[i] = new Relay(clientSocket)).Initiate();
 	            break;
 	          }
 	        }
 	        if (shutdown) break;
-	        if (i == ServerVars.MaxGameConnections) {
+	        if (i == ServerVars.MaxRelayConnections) {
 	        	 PrintStream os = new PrintStream(clientSocket.getOutputStream());
 	          os.println("[BUSY]");
 	          os.close();
